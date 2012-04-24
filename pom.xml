@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>biz.c24.io.spring</groupId>
 	<artifactId>c24-spring</artifactId>
 	<version>2.0.1.BUILD-SNAPSHOT</version>
-	
+
 	<packaging>pom</packaging>
-	
+
 	<name>C24 Spring Support</name>
 	<description>Library for C24 Spring integration</description>
 	<url>http://www.c24.biz</url>
@@ -17,20 +17,20 @@
 		<module>c24-spring-integration</module>
 		<module>c24-spring-integration-samples</module>
 	</modules>
-	
+
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
 			<comments>
 				Copyright 2011 the original author or authors.
-				 
+
 				Licensed under the Apache License, Version 2.0 (the "License");
 				you may not use this file except in compliance with the License.
 				You may obtain a copy of the License at
-				
+
 				     http://www.apache.org/licenses/LICENSE-2.0
-				
+
 				Unless required by applicable law or agreed to in writing, software
 				distributed under the License is distributed on an "AS IS" BASIS,
 				WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
@@ -64,14 +64,14 @@
 
 	<properties>
 		<spring.version>3.0.7.RELEASE</spring.version>
-		<spring.integration.version>2.1.0.RELEASE</spring.integration.version>
+		<spring.integration.version>2.1.1.RELEASE</spring.integration.version>
 		<c24.version>4.0.0</c24.version>
 		<xerces.version>2.9.1</xerces.version>
 		<junit.version>4.8.2</junit.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>MMM dd, yyyy HH:mm</maven.build.timestamp.format>
 	</properties>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -164,7 +164,7 @@
             </plugin>
 		</plugins>
 	</build>
-	
+
 	<distributionManagement>
        <repository>
            <id>c24</id>
@@ -190,7 +190,7 @@
 			<name>Gemfire</name>
 			<url>http://dist.gemstone.com/maven/release</url>
 		</repository>
-		
+
 	</repositories>
 
 	<pluginRepositories>
@@ -206,18 +206,18 @@
 			<url>http://repository.springsource.com/maven/bundles/release</url>
 		</pluginRepository>
 	</pluginRepositories>
-	
+
 	<scm>
 		<url>https://github.com/C24-Technologies/c24-spring</url>
 		<connection>scm:git:git://github.com/C24-Technologies/c24-spring.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com:C24-Technologies/c24-spring.git</developerConnection>
 	</scm>
-	
+
 	<issueManagement>
 		<system>JIRA</system>
 		<url>http://support.c24.biz</url>
 	</issueManagement>
-	
+
 	<profiles>
 		<profile>
 			<id>distribute</id>
@@ -351,5 +351,5 @@
 			</build>
 		</profile>
 	</profiles>
-	
+
 </project>
