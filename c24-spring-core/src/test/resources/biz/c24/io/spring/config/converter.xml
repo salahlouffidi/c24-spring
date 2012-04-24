@@ -2,15 +2,17 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:c24="http://schema.c24.biz/spring-core"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://schema.c24.biz/spring-core http://schema.c24.biz/spring-core-1.0.xsd">
-	
-	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://schema.c24.biz/spring-core
+	http://schema.c24.biz/spring-core-1.0.xsd">
+
+
 	<c24:http-message-converter id="xml">
 		<c24:format type="TEXT" />
 		<c24:format type="XML" content-type="application/vnd.foo+xml" />
 	</c24:http-message-converter>
-	
+
 	<c24:model base-package="nonamespace" />
 
 </beans>

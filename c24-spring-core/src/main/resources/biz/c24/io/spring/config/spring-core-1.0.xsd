@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns="http://schema.c24.biz/spring-core" 
+<xsd:schema xmlns="http://schema.c24.biz/spring-core"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:tool="http://www.springframework.org/schema/tool"
 	targetNamespace="http://schema.c24.biz/spring-core"
@@ -38,7 +38,7 @@
 			<xsd:attributeGroup ref="id-and-model-ref" />
 		</xsd:complexType>
 	</xsd:element>
-	
+
 	<xsd:attributeGroup name="id-and-model-ref">
 		<xsd:attribute name="id" type="xsd:string" />
 		<xsd:attribute name="model-ref" type="xsd:string">
@@ -51,7 +51,7 @@
 			</xsd:annotation>
 		</xsd:attribute>
 	</xsd:attributeGroup>
-	
+
 	<xsd:element name="model">
 		<xsd:annotation>
 			<xsd:appinfo>
@@ -64,14 +64,14 @@
 			<xsd:attribute name="base-element" type="classType" />
 		</xsd:complexType>
 	</xsd:element>
-	
+
 	<xsd:simpleType name="dataFormat">
 		<xsd:restriction base="xsd:string">
 			<xsd:enumeration value="XML" />
 			<xsd:enumeration value="TEXT" />
 		</xsd:restriction>
 	</xsd:simpleType>
-	
+
 	<xsd:simpleType name="classType">
 		<xsd:annotation>
 			<xsd:appinfo>
@@ -82,7 +82,7 @@
 		</xsd:annotation>
 		<xsd:union memberTypes="xsd:string"/>
 	</xsd:simpleType>
-	
+
 	<xsd:simpleType name="packageType">
 		<xsd:annotation>
 			<xsd:appinfo>

@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://schema.c24.biz/spring-integration"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:tool="http://www.springframework.org/schema/tool"
 	xmlns:integration="http://www.springframework.org/schema/integration"
-	xmlns:core="http://schema.c24.biz/spring-core" targetNamespace="http://schema.c24.biz/spring-integration"
-	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	xmlns:core="http://schema.c24.biz/spring-core"
+    targetNamespace="http://schema.c24.biz/spring-integration"
+	elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
 
 	<xsd:import namespace="http://www.springframework.org/schema/beans" />
 	<xsd:import namespace="http://www.springframework.org/schema/tool" />
@@ -205,7 +208,7 @@
 				</xsd:documentation>
 			</xsd:annotation>
 			<xsd:sequence>
-				<!-- TODO <xsd:element ref="xpath-statement" minOccurs="0" maxOccurs="1" 
+				<!-- TODO <xsd:element ref="xpath-statement" minOccurs="0" maxOccurs="1"
 					/> -->
 				<xsd:element ref="integration:poller" minOccurs="0"
 					maxOccurs="1" />
@@ -358,13 +361,13 @@
 
 	<!-- TODO <xsd:element name="validating-filter"> -->
 
-	<!-- TODO <xsd:element name="xpath-statement"> <xsd:complexType> <xsd:annotation> 
-		<xsd:documentation> Defines an XPath expression. </xsd:documentation> </xsd:annotation> 
-		<xsd:sequence> <xsd:element ref="beans:map" minOccurs="0" maxOccurs="1"/> 
-		</xsd:sequence> <xsd:attribute name="id" type="xsd:ID" use="optional"/> <xsd:attribute 
-		name="expression" type="xsd:string" use="optional"/> <xsd:attribute name="ns-prefix" 
-		type="xsd:string" use="optional"/> <xsd:attribute name="ns-uri" type="xsd:string" 
-		use="optional"/> <xsd:attribute name="namespace-map" type="xsd:string" use="optional"/> 
+	<!-- TODO <xsd:element name="xpath-statement"> <xsd:complexType> <xsd:annotation>
+		<xsd:documentation> Defines an XPath expression. </xsd:documentation> </xsd:annotation>
+		<xsd:sequence> <xsd:element ref="beans:map" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence> <xsd:attribute name="id" type="xsd:ID" use="optional"/> <xsd:attribute
+		name="expression" type="xsd:string" use="optional"/> <xsd:attribute name="ns-prefix"
+		type="xsd:string" use="optional"/> <xsd:attribute name="ns-uri" type="xsd:string"
+		use="optional"/> <xsd:attribute name="namespace-map" type="xsd:string" use="optional"/>
 		</xsd:complexType> </xsd:element> -->
 
 	<xsd:element name="xpath-header-enricher">

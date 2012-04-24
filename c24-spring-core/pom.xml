@@ -1,8 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>c24-spring-core</artifactId>
-	<name>C24 Core Spring Support</name>
+	<name>C24 Core</name>
 	<description>C24 Core Spring Support</description>
 
 	<parent>
@@ -50,8 +53,10 @@
 						<configuration>
 							<target>
 								<taskdef name="deploy" classname="biz.c24.io.ant.DeployTask" />
-								<deploy file="src/test/resources/SampleModel.dod" todir="target/generated-test-classes/model"
-									deployenvironment="false" generatemainmethods="false" />
+								<deploy file="src/test/resources/SampleModel.dod"
+                                        todir="target/generated-test-classes/model"
+                                        deployenvironment="false"
+                                        generatemainmethods="false" />
 							</target>
 						</configuration>
 					</execution>
