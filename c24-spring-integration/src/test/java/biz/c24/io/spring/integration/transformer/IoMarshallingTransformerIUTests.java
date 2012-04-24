@@ -17,7 +17,7 @@ package biz.c24.io.spring.integration.transformer;
 
 import biz.c24.io.examples.models.basic.InputDocumentRootElement;
 import biz.c24.io.spring.core.C24Model;
-import biz.c24.io.spring.sink.JSonSinkFactory;
+import biz.c24.io.spring.sink.JsonSinkFactory;
 import biz.c24.io.spring.sink.OutputType;
 import biz.c24.io.spring.sink.TextualSinkFactory;
 import biz.c24.io.spring.sink.XmlSinkFactory;
@@ -109,7 +109,7 @@ public class IoMarshallingTransformerIUTests {
 
 		C24MarshallingTransformer ioMarshallingTransformer = new C24MarshallingTransformer();
 		ioMarshallingTransformer.setOutputType(OutputType.STRING);
-		ioMarshallingTransformer.setSinkFactory(new JSonSinkFactory());
+		ioMarshallingTransformer.setSinkFactory(new JsonSinkFactory());
 
 		Message message = MessageBuilder.withPayload(loadObject()).build();
 		Message<?> outputMessage = ioMarshallingTransformer.transform(message);
