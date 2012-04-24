@@ -15,19 +15,20 @@
  */
 package biz.c24.io.spring.integration.transformer;
 
-import static biz.c24.io.spring.integration.test.TestUtils.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
+import biz.c24.io.examples.models.basic.InputDocumentRootElement;
+import biz.c24.io.spring.core.C24Model;
+import biz.c24.io.spring.sink.JsonSinkFactory;
+import biz.c24.io.spring.sink.OutputType;
+import biz.c24.io.spring.sink.TextualSinkFactory;
+import biz.c24.io.spring.sink.XmlSinkFactory;
 import org.junit.Test;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
-import biz.c24.io.examples.models.basic.InputDocumentRootElement;
-import biz.c24.io.spring.core.C24Model;
-import biz.c24.io.spring.sink.OutputType;
-import biz.c24.io.spring.sink.TextualSinkFactory;
-import biz.c24.io.spring.sink.XmlSinkFactory;
+import static biz.c24.io.spring.integration.test.TestUtils.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class IoMarshallingTransformerIUTests {
 
@@ -103,5 +104,17 @@ public class IoMarshallingTransformerIUTests {
 
 	}
 
+    @Test
+	public void canMarshalTextToJsonString() throws Exception {
+
+		C24MarshallingTransformer ioMarshallingTransformer = new C24MarshallingTransformer();
+		ioMarshallingTransformer.setOutputType(OutputType.STRING);
+		ioMarshallingTransformer.setSinkFactory(new JsonSinkFactory());
+
+		Message message = MessageBuilder.withPayload(loadObject()).build();
+		Message<?> outputMessage = ioMarshallingTransformer.transform(message);
+
+		assertThat((String) outputMessage.getPayload(), is(loadJsonString()));
+	}
 
 }

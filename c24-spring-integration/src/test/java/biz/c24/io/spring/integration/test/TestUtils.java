@@ -24,49 +24,61 @@ import biz.c24.io.examples.models.basic.InputDocumentRootElement;
 
 /**
  * @author askogman
- * 
  */
 public class TestUtils {
 
-	public static ComplexDataObject loadObject() throws Exception {
+    public static ComplexDataObject loadObject() throws Exception {
 
-		ClassPathResource resource = new ClassPathResource("valid-1.txt");
+        ClassPathResource resource = new ClassPathResource("valid-1.txt");
 
-		TextualSource textualSource = new TextualSource(
-				resource.getInputStream());
+        TextualSource textualSource = new TextualSource(
+                resource.getInputStream());
 
-		ComplexDataObject object = textualSource
-				.readObject(InputDocumentRootElement.getInstance());
+        ComplexDataObject object = textualSource
+                .readObject(InputDocumentRootElement.getInstance());
 
-		return object;
-	}
+        return object;
+    }
 
-	public static byte[] loadXmlBytes() throws Exception {
+    public static byte[] loadXmlBytes() throws Exception {
 
-		ClassPathResource resource = new ClassPathResource("valid-XML-1.xml");
-		byte[] valid1 = FileCopyUtils
-				.copyToByteArray(resource.getInputStream());
+        ClassPathResource resource = new ClassPathResource("valid-XML-1.xml");
+        byte[] valid1 = FileCopyUtils
+                .copyToByteArray(resource.getInputStream());
 
-		return valid1;
-	}
+        return valid1;
+    }
 
-	public static String loadXmlString() throws Exception {
+    public static String loadXmlString() throws Exception {
 
-		return new String(loadXmlBytes(), "UTF-8");
-	}
+        return new String(loadXmlBytes(), "UTF-8");
+    }
 
-	public static byte[] loadCsvBytes() throws Exception {
+    public static byte[] loadCsvBytes() throws Exception {
 
-		ClassPathResource resource = new ClassPathResource("valid-1.txt");
-		byte[] valid1 = FileCopyUtils
-				.copyToByteArray(resource.getInputStream());
+        ClassPathResource resource = new ClassPathResource("valid-1.txt");
+        byte[] valid1 = FileCopyUtils
+                .copyToByteArray(resource.getInputStream());
 
-		return valid1;
-	}
+        return valid1;
+    }
 
-	public static String loadCsvString() throws Exception {
+    public static String loadCsvString() throws Exception {
 
-		return new String(loadCsvBytes(), "UTF-8");
-	}
+        return new String(loadCsvBytes(), "UTF-8");
+    }
+
+    public static byte[] loadJsonBytes() throws Exception {
+
+        ClassPathResource resource = new ClassPathResource("valid-1.json");
+        byte[] valid1 = FileCopyUtils
+                .copyToByteArray(resource.getInputStream());
+        return valid1;
+    }
+
+    public static String loadJsonString() throws Exception {
+
+        return new String(loadJsonBytes(), "UTF-8");
+    }
 
 }
