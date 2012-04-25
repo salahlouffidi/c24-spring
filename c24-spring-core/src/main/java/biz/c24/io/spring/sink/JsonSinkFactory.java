@@ -11,7 +11,7 @@ import biz.c24.io.api.presentation.Sink;
  * github behaviour.
  *
  */
-public class JsonSinkSinkFactory extends AbstractSinkFactory {
+public class JsonSinkFactory extends AbstractSinkFactory {
 
     @Override
     protected Sink createSink() {
