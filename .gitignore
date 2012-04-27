@@ -2,5 +2,11 @@
 .classpath
 .settings/
 target/
+<<<<<<< HEAD
 .idea
 *.iml
+=======
+*.iml
+*.ipr
+*.iws
+>>>>>>> add to ignore
