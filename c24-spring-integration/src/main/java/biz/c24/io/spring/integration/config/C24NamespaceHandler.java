@@ -22,21 +22,21 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 /**
  * {@link NamespaceHandler} implementation that registers
  * {@link BeanDefinitionParser}s for our namespace elements.
- * 
+ *
  * @author Adam Skogman
  */
 class C24NamespaceHandler extends NamespaceHandlerSupport {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.beans.factory.xml.NamespaceHandler#init()
 	 */
 	public void init() {
 		registerBeanDefinitionParser("unmarshalling-transformer",
 				new UnmarshallingTransformerParser());
-		registerBeanDefinitionParser("marshalling-transformer",
-				new MarshallingTransformerParser());
+		registerBeanDefinitionParser("marshalling-transformer", new MarshallingTransformerParser());
+		registerBeanDefinitionParser("file-splitting-transformer", new FileSplittingTransformerParser());
 		registerBeanDefinitionParser("transformer", new TransformerParser());
 		registerBeanDefinitionParser("xpath-transformer",
 				new XPathTransformerParser());

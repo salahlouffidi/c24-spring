@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:c24="http://schema.c24.biz/spring-core"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-file="http://www.springframework.org/schema/integration/file"
+       xmlns:int-c24="http://schema.c24.biz/spring-integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://schema.c24.biz/spring-core http://schema.c24.biz/spring-core.xsd
+		http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://schema.c24.biz/spring-integration http://schema.c24.biz/spring-integration.xsd">
+
+    <int:message-history/>
+    <int-file:inbound-channel-adapter directory="classpath:datafixtures" filename-pattern="10-lines.txt"
+                                      channel="file-splitter-channel">
+        <int:poller fixed-rate="500"/>
+    </int-file:inbound-channel-adapter>
+
+    <int:channel id="file-splitter-channel" datatype="java.io.File"/>
+    <int-c24:file-splitting-transformer input-channel="file-splitter-channel"
+                                        message-processing-channel="feed-channel"
+                                        line-count="5"
+                                        output-channel="result-channel"/>
+
+    <int:channel id="feed-channel">
+        <int:queue capacity="100"/>
+    </int:channel>
+
+    <int:channel id="result-channel">
+        <int:queue capacity="100"/>
+    </int:channel>
+
+</beans>
