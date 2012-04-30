@@ -34,7 +34,7 @@ import org.springframework.util.FileCopyUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("header-enricher.xml")
-public class HeaderEnricherTests {
+public class HeaderEnricherTests extends BaseIntegrationTest {
 
 	@Autowired
 	MessageChannel textInputChannel;
@@ -63,13 +63,6 @@ public class HeaderEnricherTests {
 
 	}
 
-	byte[] loadCsvBytes() throws Exception {
 
-		ClassPathResource resource = new ClassPathResource("valid-1.txt");
-		byte[] valid1 = FileCopyUtils
-				.copyToByteArray(resource.getInputStream());
-
-		return valid1;
-	}
 
 }

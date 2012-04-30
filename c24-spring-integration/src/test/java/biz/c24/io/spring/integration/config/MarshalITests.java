@@ -34,7 +34,7 @@ import org.springframework.util.FileCopyUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("marshal.xml")
-public class MarshalITests {
+public class MarshalITests extends BaseIntegrationTest {
 
 	@Autowired
 	MessageChannel textInputChannel;
@@ -60,15 +60,6 @@ public class MarshalITests {
 		assertThat(message.getPayload(), is(byte[].class));
 
 
-	}
-
-	byte[] loadCsvBytes() throws Exception {
-
-		ClassPathResource resource = new ClassPathResource("valid-1.txt");
-		byte[] valid1 = FileCopyUtils
-				.copyToByteArray(resource.getInputStream());
-
-		return valid1;
 	}
 
 }

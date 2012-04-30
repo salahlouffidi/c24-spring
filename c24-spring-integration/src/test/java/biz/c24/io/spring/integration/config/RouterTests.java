@@ -36,7 +36,7 @@ import biz.c24.io.examples.models.basic.Employees;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("router.xml")
-public class RouterTests {
+public class RouterTests extends BaseIntegrationTest {
 
 	@Autowired
 	MessageChannel textInputChannel;
@@ -62,15 +62,6 @@ public class RouterTests {
 		assertThat(message.getPayload(), notNullValue());
 		assertThat(message.getPayload(), is(Employees.class));
 
-	}
-
-	byte[] loadCsvBytes() throws Exception {
-
-		ClassPathResource resource = new ClassPathResource("valid-1.txt");
-		byte[] valid1 = FileCopyUtils
-				.copyToByteArray(resource.getInputStream());
-
-		return valid1;
 	}
 
 }

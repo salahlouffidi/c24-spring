@@ -38,7 +38,7 @@ import biz.c24.io.examples.models.basic.Employees;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("selector.xml")
-public class SelectorTests {
+public class SelectorTests extends BaseIntegrationTest {
 
 	@Autowired
 	MessageChannel textInputChannel;
@@ -64,15 +64,6 @@ public class SelectorTests {
 		assertThat(message, notNullValue());
 		assertThat(message.getPayload(), is(Employees.class));
 
-	}
-
-	byte[] loadCsvBytes() throws Exception {
-
-		ClassPathResource resource = new ClassPathResource("valid-1.txt");
-		byte[] valid1 = FileCopyUtils
-				.copyToByteArray(resource.getInputStream());
-
-		return valid1;
 	}
 
 }
