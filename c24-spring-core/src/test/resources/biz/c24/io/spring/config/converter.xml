@@ -5,8 +5,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://schema.c24.biz/spring-core
-	spring-core-2.1.xsd">
-
+	http://schema.c24.biz/spring-core.xsd">
 
 	<c24:http-message-converter id="xml">
 		<c24:format type="TEXT" />
