@@ -27,8 +27,8 @@
     <int-c24:file-splitting-transformer input-channel="file-splitter-channel"
                                         message-processing-channel="feed-channel"
                                         record-count="5"
-                                        initiator="^ <- default"
-                                        terminator="$ <-default"
+                                        initiator="^ - default"
+                                        terminator="$ -default"
                                         output-channel="result-channel"/>
 
     <int:channel id="feed-channel">

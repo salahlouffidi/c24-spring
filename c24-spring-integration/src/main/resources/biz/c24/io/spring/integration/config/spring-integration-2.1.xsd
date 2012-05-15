@@ -73,7 +73,9 @@
             </xsd:annotation>
             <xsd:complexContent>
                 <xsd:extension base="inputOutputEndpoint">
-                    <xsd:attribute name="line-count" type="xsd:int"/>
+                    <xsd:attribute name="record-count" type="xsd:int"/>
+                    <xsd:attribute name="initiator" type="xsd:string"/>
+                    <xsd:attribute name="terminator" type="xsd:string"/>
                     <xsd:attribute name="message-processing-channel" type="xsd:string">
                         <xsd:annotation>
                             <xsd:appinfo>
