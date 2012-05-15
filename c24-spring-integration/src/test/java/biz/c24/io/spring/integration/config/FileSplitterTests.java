@@ -15,7 +15,6 @@
  */
 package biz.c24.io.spring.integration.config;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.integration.Message;
@@ -39,15 +38,6 @@ public class FileSplitterTests {
     @Resource(name = "result-channel")
     PollableChannel resultChannel;
 
-
-    /**
-     * Strategy:
-     *      1. Use nio to get data into the processing C24FileSplittingTransformer.
-     *
-     *      2. Marker for point of failure, how can we do this?
-     */
-
-    @Ignore
     @Test
     public void mytest2() throws Exception {
 

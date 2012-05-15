@@ -21,6 +21,8 @@ public class FileSplittingTransformerParser extends AbstractTransformerParser {
 		Assert.hasText(messageProcessingChannel, "The 'message-processing-channel' attribute is required.");
 		builder.addConstructorArgReference(messageProcessingChannel);
 
-        IntegrationNamespaceUtils.setValueIfAttributeDefined(builder, element, "line-count", "lineCount");
+        IntegrationNamespaceUtils.setValueIfAttributeDefined(builder, element, "record-count", "recordCount");
+        IntegrationNamespaceUtils.setValueIfAttributeDefined(builder, element, "initiator", "initiator");
+        IntegrationNamespaceUtils.setValueIfAttributeDefined(builder, element, "terminator", "terminator");
     }
 }
