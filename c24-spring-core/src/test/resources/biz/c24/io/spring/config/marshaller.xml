@@ -4,7 +4,8 @@
 	xmlns:c24="http://schema.c24.biz/spring-core"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	    http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://schema.c24.biz/spring-core spring-core-2.1.xsd">
+		http://schema.c24.biz/spring-core
+		http://schema.c24.biz/spring-core.xsd">
 
 	<c24:marshaller id="c24marshaller" />
 
