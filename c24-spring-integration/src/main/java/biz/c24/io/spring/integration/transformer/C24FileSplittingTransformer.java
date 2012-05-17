@@ -12,9 +12,10 @@ import java.util.regex.Pattern;
 
 public class C24FileSplittingTransformer extends AbstractPayloadTransformer<Object, Object> {
 
-  private final static int DEFAULT_BATCH_SIZE = 1;
+    private final static int DEFAULT_BATCH_SIZE = 1;
+    private final static String DEFAULT_TERMINATOR = System.getProperty("line.separator");
     private Pattern initiator;
-    private String terminator = System.getProperty("line.separator");
+    private String terminator = DEFAULT_TERMINATOR;
     private final MessageChannel messageProcessingChannel;
     private int batchSize = DEFAULT_BATCH_SIZE;
 

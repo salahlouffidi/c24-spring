@@ -74,4 +74,22 @@ public class FileSplitterTests {
         assertThat(result, is(true));
     }
 
+    @Test
+    public void splitOnEvens() throws Exception {
+        transformer.setInitiator("^-?\\d*[02468]$");
+        Boolean result = (Boolean)transformer.doTransform(MessageBuilder.withPayload((resource.getFile())).build());
+        Message<List<String>> message;
+        int messageCount = 0;
+        for (int i = 0; i < 5; i++) {
+            message = (Message<List<String>>) feedChannel.receive();
+            if(i < 4) {
+                assertThat(message.getPayload().get(0), is((i + 1) * 2 + "" + ((i + 1) * 2 + 1)));
+            } else {
+                assertThat(message.getPayload().get(0), is("10"));
+            }
+            messageCount++;
+        }
+        assertThat(messageCount, is(5));
+    }
+
 }
