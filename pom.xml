@@ -16,6 +16,7 @@
     <modules>
         <module>c24-spring-core</module>
         <module>c24-spring-integration</module>
+        <module>c24-spring-batch</module>
     </modules>
 
     <licenses>
@@ -61,6 +62,15 @@
                 <role>Developer</role>
             </roles>
         </developer>
+	<developer>
+		<name>Andrew Elmore</name>
+		<organization>Incept5</organization>
+		<email>andrew.elmore(at)incept5.com</email>
+		<organizationUrl>http://www.incept5.com</organizationUrl>
+		<roles>
+                	<role>Developer</role>
+		</roles>
+	</developer>
         <developer>
             <name>Adam Skogman</name>
             <organization>SpringSource - a division of VMware</organization>
