@@ -19,6 +19,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.regex.Pattern;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.annotation.BeforeStep;
@@ -27,6 +30,7 @@ import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.util.Assert;
 
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.Element;
@@ -35,6 +39,7 @@ import biz.c24.io.api.data.ValidationManager;
 import biz.c24.io.api.presentation.TextualSource;
 
 import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
+import biz.c24.io.spring.core.C24Model;
 
 /*
  * ItemReader that reads ComplexDataObjects from a BufferedReaderSource.
@@ -53,13 +58,13 @@ import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
 public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	
 	/*
-	 * Source to use where we do not have an elementStartPattern
+	 * IO Source to use where we do not have an elementStartPattern
 	 */
-	private TextualSource source;
+	private TextualSource ioSource = null;
 	/*
-	 * Cache for sources where we have an elementStartPattern and can parallelise parsing
+	 * Cache for IO sources where we have an elementStartPattern and can parallelise parsing
 	 */
-	private ThreadLocal<TextualSource> threadedSource = new ThreadLocal<TextualSource>();
+	private ThreadLocal<TextualSource> threadedIOSource = new ThreadLocal<TextualSource>();
 	
 	/*
 	 * The type of CDO that we will parse from the source
@@ -75,7 +80,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	/*
 	 * The source from which we'll read the data
 	 */
-	private BufferedReaderSource readerSource;
+	private BufferedReaderSource source;
 
 	private static String lineTerminator = System.getProperty("line.separator");
 
@@ -84,6 +89,12 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 */
 	private boolean validate = false;
 	private ValidationManager validator = new ValidationManager();
+	
+	@PostConstruct
+	public void validateConfiguration() {
+		Assert.notNull(elementType, "Element type must be set, either explicitly or by setting the model");
+		Assert.notNull(source, "Source must be set");
+	}
 	
 	/*
 	 * Returns the element type that we will attempt to parse from the source
@@ -97,9 +108,17 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 * 
 	 * @param elementType The type of element that we want to parse from the source
 	 */
-	@Required
 	public void setElementType(Element elementType) {
 		this.elementType = elementType;
+	}
+	
+	/*
+	 * Allows setting of element type via the supplied model
+	 * 
+	 * @param model The model of the type we wish to parse
+	 */
+	public void setModel(C24Model model) {
+		elementType = model.getRootElement();
 	}
 	
 	/*
@@ -134,17 +153,17 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 * 
 	 * @return This reader's BufferedReaderSource
 	 */
-	public BufferedReaderSource getReaderSource() {
-		return readerSource;
+	public BufferedReaderSource getSource() {
+		return source;
 	}
 
 	/*
 	 * Sets the source that this reader will read from
 	 * 
-	 * @param readerSource The BufferedReaderSource to read data from
+	 * @param source The BufferedReaderSource to read data from
 	 */
-	public void setReaderSource(BufferedReaderSource readerSource) {
-		this.readerSource = readerSource;
+	public void setSource(BufferedReaderSource source) {
+		this.source = source;
 	}
 	
 	/*
@@ -154,7 +173,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 */
 	@BeforeStep
 	public void setup(StepExecution stepExecution) {		
-		readerSource.initialise(stepExecution);
+		source.initialise(stepExecution);
 	}
 	
 	/*
@@ -162,7 +181,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 */
 	@AfterStep
 	public void cleanup() {
-		readerSource.close();
+		source.close();
 	}
 	
 	/*
@@ -230,12 +249,12 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 			ParseException, NonTransientResourceException, IOException, ValidationException {
 		
 		ComplexDataObject result = null;
-		BufferedReader reader;
+		BufferedReader reader = null;
 		
 		// Keep trying to parse an entity until either we get one (result != null) or we run out of data to read (reader == null)
 		// BufferedReaderSources such as the ZipFileSource can return multiple BufferedReaders; when our current one is exhausted it
 		// will return another one
-		while((reader = readerSource.getReader()) != null && result == null) {
+		while(((ioSource != null) || (reader = source.getReader()) != null) && result == null) {
 			
 			if(elementStartPattern != null) {
 				// Get the textual source from an element
@@ -244,10 +263,10 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 				// If we got something then parse it
 				if(element != null && element.trim().length() > 0) {
 					
-					TextualSource parser = threadedSource.get();
+					TextualSource parser = threadedIOSource.get();
 					if(parser == null) {
 						parser = new TextualSource();
-						threadedSource.set(parser);
+						threadedIOSource.set(parser);
 					}
 				
 					parser.setReader(new StringReader(element));
@@ -257,21 +276,21 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 			} else {
 				// As we don't have an elementSplitPattern to use, we'll have to parse CDOs from the BufferedReader in serial
 				synchronized(this) {
-					if(source == null) {
-						source = new TextualSource();
+					if(ioSource == null) {
+						ioSource = new TextualSource();
 						// We're reading data incrementally so turn this check off
-						source.setEndOfDataRequired(false);
-						source.setReader(reader);
+						ioSource.setEndOfDataRequired(false);
+						ioSource.setReader(reader);
 					}
 					
-					result = source.readObject(elementType);
+					result = ioSource.readObject(elementType);
 					if(result != null && (result.getTotalAttrCount() + result.getTotalElementCount() == 0)) {
 						// We didn't manage to read anything
 						result = null;
 					}
 					if(result == null) {
 						// We've exhausted this reader
-						source = null;
+						ioSource = null;
 					}
 				}
 			}
