@@ -15,33 +15,52 @@
  */
 package biz.c24.io.spring.integration.config;
 
+import biz.c24.io.spring.integration.transformer.C24FileSplittingTransformer;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.integration.Message;
+import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.core.PollableChannel;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.integration.support.MessageBuilder;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("file-splitter.xml")
 public class FileSplitterTests {
 
-    @Resource(name = "feed-channel")
     PollableChannel feedChannel;
+    C24FileSplittingTransformer transformer;
+    ClassPathResource resource;
 
-    @Resource(name = "result-channel")
-    PollableChannel resultChannel;
+    @Before
+    public void setUp() {
+        feedChannel = new QueueChannel(100);
+        transformer = new C24FileSplittingTransformer(feedChannel);
+        resource = new ClassPathResource("datafixtures/10-lines.txt");
+    }
 
     @Test
-    public void mytest2() throws Exception {
+    public void defaultBatchSize() throws Exception {
+        Boolean result = (Boolean) transformer.doTransform(MessageBuilder.withPayload((resource.getFile())).build());
+        Message<List<String>> message;
+        int messageCount = 0;
+        for (int i = 0; i < 10; i++) {
+            message = (Message<List<String>>) feedChannel.receive();
+            assertThat(message.getPayload().get(0), is(i + 1 + ""));
+            messageCount++;
+        }
+        assertThat(messageCount, is(10));
 
+    }
 
+    @Test
+    public void splitFileInTwo() throws Exception {
+
+        transformer.setBatchSize(5);
+        Boolean result = (Boolean)transformer.doTransform(MessageBuilder.withPayload((resource.getFile())).build());
         Message<List<String>> message = (Message<List<String>>) feedChannel.receive();
         assertThat(message.getPayload(), is(not(nullValue())));
         assertThat(message.getPayload().get(0), is("1"));
@@ -52,8 +71,7 @@ public class FileSplitterTests {
         assertThat(message.getPayload().get(0), is("6"));
         assertThat(message.getPayload().get(4), is("10"));
 
-        Message<Boolean> resultMmessage = (Message<Boolean>) resultChannel.receive();
-        assertThat(resultMmessage.getPayload(), is(true));
+        assertThat(result, is(true));
     }
 
 }
