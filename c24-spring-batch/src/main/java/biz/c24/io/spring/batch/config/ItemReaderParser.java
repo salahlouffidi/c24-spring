@@ -44,6 +44,12 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
 	 */
     @Override
     protected void doParse(Element element, BeanDefinitionBuilder bean) {
+    
+    	// Optional
+    	String scope = element.getAttribute("scope");
+    	if(StringUtils.hasText(scope)) {
+    		bean.setScope(scope);
+    	}
     	
     	// Mandatory
     	String sourceRef = element.getAttribute("source-ref");

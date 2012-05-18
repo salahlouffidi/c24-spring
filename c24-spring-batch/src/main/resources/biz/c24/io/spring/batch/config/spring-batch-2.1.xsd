@@ -52,6 +52,7 @@
     					</xsd:annotation>
   			  		</xsd:attribute>
   			  		<xsd:attribute name="validate" type="xsd:boolean"/>
+  			  		<xsd:attribute name="scope" type="xsd:string"/>
   			  	</xsd:extension>
   			  </xsd:complexContent>
 		</xsd:complexType>
