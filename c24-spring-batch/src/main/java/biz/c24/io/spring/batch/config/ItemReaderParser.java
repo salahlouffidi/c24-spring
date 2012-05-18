@@ -29,11 +29,20 @@ import biz.c24.io.spring.batch.reader.C24ItemReader;
  */
 public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser#getBeanClass(org.w3c.dom.Element)
+	 */
+	@Override
     protected Class<?> getBeanClass(Element element) {
         return C24ItemReader.class;
     }
 
-
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser#doParse(org.w3c.dom.Element, org.springframework.beans.factory.support.BeanDefinitionBuilder)
+	 */
+    @Override
     protected void doParse(Element element, BeanDefinitionBuilder bean) {
     	
     	// Mandatory
