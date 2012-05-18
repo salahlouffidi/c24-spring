@@ -1,0 +1,2 @@
+http\://schema.c24.biz/spring-batch-2.1.xsd=biz/c24/io/spring/batch/config/spring-batch-2.1.xsd
+http\://schema.c24.biz/spring-batch.xsd=biz/c24/io/spring/batch/config/spring-batch-2.1.xsd

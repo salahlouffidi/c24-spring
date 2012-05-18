@@ -16,11 +16,27 @@
     </parent>
 
     <dependencies>
+    	<dependency>
+  			<groupId>org.springframework</groupId>
+  			<artifactId>spring-core</artifactId>
+  			<version>${spring.version}</version>
+		</dependency>
         <!-- Spring Batch Dependendies -->
         <dependency>
             <groupId>org.springframework.batch</groupId>
         	<artifactId>spring-batch-core</artifactId>
             <version>2.1.8.RELEASE</version>
+            <exclusions>
+            	<!-- Spring Batch still resolves some dependencies to older versions of Spring -->
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-aop</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>biz.c24.io</groupId>
@@ -38,84 +54,65 @@
             <version>1.1</version>
             <scope>test</scope>
         </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.6</version>
+                <groupId>biz.c24.io.maven</groupId>
+                <artifactId>c24-maven-plugin</artifactId>
+                <version>4.0.0</version>
                 <executions>
                     <execution>
+                        <id>c24-model-deploy</id>
                         <phase>generate-test-sources</phase>
+                        <configuration>
+                            <session>
+                                <deploy>
+                                	<generateMainMethods>false</generateMainMethods>
+                                    <toDir>target/generated-test-sources</toDir>
+                                    <deployEnvironment>false</deployEnvironment>
+                                    <fileSet>
+                                        <directory>${basedir}/src/test/resources</directory>
+                                        <includes>
+                                            <name>*.dod</name>
+                                        </includes>
+                                    </fileSet>
+                                    <deployEnvironment>false</deployEnvironment>
+                                    <namespace>
+                                   	    <uri>http://www.hibernate.org/hibernate-mapping-3.0</uri>
+                                       <packageName>biz.c24.io.api.presentation.hibernate.mappingv30</packageName>
+                                   </namespace>
+                                </deploy>
+                                <deploy>
+                                    <generateMainMethods>false</generateMainMethods>
+                                    <toDir>target/generated-test-sources</toDir>
+                                    <deployEnvironment>false</deployEnvironment>
+                                    <fileSet>
+                                        <directory>${basedir}/src/test/resources</directory>
+                                        <includes>
+                                            <name>*.tfd</name>
+                                        </includes>
+                                    </fileSet>
+                                    <namespace>
+                                   	    <uri>http://www.hibernate.org/hibernate-mapping-3.0</uri>
+                                       <packageName>biz.c24.io.api.presentation.hibernate.mappingv30</packageName>
+                                   </namespace>
+                                </deploy>
+                            </session>
+                        </configuration>
                         <goals>
                             <goal>run</goal>
                         </goals>
-                        <configuration>
-                            <target>
-                                <taskdef name="deploy" classname="biz.c24.io.ant.DeployTask"/>
-                                <deploy file="src/test/resources/Input.dod" todir="target/generated-test-classes/model"
-                                        deployenvironment="false" generatemainmethods="false"/>
-                                <deploy file="src/test/resources/Output.dod" todir="target/generated-test-classes/model"
-                                        deployenvironment="false" generatemainmethods="false"/>
-                                <deploy file="src/test/resources/Example.tfd"
-                                        todir="target/generated-test-classes/model"
-                                        deployenvironment="false" generatemainmethods="false"/>
-                            </target>
-                        </configuration>
                     </execution>
                 </executions>
-
-                <dependencies>
-                    <dependency>
-                        <groupId>biz.c24.io</groupId>
-                        <artifactId>c24-io-api</artifactId>
-                        <version>${c24.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>biz.c24.io</groupId>
-                        <artifactId>c24-io-studio</artifactId>
-                        <version>${c24.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                        <version>1.2.16</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>commons-collections</groupId>
-                        <artifactId>commons-collections</artifactId>
-                        <version>3.2.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>commons-lang</groupId>
-                        <artifactId>commons-lang</artifactId>
-                        <version>2.6</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>oro</groupId>
-                        <artifactId>oro</artifactId>
-                        <version>2.0.8</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>jakarta-regexp</groupId>
-                        <artifactId>jakarta-regexp</artifactId>
-                        <version>1.4</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                        <version>2.9.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>commons-io</groupId>
-                        <artifactId>commons-io</artifactId>
-                        <version>1.4</version>
-                    </dependency>
-                </dependencies>
-
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

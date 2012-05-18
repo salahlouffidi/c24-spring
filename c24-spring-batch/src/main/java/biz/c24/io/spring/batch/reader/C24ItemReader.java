@@ -149,6 +149,15 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	}
 	
 	/*
+	 * Query whether or not this ItemReader will validate parsed CDOs
+	 * 
+	 * @return True iff this ItemReader will automtically validate read CDOs
+	 */
+	public boolean isValidating() {
+		return validate;
+	}
+	
+	/*
 	 * Gets the BufferedReaderSource from which CDOs are being parsed
 	 * 
 	 * @return This reader's BufferedReaderSource
