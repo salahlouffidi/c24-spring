@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-public class C24ItemReaderTest {
+public class C24ItemReaderTests {
 	
 	private C24Model employeeModel = new C24Model(EmployeeElement.getInstance());
 

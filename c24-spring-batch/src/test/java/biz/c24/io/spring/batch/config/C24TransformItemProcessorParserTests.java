@@ -15,7 +15,7 @@ import biz.c24.io.spring.batch.processor.C24TransformItemProcessor;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("transform-item-processor.xml")
-public class C24TransformItemProcessorParserTest {
+public class C24TransformItemProcessorParserTests {
 	
 	@Autowired
 	@Qualifier("transformItemProcessor")

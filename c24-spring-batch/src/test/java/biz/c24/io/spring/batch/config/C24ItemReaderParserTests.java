@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("item-reader.xml")
-public class C24ItemReaderParserTest {
+public class C24ItemReaderParserTests {
 	
 	private Element employeeElement = EmployeeElement.getInstance();
 	

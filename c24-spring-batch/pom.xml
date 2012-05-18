@@ -126,7 +126,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>target/generated-test-classes/model</source>
+                                <source>target/generated-test-sources</source>
                             </sources>
                         </configuration>
                     </execution>

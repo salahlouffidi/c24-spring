@@ -11,7 +11,7 @@ import biz.c24.io.examples.models.basic.Email;
 import biz.c24.io.examples.models.basic.Employee;
 import biz.c24.io.examples.transforms.basic.EmployeeToEmailTransform;
 
-public class C24TransformItemProcessorTest {
+public class C24TransformItemProcessorTests {
 	
 	private Transform employeeToEmail = new EmployeeToEmailTransform();
 	
