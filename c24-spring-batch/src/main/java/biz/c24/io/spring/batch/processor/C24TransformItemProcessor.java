@@ -19,6 +19,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Required;
 
 import biz.c24.io.api.data.ComplexDataObject;
+import biz.c24.io.api.data.ValidationManager;
 import biz.c24.io.api.transform.Transform;
 
 /*
@@ -33,6 +34,8 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	 */
 	private Transform transformer;
 	
+	private ValidationManager validationManager = null;
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.batch.item.ItemProcessor#process(java.lang.Object)
@@ -40,7 +43,14 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	@Override
 	public ComplexDataObject process(ComplexDataObject item) throws Exception {
 		Object[][] transformedObj = transformer.transform(new Object[][]{{item}});
-		return (ComplexDataObject)transformedObj[0][0];
+		
+		ComplexDataObject result = (ComplexDataObject)transformedObj[0][0];
+		
+		if(validationManager != null) {
+			validationManager.validateByException(result);
+		}
+		
+		return result;
 	}
 
 	/*
@@ -60,6 +70,24 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	@Required
 	public void setTransformer(Transform transformer) {
 		this.transformer = transformer;
+	}
+
+	/*
+	 * Whether or not this transformer validates the CDOs resulting from the transformation
+	 * 
+	 * @return True if if validates generated objects
+	 */
+	public boolean isValidating() {
+		return validationManager != null;
+	}
+
+	/*
+	 * Turn validation on or off
+	 * 
+	 * @param validate 
+	 */
+	public void setValidation(boolean validate) {
+		validationManager = validate? new ValidationManager() : null;
 	}
 	
 

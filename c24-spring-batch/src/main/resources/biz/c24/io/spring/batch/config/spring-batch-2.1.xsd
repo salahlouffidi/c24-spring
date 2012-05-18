@@ -23,7 +23,7 @@
         </xsd:documentation>
     </xsd:annotation>
     
-    <xsd:element name="itemreader">
+    <xsd:element name="item-reader">
     	<xsd:complexType>
     		<xsd:annotation>
     			<xsd:documentation>
@@ -56,4 +56,30 @@
   			  </xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
+	
+	<xsd:element name="transform-item-processor">
+    	<xsd:complexType>
+    		<xsd:annotation>
+    			<xsd:documentation>
+    				Defines a C24 IO ItemProcessor which uses an IO transform to convert a CDO from one model to another.
+    			</xsd:documentation>
+    		</xsd:annotation>
+    		<xsd:complexContent>
+    			<xsd:extension base="beans:identifiedType">
+    				<xsd:attribute name="transform-ref" type="xsd:string" use="required">
+    					<xsd:annotation>
+    						<xsd:appinfo>
+    							<tool:annotation kind="ref">
+    								<tool:expected-type type="biz.c24.io.api.transform.Transform"/>
+    							</tool:annotation>
+    						</xsd:appinfo>
+    					</xsd:annotation>
+  			  		</xsd:attribute>
+  			  		<xsd:attribute name="validate" type="xsd:boolean"/>
+  			  	</xsd:extension>
+  			  </xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+	
+	
 </xsd:schema>

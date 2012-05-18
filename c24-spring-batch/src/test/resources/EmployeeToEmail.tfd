@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<transform targetNamespace="http://www.c24.biz/io/examples/transforms/basic" validateOutputs="false" validateInputs="false" saveLayout="true" readOnly="false" processingOrder="Outputs" encrypted="false" IOversion="3.1.0" name="EmployeeToEmail.tfd">
+    <input typeRef="Employee" required="false" path="" modelRef="Input.dod" endID="0"/>
+    <contextPath input="false" endID="0" contextRef="DomainName" id="DomainNameO000"/>
+    <constant constant="@company.com" id="DomainNameO0000"/>
+    <contextPath input="true" endID="0" contextRef="FirstName" id="FirstNameI000"/>
+    <contextPath input="false" endID="0" contextRef="FirstNameInitial" id="FirstNameInitialO000"/>
+    <transformMethod name="TOSTRING" y="21" x="441" id="FirstNameInitialO0000"/>
+    <transformMethod name="CHARAT" y="28" x="314" id="FirstNameInitialO00000"/>
+    <constant constant="0" id="FirstNameInitialO000001"/>
+    <contextPath input="true" endID="0" contextRef="LastName" id="LastNameI000"/>
+    <contextPath input="false" endID="0" contextRef="Surname" id="SurnameO000"/>
+    <translation outputPort="0" outputID="DomainNameO000" inputPort="0" inputID="DomainNameO0000"/>
+    <translation outputPort="0" outputID="FirstNameInitialO000" inputPort="0" inputID="FirstNameInitialO0000"/>
+    <translation outputPort="0" outputID="FirstNameInitialO0000" inputPort="0" inputID="FirstNameInitialO00000"/>
+    <translation outputPort="0" outputID="FirstNameInitialO00000" inputPort="0" inputID="FirstNameI000"/>
+    <translation outputPort="1" outputID="FirstNameInitialO00000" inputPort="0" inputID="FirstNameInitialO000001"/>
+    <translation outputPort="0" outputID="SurnameO000" inputPort="0" inputID="LastNameI000"/>
+    <output typeRef="Email" required="false" path="" modelRef="Output.dod" endID="0"/>
+</transform>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:bat-c24="http://schema.c24.biz/spring-batch"
+       xmlns:c24="http://schema.c24.biz/spring-core"
+       xsi:schemaLocation="
+		http://schema.c24.biz/spring-core	http://schema.c24.biz/spring-core.xsd
+		http://schema.c24.biz/spring-batch	http://schema.c24.biz/spring-batch.xsd
+		http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<!-- Underlying IO transform -->
+	<bean id="employeeToEmailTransform" class="biz.c24.io.examples.transforms.basic.EmployeeToEmailTransform"/>
+	
+	<bat-c24:transform-item-processor id="transformItemProcessor" transform-ref="employeeToEmailTransform" validate="false"/>
+	<bat-c24:transform-item-processor id="validatingTransformItemProcessor" transform-ref="employeeToEmailTransform" validate="true"/>
+	<bat-c24:transform-item-processor id="defaultTransformItemProcessor" transform-ref="employeeToEmailTransform"/>
+
+</beans>

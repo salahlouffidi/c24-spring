@@ -17,7 +17,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("itemreader.xml")
+@ContextConfiguration("item-reader.xml")
 public class C24ItemReaderParserTest {
 	
 	private Element employeeElement = EmployeeElement.getInstance();

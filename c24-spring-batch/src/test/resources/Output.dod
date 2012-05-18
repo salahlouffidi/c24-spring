@@ -13,12 +13,27 @@
             <element identifier="true" typeRef="DomainName" min="1" max="1" name="DomainName"/>
         </complexType>
     </type>
+	<validationRule severity="Error" name="EmailValidCharsOnly">
+        <code>
+        	java.lang.String fragment = (java.lang.String)object;
+        	if(fragment.contains(&quot;@&quot;)) {
+        		manager.fireValidationEvent(new biz.c24.io.api.data.ValidationEvent(object, component, context, biz.c24.io.api.ValidationResultEnum.FAILED_RULE_ERROR, &quot;Names cannot contain @&quot;));
+				return false;
+			} else {
+				return true;
+			}
+		</code>
+    </validationRule>
     <element identifier="true" typeRef="Email" min="1" max="1" name="Email"/>
     <type>
-        <atomicSimpleType baseType="#string" name="FirstNameInitial"/>
+        <atomicSimpleType baseType="#string" name="FirstNameInitial">
+        	<validationRuleRef ref="EmailValidCharsOnly"/>
+        </atomicSimpleType>
     </type>
     <type>
-        <atomicSimpleType baseType="#string" name="Surname"/>
+        <atomicSimpleType baseType="#string" name="Surname">
+        	<validationRuleRef ref="EmailValidCharsOnly"/>
+        </atomicSimpleType>
     </type>
     <type>
         <atomicSimpleType baseType="#string" name="DomainName"/>
