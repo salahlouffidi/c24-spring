@@ -37,6 +37,22 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	private ValidationManager validationManager = null;
 	
 	/*
+	 * Default constructor. Requires that the transformer is initialised separately.
+	 */
+	public C24TransformItemProcessor() {
+		transformer = null;
+	}
+	
+	/*
+	 * Construct a C24TransformItemProcessor
+	 * 
+	 * @param transform The iO-generated transform to use
+	 */
+	public C24TransformItemProcessor(Transform transform) {
+		setTransformer(transform);
+	}
+	
+	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.batch.item.ItemProcessor#process(java.lang.Object)
 	 */
