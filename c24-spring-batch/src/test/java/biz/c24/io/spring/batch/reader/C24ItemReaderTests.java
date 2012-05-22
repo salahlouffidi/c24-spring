@@ -81,7 +81,7 @@ public class C24ItemReaderTests {
 		try {
 			readFile(employeeModel, null, true, source, filename);
 			fail("Structurally invalid file did not generate a ValidationException");
-		} catch(ValidationException vEx) {
+		} catch(ParseException pEx) {
 			// Expected behaviour
 		}
 		
@@ -90,7 +90,7 @@ public class C24ItemReaderTests {
 		try {
 			readFile(employeeModel, ".*", true, source, filename);
 			fail("Structurally invalid file did not generate a ValidationException");
-		} catch(ValidationException vEx) {
+		} catch(ParseException pEx) {
 			// Expected behaviour
 		}
 	}
@@ -105,7 +105,7 @@ public class C24ItemReaderTests {
 		try {
 			readFile(employeeModel, null, false, source, filename);
 			fail("Structurally invalid file did not generate a ParserException");
-		} catch(ParserException pEx) {
+		} catch(UnexpectedInputException uiEx) {
 			// Expected behaviour
 		}
 		
@@ -113,7 +113,7 @@ public class C24ItemReaderTests {
 		try {
 			readFile(employeeModel, null, true, source, filename);
 			fail("Structurally invalid file did not generate a ParserException");
-		} catch(ParserException pEx) {
+		} catch(UnexpectedInputException uiEx) {
 			// Expected behaviour
 		}
 		
@@ -121,7 +121,7 @@ public class C24ItemReaderTests {
 		try {
 			readFile(employeeModel, ".*", true, source, filename);
 			fail("Structurally invalid file did not generate a ParserException");
-		} catch(ParserException pEx) {
+		} catch(UnexpectedInputException uiEx) {
 			// Expected behaviour
 		}
 	}

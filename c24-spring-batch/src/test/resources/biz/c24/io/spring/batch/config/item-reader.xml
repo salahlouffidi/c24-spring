@@ -16,12 +16,12 @@
 	<!-- The type of model we're going to be parsing -->
 	<c24:model id="employeeModel" base-element="biz.c24.io.examples.models.basic.EmployeeElement" />
 
-	<bat-c24:item-reader id="nonSplittingNonValidatingCsvReader" model-ref="employeeModel" validate="false" source-ref="fileSource"/>
-	<bat-c24:item-reader id="nonSplittingValidatingCsvReader" model-ref="employeeModel" validate="true" source-ref="fileSource"/>
-	<bat-c24:item-reader id="splittingNonValidatingCsvReader" model-ref="employeeModel" validate="false" elementStartPattern=".*" source-ref="fileSource"/>
-	<bat-c24:item-reader id="splittingValidatingCsvReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="fileSource"/>
+	<bat-c24:item-reader id="nonSplittingNonValidatingCsvReader" model-ref="employeeModel" validate="false" source-ref="fileSource" scope="singleton"/>
+	<bat-c24:item-reader id="nonSplittingValidatingCsvReader" model-ref="employeeModel" validate="true" source-ref="fileSource" scope="singleton"/>
+	<bat-c24:item-reader id="splittingNonValidatingCsvReader" model-ref="employeeModel" validate="false" elementStartPattern=".*" source-ref="fileSource" scope="singleton"/>
+	<bat-c24:item-reader id="splittingValidatingCsvReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="fileSource" scope="singleton"/>
 
-	<bat-c24:item-reader id="nonSplittingValidatingZipReader" model-ref="employeeModel" validate="true" source-ref="zipFileSource"/>
-	<bat-c24:item-reader id="splittingValidatingZipReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="zipFileSource"/>
+	<bat-c24:item-reader id="nonSplittingValidatingZipReader" model-ref="employeeModel" validate="true" source-ref="zipFileSource" scope="singleton"/>
+	<bat-c24:item-reader id="splittingValidatingZipReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="zipFileSource" scope="singleton"/>
 
 </beans>
