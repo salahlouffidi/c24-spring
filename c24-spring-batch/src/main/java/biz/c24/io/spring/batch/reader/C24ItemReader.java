@@ -32,6 +32,7 @@ import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.Assert;
 
+import biz.c24.io.api.ParserException;
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.Element;
 import biz.c24.io.api.data.ValidationException;
@@ -212,37 +213,41 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 * 
 	 * @param reader The BufferedReader to extract the element from
 	 */
-	private String readElement(BufferedReader reader) throws IOException {
+	private String readElement(BufferedReader reader) {
 
 		StringBuffer elementCache = new StringBuffer();
 		boolean inElement = false;		
 		
 		synchronized(reader) {
-			while(reader.ready()) {
-				// Mark the stream in case we need to rewind (ie if we read the start line for the next element)
-				reader.mark(MAX_MESSAGE_SIZE);
-				String line = reader.readLine();
-				
-				if(elementStartPattern.matcher(line).matches()) {
-					// We've encountered the start of a new element
-					String message = elementCache.toString();
-					if(message.trim().length() > 0) {
-						// We were already parsing an element; thus we've finished extracting our element
-						// Rewind the stream...
-						reader.reset();
-						// ...and return what we have already extracted
-						return message;
-					} else {
-						// This is the start of our element. Add it to our elementCache.
+			try {
+				while(reader.ready()) {
+					// Mark the stream in case we need to rewind (ie if we read the start line for the next element)
+					reader.mark(MAX_MESSAGE_SIZE);
+					String line = reader.readLine();
+					
+					if(elementStartPattern.matcher(line).matches()) {
+						// We've encountered the start of a new element
+						String message = elementCache.toString();
+						if(message.trim().length() > 0) {
+							// We were already parsing an element; thus we've finished extracting our element
+							// Rewind the stream...
+							reader.reset();
+							// ...and return what we have already extracted
+							return message;
+						} else {
+							// This is the start of our element. Add it to our elementCache.
+							elementCache.append(line);
+							elementCache.append(lineTerminator);
+							inElement = true;
+						}
+					} else if(inElement) {
+						// More data for our current element
 						elementCache.append(line);
 						elementCache.append(lineTerminator);
-						inElement = true;
 					}
-				} else if(inElement) {
-					// More data for our current element
-					elementCache.append(line);
-					elementCache.append(lineTerminator);
 				}
+			} catch(IOException ioEx) {
+				throw new NonTransientResourceException("Failed to extract entity", ioEx);
 			}
 		}
 		
@@ -255,7 +260,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 */
 	@Override
 	public ComplexDataObject read() throws UnexpectedInputException,
-			ParseException, NonTransientResourceException, IOException, ValidationException {
+			ParseException, NonTransientResourceException {
 		
 		ComplexDataObject result = null;
 		BufferedReader reader = null;
@@ -278,8 +283,12 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 						threadedIOSource.set(parser);
 					}
 				
-					parser.setReader(new StringReader(element));
-					result = parser.readObject(elementType);
+					try {
+						parser.setReader(new StringReader(element));
+						result = parser.readObject(elementType);
+					} catch(IOException ioEx) {
+						throw new UnexpectedInputException("Failed to parse CDO from source: " + element, ioEx);
+					}
 				}
 				
 			} else {
@@ -292,7 +301,12 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 						ioSource.setReader(reader);
 					}
 					
-					result = ioSource.readObject(elementType);
+					try {
+						result = ioSource.readObject(elementType);
+					} catch(IOException ioEx) {
+						throw new UnexpectedInputException("Failed to parse CDO", ioEx);
+					}
+					
 					if(result != null && (result.getTotalAttrCount() + result.getTotalElementCount() == 0)) {
 						// We didn't manage to read anything
 						result = null;
@@ -306,7 +320,11 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 		}
 		
 		if(validate && result != null) {
-			validator.validateByException(result);
+			try {
+				validator.validateByException(result);
+			} catch(ValidationException vEx) {
+				throw new ParseException("Failed to validate CDO", vEx);
+			}
 		}
 		
 		return result;
