@@ -210,49 +210,106 @@ public C24TransformItemProcessor getIoItemProcessor() {
    	 	&lt;/beans:property>
       &lt;/beans:bean>
 &lt;/beans:bean></programlisting>
-    <para>Now that we have the basic scaffolding in place, we can declare our C24 Spring Batch
-      beans. First the
-      ItemReader:<programlisting>	&lt;c24:model id="demoModel" base-element="my.DemoElement"/>
+    <section>
+      <title>A Basic C24 IO Spring Batch Job</title>
+      <para>Now that we have the basic scaffolding in place, we can declare our C24 Spring Batch
+        beans. The code in this section is taken from the c24-springbatch example project; sources
+        and resource files are available to download from the C24 website. First the
+        ItemReader:<programlisting>	&lt;c24:model id="demoModel" base-element="my.DemoElement"/>
 	&lt;beans:bean id="fileSource" class="biz.c24.io.spring.batch.reader.source.FileSource" scope="step"/>
     &lt;bat-c24:item-reader id="ioItemReader" model-ref="demoModel" source-ref="fileSource" elementStartPattern=".*" validate="true"/>
 	</programlisting></para>
-    <para>replacing <code>my.DemoElement</code> with the fully qualified path to your generated
-      model Element. The elementStartPattern shown above assumes that each element that we're going
-      to read from the source file is contained on a single line and that there are no header or
-      comment lines (ie every line is an element).</para>
-    <para>Now we define a simple job to read (and implicitly validate) ComplexDataObjects from our
-      source:</para>
-    <para>
-      <programlisting>    &lt;job id="fileLoader">
+      <para>replacing <code>my.DemoElement</code> with the fully qualified path to your generated
+        model Element. The elementStartPattern shown above assumes that each element that we're
+        going to read from the source file is contained on a single line and that there are no
+        header or comment lines (ie every line is an element).</para>
+      <para>Now we define a simple job to read (and implicitly validate) ComplexDataObjects from our
+        source:</para>
+      <para>
+        <programlisting>    &lt;job id="fileLoader">
 		&lt;step id="parseFile">
     		&lt;tasklet>
-    			&lt;chunk reader="ioItemReader" writer="..." commit-interval="100"/>
+    			&lt;chunk reader="ioItemReader" writer="ioItemWriter" commit-interval="100"/>
     		&lt;/tasklet>
     	&lt;/step>
     &lt;/job></programlisting>
-    </para>
-    <para>This has:<itemizedlist>
-        <listitem>
-          <para>Created a job called fileLoader</para>
-        </listitem>
-        <listitem>
-          <para>Added a single step called parseFile</para>
-        </listitem>
-        <listitem>
-          <para>Read items (ComplexDataObjects) from our ioItemReader bean then once it has read 100
-            items (the commit-interval) it will pass all of them to an ItemWriter in a single
-            invocation.</para>
-        </listitem>
-      </itemizedlist></para>
-    <para>We'll come back to the writer attribute shortly, but normally it will be specific to your
-      application as you hand off the parsed &amp; validated objects to downstream processing. There
-      are numerous other potential attributes that can be set on the chunk &amp; tasklet (for
-      example, can it be restarted, how many elements need to fail to parse/validate before the
-      entire job should be abandoned etc); please see the Spring Batch documentation for further
-      detail.</para>
-    <para>When we configured our ItemReader we specified an elementStartPattern. This means that as
-      well as validating ComplexDataObjects in parallel, we can parallelise most of the parsing too.
-      This requires 2 steps: create a task dispatcher pool and tell the tasklet to use it:</para>
-    <para/>
+      </para>
+      <para>This has:<itemizedlist>
+          <listitem>
+            <para>Created a job called fileLoader</para>
+          </listitem>
+          <listitem>
+            <para>Added a single step called parseFile</para>
+          </listitem>
+          <listitem>
+            <para>Read items (ComplexDataObjects) from our ioItemReader bean then once it has read
+              100 items (the commit-interval) it will pass all of them to an ItemWriter in a single
+              invocation. Most writers will work more efficiently if they are called with an
+              appropriately sized batch of items (particularly where transactions are
+              involved).</para>
+          </listitem>
+        </itemizedlist></para>
+      <para>We'll come back to the writer attribute shortly, but normally it will be specific to
+        your application as you hand off the parsed &amp; validated objects to downstream
+        processing. If you're using the c24-springbatch example application you can use the supplied
+        ConsoleItemWriter to write the ComplexDataObject to the console:</para>
+      <para>
+        <programlisting>  &lt;beans:bean id="ioItemWriter" class="biz.c24.batchdemo.writers.ConsoleWriter"/></programlisting>
+      </para>
+      <para>Now it's time to launch our job and see it working. Normally job launching would be
+        handled by the framework; for now we'll launch it manually:</para>
+      <para>
+        <programlisting>	public static void main(String[] args) throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException, IOException {
+		
+		// Create our application context - assumes the Spring configuration is in the classpath in a file called spring-config.xml
+		ApplicationContext context = new ClassPathXmlApplicationContext("spring-config.xml");
+		
+		// Our config only defines a single Job bean
+		Job job = context.getBean(Job.class);
+
+		// .. and a single JobLauncher bean
+		JobLauncher jobLauncher = context.getBean(JobLauncher.class);
+		
+		// Create the job parameters and supply the name of the file to parse
+		Map&lt;String, JobParameter> params = new HashMap&lt;String, JobParameter>();
+
+		// The C24 Spring Batch sources expect to get the filename from a job property called input.file
+		// In this case, the file is in the classpath and is called employees-3-valid.csv
+		params.put("input.file", new JobParameter(new ClassPathResource("employees-3-valid.csv").getFile().getAbsolutePath()));
+
+		JobParameters jobParameters = new JobParameters(params);
+
+		// Launch the job!
+		jobLauncher.run(job, jobParameters);
+
+	}</programlisting>
+      </para>
+      <para>There are numerous other potential attributes that can be set on the chunk &amp; tasklet
+        (for example, can it be restarted, how many elements need to fail to parse/validate before
+        the entire job should be abandoned etc); please see the Spring Batch documentation for
+        further detail.</para>
+    </section>
+    <section>
+      <title>Parsing in Parallel</title>
+      <para>When we configured our ItemReader we specified an elementStartPattern. This means that
+        as well as validating ComplexDataObjects in parallel, we can parallelise most of the parsing
+        too. This requires 2 steps: create a task dispatcher pool and tell the tasklet to use
+        it:</para>
+      <programlisting>    <emphasis role="bold">&lt;task:executor id="fileLoadingPool" pool-size="8"/></emphasis>
+    
+    ...
+
+    &lt;job id="fileLoader">
+		&lt;step id="parseFile">
+    		&lt;tasklet <emphasis role="bold">task-executor="fileLoadingPool" throttle-limit="8"</emphasis>>
+    			&lt;chunk reader="ioItemReader" writer="ioItemWriter" commit-interval="100"/>
+    		&lt;/tasklet>
+    	&lt;/step>
+    &lt;/job>    </programlisting>
+      <para>This creates a pool of 8 threads which will attempt to read the file in parallel. By
+        default the tasklet throttles at 4 concurrent threads of operation (even if the task
+        executor has more available) so we need to explicitly raise it if we wish to use
+        more.</para>
+    </section>
   </section>
 </chapter>
