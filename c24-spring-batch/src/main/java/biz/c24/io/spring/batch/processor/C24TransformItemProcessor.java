@@ -53,6 +53,17 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	}
 	
 	/*
+	 * Construct a C24TransformItemProcessor
+	 * 
+	 * @param transform The iO-generated transform to use
+	 * @param validateOutput Whether or not we will validate the result of the transform
+	 */
+	public C24TransformItemProcessor(Transform transform, boolean validateOutput) {
+		setTransformer(transform);
+		setValidation(validateOutput);
+	}
+	
+	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.batch.item.ItemProcessor#process(java.lang.Object)
 	 */
