@@ -49,6 +49,9 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
     	String scope = element.getAttribute("scope");
     	if(StringUtils.hasText(scope)) {
     		bean.setScope(scope);
+    	} else {
+    		// Default to step scope
+    		bean.setScope("step");
     	}
     	
     	// Mandatory
