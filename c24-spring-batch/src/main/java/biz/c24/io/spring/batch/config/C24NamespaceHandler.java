@@ -35,5 +35,6 @@ class C24NamespaceHandler extends NamespaceHandlerSupport {
 	public void init() {
 		registerBeanDefinitionParser("item-reader", new ItemReaderParser());
 		registerBeanDefinitionParser("transform-item-processor", new TransformItemProcessorParser());
+		registerBeanDefinitionParser("item-writer", new ItemWriterParser());
 	}
 }

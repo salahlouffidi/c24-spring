@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:bat-c24="http://schema.c24.biz/spring-batch"
+       xmlns:c24="http://schema.c24.biz/spring-core"
+       xsi:schemaLocation="
+		http://schema.c24.biz/spring-core	http://schema.c24.biz/spring-core.xsd
+		http://schema.c24.biz/spring-batch	http://schema.c24.biz/spring-batch.xsd
+		http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<!-- Declare a fileWriterSource -->
+	<bean id="fileWriterSource" class="biz.c24.io.spring.batch.writer.source.FileWriterSource"/>
+	<!-- Declare a TextualSink -->
+	<bean id="textualSink" class="biz.c24.io.api.presentation.TextualSink"/>
+	
+	<!-- Declare a C24ItemWriter -->	
+	<bat-c24:item-writer id="ioItemWriter" sink-ref="textualSink" writer-source-ref="fileWriterSource" scope="singleton"/>
+	
+</beans>
