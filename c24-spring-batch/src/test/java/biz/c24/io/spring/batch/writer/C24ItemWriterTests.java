@@ -20,16 +20,23 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
+import org.apache.poi.hssf.record.formula.functions.Ipmt;
 import org.junit.Test;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
 import biz.c24.io.api.presentation.TextualSink;
 import biz.c24.io.examples.models.basic.Employee;
 import biz.c24.io.spring.batch.writer.source.FileWriterSource;
+import biz.c24.io.spring.batch.writer.source.ZipFileWriterSource;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -42,29 +49,29 @@ import static org.junit.Assert.*;
 public class C24ItemWriterTests {
 	
 	@SuppressWarnings("serial")
-	@Test
-	public void testFileWrite() throws Exception {
-		// Create some sample data
-		List<Employee> employees = new LinkedList<Employee>();
-		
-		employees.add(new Employee() {{
+	private List<Employee> employees = new LinkedList<Employee>() {{	
+		add(new Employee() {{
 			setFirstName("Andy");
 			setLastName("Acheson");
 			setJobTitle("Barman");
 		}});
-		
-		employees.add(new Employee() {{
+	
+		add(new Employee() {{
 			setFirstName("Steven");
 			setLastName("Blair");
 			setJobTitle("Professional Golfer");
 		}});
 		
-		employees.add(new Employee() {{
+		add(new Employee() {{
 			setFirstName("Matthew");
 			setLastName("Richardson");
 			setJobTitle("Fireman");
 		}});
-		
+	}};
+	
+	@Test
+	public void testFileWrite() throws Exception {
+
 		String outputFileName = null;
 		
 		try {
@@ -82,7 +89,64 @@ public class C24ItemWriterTests {
 			itemWriter.cleanup();
 	
 			// Check that we wrote out what was expected
-			compareCsv(outputFileName, employees);
+			FileInputStream inputStream = new FileInputStream(outputFileName);
+			try {
+				compareCsv(inputStream, employees);
+			} finally {
+				if(inputStream != null) {
+					inputStream.close();
+				}
+			}
+			
+		} finally {
+			if(outputFileName != null) {
+				// Clear up our temporary file
+				File file = new File(outputFileName);
+				file.delete();
+			}
+		}
+		
+	}
+	
+	@Test
+	public void testZipFileWrite() throws Exception {
+
+		String outputFileName = null;
+		
+		try {
+			// Get somewhere temporary to write out to
+			outputFileName = File.createTempFile("ItemWriterTest-", ".csv.zip").getAbsolutePath();
+		
+			// Configure the ItemWriter
+			C24ItemWriter itemWriter = new C24ItemWriter();		
+			itemWriter.setSink(new TextualSink());
+			itemWriter.setWriterSource(new ZipFileWriterSource());
+			itemWriter.setup(getStepExecution(outputFileName));
+			// Write the employees out
+			itemWriter.write(employees);
+			// Close the file
+			itemWriter.cleanup();
+	
+			// Check that we wrote out what was expected
+			ZipFile zipFile = new ZipFile(outputFileName);
+			Enumeration<? extends ZipEntry> entries = zipFile.entries();
+			assertNotNull(entries);
+			// Make sure there's at least one entry
+			assertTrue(entries.hasMoreElements());
+			ZipEntry entry = entries.nextElement();
+			// Make sure that the trailing .zip has been removed and the leading path has been removed
+			assertFalse(entry.getName().contains(System.getProperty("file.separator")));
+			assertFalse(entry.getName().endsWith(".zip"));
+			// Make sure that there aren't any other entries
+			assertFalse(entries.hasMoreElements());
+			
+			try {
+				compareCsv(zipFile.getInputStream(entry), employees);
+			} finally {
+				if(zipFile != null) {
+					zipFile.close();
+				}
+			}
 			
 		} finally {
 			if(outputFileName != null) {
@@ -100,14 +164,10 @@ public class C24ItemWriterTests {
 	 * @param fileName The file to read
 	 * @param employees The list of employees we expect to read from the file
 	 */
-	private void compareCsv(String fileName, List<Employee> employees) throws IOException {
+	private void compareCsv(InputStream inputStream, List<Employee> employees) throws IOException {
 		BufferedReader reader = null;
 		
-		try {
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
-		} catch(FileNotFoundException fnfEx) {
-			fail("ItemWriter failed to write to the output file");
-		}
+		reader = new BufferedReader(new InputStreamReader(inputStream));
 		
 		for(Employee employee : employees) {
 			if(!reader.ready()) {
