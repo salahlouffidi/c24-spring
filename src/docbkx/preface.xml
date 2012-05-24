@@ -36,6 +36,11 @@
           <para>Integration - Integration with Spring Integration
           components</para>
         </listitem>
+        
+	<listitem>
+          <para>Batch - Integration with Spring Batch
+          components</para>
+	</listitem>
       </itemizedlist>
     </section>
   </section>

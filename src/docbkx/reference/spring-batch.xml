@@ -47,8 +47,8 @@
       type to model the receipt and a Receipts type (containing zero or more Receipt) to model the
       file - we would use the ReceiptElement in this case (and not the ReceiptsElement).</para>
     <para>In its current form thefore, the ItemReader is better suited for fixed length or delimited
-      files (e.g.CSV) than it is for hierarchical files (e.g. XML) although the splitting capability
-      (see below) may be able to take care of these concerns.</para>
+      files (e.g. CSV) than it is for hierarchical files (e.g. XML) although the splitting
+      capability (see below) may be able to take care of these concerns.</para>
     <section>
       <title>Sources</title>
       <para>The C24 ItemReader needs a source from which to read its data. Currently there are 2
@@ -60,7 +60,7 @@
             <para>biz.c24.io.spring.batch.reader.source.ZipFileSource</para>
           </listitem>
         </itemizedlist>The first of these reads from a single, uncompressed file while the latter
-        accepts a zip file as input and will process the contents of all contained files.</para>
+        accepts a zip file as input and will process the contents of all contained entries.</para>
       <para>Both sources derive their input filename from a JobParameter called 'input.file' (as
         populated by the Spring Batch Admin
         org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter). </para>
@@ -185,9 +185,12 @@ public C24TransformItemProcessor getIoItemProcessor() {
     <section>
       <title>WriterSources</title>
       <para>The C24 ItemWrtier needs to know where to write the output from the Sink. Currently
-        there is a single supported implementation:<itemizedlist>
+        there are supplied implementations:<itemizedlist>
           <listitem>
             <para>biz.c24.io.spring.batch.writer.source.FileWriterSource</para>
+          </listitem>
+          <listitem>
+            <para>biz.c24.io.spring.batch.writer.source.ZipFileWriterSource</para>
           </listitem>
         </itemizedlist></para>
       <para>The FileWriterSource writes all data to a single file, without any limits on the file
@@ -199,6 +202,9 @@ public C24TransformItemProcessor getIoItemProcessor() {
       <para>Note that the source is declared with a scope of step. This is because it holds data
         relevant to the current step execution, hence a separate instance is required for
         each.</para>
+      <para>The ZipFileWriterSource behaves identically except that it will create a zip file (thus
+        the filename supplied in output.file should end with .zip) with a single entry, named after
+        the filename with any leading path and the file suffix stripped off.</para>
     </section>
     <section>
       <title>C24ItemWriter</title>
@@ -466,6 +472,99 @@ G.Gatsby@company.com</programlisting>
         specificied the only logic inside the reading synchronisation point is to read data until a
         matching line is encountered; all interpretation of that data takes place outside of the
         synchronised block).</para>
+    </section>
+    <section>
+      <title>Integration with Spring Integration</title>
+      <para>It is often beneficial to be able to move between the Spring Batch &amp; Spring
+        Integration worlds within the same flow. Although this process is handled purely by Spring
+        Batch &amp; Spring Integration components, the general process is summarised here to provide
+        basic guidance.</para>
+      <section>
+        <title>Launching a Job from Spring Integration</title>
+        <para>A common scenario would be that we have an inbound file adapter picking up new files
+          from the file system and wish to hand the processing of them over to Spring Batch. This
+          requires components from both the Spring Batch Integration project and also the Spring
+          Batch Admin project. There are 2 steps in the Spring Integration flow:<itemizedlist>
+            <listitem>
+              <para>Convert the java.io.File received from the inbound-file-adapter to a job launch
+                request (including setting the input.file property)</para>
+            </listitem>
+            <listitem>
+              <para>Launch the job</para>
+            </listitem>
+          </itemizedlist></para>
+        <para>In the example code below you'll see the 2 steps above implemented using 2
+          service-activators which have been chained together. </para>
+        <para>The first one takes a reference to the job that is to be launched; the example below
+          launches the fileLoader job from an earlier example.</para>
+        <para>The last one returns the status of the launch request; in the code below this is sent
+          to a logging adapter but you'll probably want it to go to a monitoring system.</para>
+        <para>
+          <programlisting>&lt;beans:beans xmlns="http://www.springframework.org/schema/integration" 
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  xmlns:int-file="http://www.springframework.org/schema/integration/file"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+    http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    &lt;!-- Create an inbound file adapter to watch for files -->
+	&lt;int-file:inbound-channel-adapter directory="classpath:" 
+									  filename-pattern="employees-*.csv" 
+									  prevent-duplicates="true" 
+									  channel="inboundEmployeeFile">
+	&lt;/int-file:inbound-channel-adapter>
+    
+    &lt;chain input-channel="inboundEmployeeFile" output-channel="logger">
+		&lt;service-activator>
+			&lt;beans:bean class="org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter">
+	        	&lt;beans:property name="job" ref="fileLoader" />
+	        &lt;/beans:bean>
+		&lt;/service-activator>
+		&lt;service-activator ref="jobMessageLauncher"/>
+	&lt;/chain>
+
+    &lt;logging-channel-adapter id="logger" log-full-message="true" level="WARN"/>
+
+&lt;/beans:bean></programlisting>
+        </para>
+        <para>What is the jobMessageLauncher referenced above? It's a Spring Batch Integration
+          component to bridge from a Spring Integration Message into the Spring Batch domain:</para>
+        <para>
+          <programlisting>	&lt;beans:bean id="jobMessageLauncher" class="org.springframework.batch.integration.launch.JobLaunchingMessageHandler">
+		&lt;beans:constructor-arg ref="jobLauncher"/>
+	&lt;/beans:bean></programlisting>
+        </para>
+        <para>It's constructor takes a Spring Batch job launcher as an argument, such as the
+          SimpleJobLauncher that we used in the earlier examples.</para>
+      </section>
+      <section>
+        <title>Writing back to Spring Integration</title>
+        <para>While using Spring Batch is great for dealing with the file, once we have our
+          individual Elements it can be desirable to push them back in to our Spring Integration
+          flows. This requires us to create an ItemWriter that our job can use to write items as
+          messages to a Spring Integration channel.</para>
+        <para>Existing Spring Integration componentry makes this task straightforward. The Spring
+          Integration gateway can proxy any interface, wrapping the parameter in a Message and
+          delivering to a channel:</para>
+        <para>
+          <programlisting>  	&lt;gateway service-interface="org.springframework.batch.item.ItemWriter" 
+  			 id="employeeChannelItemWriter" 
+  			 default-request-timeout="100" 
+  			 default-request-channel="processEmployeeCollection" /> </programlisting>
+        </para>
+        <para>Recall that the ItemWriter interface takes a Collection of objects, hence the message
+          that this generates will have a Collection as its payload. If we want to push the
+          individual objects in to our flow, we need to wire in a splitter:</para>
+        <para>
+          <programlisting>	&lt;channel id="processEmployeeCollection"/>
+    &lt;splitter input-channel="processEmployeeCollection" output-channel="processEmployee"/>	</programlisting>
+        </para>
+        <para>That's it! Combining the above 2 techniques allows us to define a core Spring
+          Integration flow, with a unified approach to acquiring feeds and a common processing core,
+          while still allowing us to delegate file (actually any batch input) to Spring Batch where
+          it is advantageous to do so. </para>
+      </section>
     </section>
   </section>
 </chapter>

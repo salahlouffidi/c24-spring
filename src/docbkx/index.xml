@@ -35,6 +35,16 @@
 
         <email>ogierke@vmware.com</email>
       </author>
+
+      <author>
+	<firstname>Andrew</firstname>
+	<surname>Elmore</surname>
+	<affiliation>
+	  <jobtitle>Head of Development</jobtitle>
+	  <orgname>C24</orgname>
+	</affiliation>
+	<email>andrew.elmore@c24.biz</email>
+      </author>
     </authorgroup>
 
     <legalnotice>
@@ -48,6 +58,7 @@
 
     <copyright>
       <year>2011</year>
+      <year>2012</year>
 
       <holder>C24</holder>
     </copyright>
@@ -61,6 +72,7 @@
   	<title>Reference documentation</title>
     <xi:include href="./reference/spring-core.xml" />
     <xi:include href="./reference/spring-integration.xml" />
+    <xi:include href="./reference/spring-batch.xml" />
   </part>
 
 <!-- 

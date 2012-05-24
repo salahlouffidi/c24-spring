@@ -1,6 +1,6 @@
 ## C24 Spring integration ##
 
-This project is an integration library between C24 IO and Spring/Spring Integration. It allows to seamlessly use data model code generated from C24 in Spring application.
+This project is a set of integration libraries between C24 IO and Spring, Spring Integration and Spring Batch. It allows to seamless use of data model code generated from C24 iO in Spring applications.
 
 ### Core support ###
 
