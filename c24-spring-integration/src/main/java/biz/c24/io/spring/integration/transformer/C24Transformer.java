@@ -15,6 +15,8 @@
  */
 package biz.c24.io.spring.integration.transformer;
 
+import java.io.IOException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -22,6 +24,8 @@ import org.springframework.integration.Message;
 import org.springframework.integration.transformer.AbstractTransformer;
 import org.springframework.util.Assert;
 
+import biz.c24.io.api.data.ComplexDataObject;
+import biz.c24.io.api.presentation.JavaClassSink;
 import biz.c24.io.api.transform.Transform;
 
 /**
@@ -36,6 +40,7 @@ InitializingBean {
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	private Class<? extends Transform> transformClass;
+	private JavaClassSink javaSink = null;
 
 	private boolean alwaysReturnArray = false;
 
@@ -49,6 +54,11 @@ InitializingBean {
 				"The transform class cannot be set to null");
 
 		this.transformClass = transformClass;
+	}
+	
+	public void setJavaClass(Class<?> javaClass) {
+		javaSink = new JavaClassSink();
+		javaSink.setRootClass(javaClass);
 	}
 
 	/**
@@ -80,7 +90,7 @@ InitializingBean {
 		return output;
 	}
 
-	protected Object extractOutputPayload(Object[][] results) {
+	protected Object extractOutputPayload(Object[][] results) throws IOException {
 
 		if (results.length == 0) {
 			// Empty matrix
@@ -97,11 +107,29 @@ InitializingBean {
 
 		// Single result, unwrap and use as new payload. Fairly common.
 		if (resultVector.length == 1 && !alwaysReturnArray) {
-			return resultVector[0];
+			return sink(resultVector[0]);
 		}
 
 		// Return a full array of output
-		return resultVector;
+		return sink(resultVector);
+	}
+	
+	private Object sink(Object obj) throws IOException {
+		if(javaSink != null) {
+			obj = javaSink.convertObject((ComplexDataObject)obj);
+		}
+		
+		return obj;
+	}
+	
+	private Object[] sink(Object[] objs) throws IOException {
+		if(javaSink != null) {
+			for(int i = 0; i < objs.length; i++) {
+				objs[i] = javaSink.convertObject((ComplexDataObject)objs[i]);
+			}
+		}
+		
+		return objs;
 	}
 
 	/**

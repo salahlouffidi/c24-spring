@@ -198,6 +198,7 @@
 
       <para><programlisting language="xml">&lt;int-c24:transformer
   transform-class="biz.c24.io.examples.transforms.basic.ExampleTransform"
+  java-class="…"
   input-channel="…"
   output-channel="…"
   always-return-array="false" /&gt;</programlisting></para>
@@ -209,9 +210,14 @@
           </listitem>
 
           <listitem>
-            <para><emphasis>always-return-array</emphasis> - if you want the
-            output to always be an array, even if only a single object was the
-            output from the transform. See below.</para>
+            <para><emphasis>always-return-array</emphasis> - if you want the output to always be an
+              array, even if only a single object was the output from the transform. See
+              below.</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>java-class</emphasis> - if the target model was imported from a Java
+              class, setting this parameter will cause the transformer to transform directly to that
+              type as opposed to a ComplexDataObject.</para>
           </listitem>
         </itemizedlist></para>
     </section>
@@ -233,6 +239,9 @@
       If the transform yields more then one object, or if the attribute
       <emphasis>always-return-array</emphasis> is set to true, then an
       <classname>Object[]</classname> will be the payload.</para>
+      <para>If the <emphasis>java-class</emphasis> attribute is set, the transformer will attempt to
+        transform directly to that type rather than the <classname>ComplexDataObject</classname>
+        form.</para>
     </section>
 
     <!-- TODO <section id="transformation-bean-config"></section> -->
