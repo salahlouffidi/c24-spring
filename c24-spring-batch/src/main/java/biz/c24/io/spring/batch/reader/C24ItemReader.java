@@ -93,7 +93,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 * Control whether or not we validate the parsed CDOs
 	 */
 	private boolean validate = false;
-	private ValidationManager validator = new ValidationManager();
+	private ThreadLocal<ValidationManager> validator = new ThreadLocal<ValidationManager>();
 	
 	public C24ItemReader() {
 		// Default to a textual source factory
@@ -345,7 +345,12 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 		
 		if(validate && result != null) {
 			try {
-				validator.validateByException(result);
+				ValidationManager mgr = validator.get();
+				if(mgr == null) {
+					mgr = new ValidationManager();
+					validator.set(mgr);
+				}
+				mgr.validateByException(result);
 			} catch(ValidationException vEx) {
 				throw new ParseException("Failed to validate CDO", vEx);
 			}
