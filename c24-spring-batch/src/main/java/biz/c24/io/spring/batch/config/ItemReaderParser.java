@@ -74,5 +74,11 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
     		boolean val = Boolean.parseBoolean(validate);
     		bean.addPropertyValue("validate", val);
     	}
+    	
+    	// Optional
+    	String sourceFactoryRef = element.getAttribute("source-factory-ref");
+    	if(StringUtils.hasText(sourceFactoryRef)) {
+    		bean.addPropertyReference("sourceFactory", sourceFactoryRef);
+    	}
     }    
 }

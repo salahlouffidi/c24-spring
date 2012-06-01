@@ -35,6 +35,8 @@ import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
 import biz.c24.io.spring.batch.reader.source.FileSource;
 import biz.c24.io.spring.batch.reader.source.ZipFileSource;
 import biz.c24.io.spring.core.C24Model;
+import biz.c24.io.spring.source.SourceFactory;
+import biz.c24.io.spring.source.TextualSourceFactory;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -64,6 +66,28 @@ public class C24ItemReaderTests {
 		
 		// Validation & splitting
 		objs = readFile(employeeModel, ".*", true, source, filename);
+		assertThat(objs.size(), is(3));
+	}
+	
+	@Test
+	public void testSourceFactory() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
+		
+		FileSource source = new FileSource();
+		String filename = "employees-3-valid.csv";
+		
+		TextualSourceFactory factory = new TextualSourceFactory();
+		factory.setEndOfDataRequired(false);
+		
+		// No validation, no splitting
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, false, source, filename, factory);
+		assertThat(objs.size(), is(3));
+		
+		// Validation but no splitting
+		objs = readFile(employeeModel, null, true, source, filename, factory);
+		assertThat(objs.size(), is(3));
+		
+		// Validation & splitting
+		objs = readFile(employeeModel, ".*", true, source, filename, factory);
 		assertThat(objs.size(), is(3));
 	}
 	
@@ -145,12 +169,18 @@ public class C24ItemReaderTests {
 		assertThat(objs.size(), is(5));
 	}
 	
-	
 	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, boolean validate, BufferedReaderSource source, String filename) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
+		return readFile(model, optionalElementStartRegEx, validate, source, filename, null);
+	}
+	
+	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, boolean validate, BufferedReaderSource source, String filename, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
 		C24ItemReader reader = new C24ItemReader();
 		reader.setModel(model);
 		if(optionalElementStartRegEx != null) {
 			reader.setElementStartPattern(optionalElementStartRegEx);
+		}
+		if(factory != null) {
+			reader.setSourceFactory(factory);
 		}
 		
 		reader.setSource(source);

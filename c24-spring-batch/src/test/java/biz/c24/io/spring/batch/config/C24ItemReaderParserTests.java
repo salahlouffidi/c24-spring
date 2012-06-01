@@ -28,6 +28,9 @@ import biz.c24.io.spring.batch.reader.C24ItemReader;
 import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
 import biz.c24.io.spring.batch.reader.source.FileSource;
 import biz.c24.io.spring.batch.reader.source.ZipFileSource;
+import biz.c24.io.spring.source.SourceFactory;
+import biz.c24.io.spring.source.TextualSourceFactory;
+import biz.c24.io.spring.source.XmlSourceFactory;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -66,13 +69,25 @@ public class C24ItemReaderParserTests {
 	@Qualifier("splittingValidatingZipReader")
 	private C24ItemReader splittingValidatingZipReader;
 	
+	@Autowired
+	@Qualifier("xmlSourceFactoryReader")
+	private C24ItemReader xmlSourceFactoryReader;
+	
+	
+	
 	private void validateReader(C24ItemReader reader, String expectedStartPattern, boolean expectedValidate, 
 								Class<? extends BufferedReaderSource> expectedSource) {
+		validateReader(reader, expectedStartPattern, expectedValidate, expectedSource, TextualSourceFactory.class);
+	}
+		
+	private void validateReader(C24ItemReader reader, String expectedStartPattern, boolean expectedValidate, 
+				Class<? extends BufferedReaderSource> expectedSource, Class<? extends SourceFactory> expectedSourceFactory) {
 		
 		assertThat(reader.getElementStartPattern(), is(expectedStartPattern));
 		assertThat(reader.isValidating(), is(expectedValidate));
 		assertThat(reader.getElementType(), is(employeeElement));
 		assertThat(reader.getSource(), instanceOf(expectedSource));
+		assertThat(reader.getSourceFactory(), instanceOf(expectedSourceFactory));
 
 		
 	}
@@ -86,6 +101,8 @@ public class C24ItemReaderParserTests {
 		validateReader(splittingValidatingCsvReader, ".*", true, FileSource.class);
 		validateReader(nonSplittingValidatingZipReader, null, true, ZipFileSource.class);
 		validateReader(splittingValidatingZipReader, ".*", true, ZipFileSource.class);
+		validateReader(xmlSourceFactoryReader, ".*", true, FileSource.class, XmlSourceFactory.class);
+
 	}
 	
 

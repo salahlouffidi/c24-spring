@@ -29,18 +29,17 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.Assert;
 
-import biz.c24.io.api.ParserException;
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.Element;
 import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.api.data.ValidationManager;
-import biz.c24.io.api.presentation.TextualSource;
-
+import biz.c24.io.api.presentation.Source;
 import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
 import biz.c24.io.spring.core.C24Model;
+import biz.c24.io.spring.source.SourceFactory;
+import biz.c24.io.spring.source.TextualSourceFactory;
 
 /*
  * ItemReader that reads ComplexDataObjects from a BufferedReaderSource.
@@ -59,13 +58,18 @@ import biz.c24.io.spring.core.C24Model;
 public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	
 	/*
+	 * SourceFactory to use to generate our IO Sources
+	 */
+	private SourceFactory ioSourceFactory;
+	
+	/*
 	 * IO Source to use where we do not have an elementStartPattern
 	 */
-	private TextualSource ioSource = null;
+	private Source ioSource = null;
 	/*
 	 * Cache for IO sources where we have an elementStartPattern and can parallelise parsing
 	 */
-	private ThreadLocal<TextualSource> threadedIOSource = new ThreadLocal<TextualSource>();
+	private ThreadLocal<Source> threadedIOSource = new ThreadLocal<Source>();
 	
 	/*
 	 * The type of CDO that we will parse from the source
@@ -90,6 +94,13 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 */
 	private boolean validate = false;
 	private ValidationManager validator = new ValidationManager();
+	
+	public C24ItemReader() {
+		// Default to a textual source factory
+		TextualSourceFactory factory = new TextualSourceFactory();
+		factory.setEndOfDataRequired(false);
+		ioSourceFactory = factory;
+	}
 	
 	@PostConstruct
 	public void validateConfiguration() {
@@ -174,6 +185,19 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 */
 	public void setSource(BufferedReaderSource source) {
 		this.source = source;
+	}
+	
+	/*
+	 * Sets the iO source factory to use
+	 * 
+	 * @param ioSourceFactory
+	 */
+	public void setSourceFactory(SourceFactory ioSourceFactory) {
+		this.ioSourceFactory = ioSourceFactory;
+	}
+	
+	public SourceFactory getSourceFactory() {
+		return this.ioSourceFactory;
 	}
 	
 	/*
@@ -277,14 +301,17 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 				// If we got something then parse it
 				if(element != null && element.trim().length() > 0) {
 					
-					TextualSource parser = threadedIOSource.get();
+					StringReader stringReader = new StringReader(element);
+					
+					Source parser = threadedIOSource.get();
 					if(parser == null) {
-						parser = new TextualSource();
+						parser = ioSourceFactory.getSource(stringReader);
 						threadedIOSource.set(parser);
+					} else {
+						parser.setReader(stringReader);
 					}
 				
 					try {
-						parser.setReader(new StringReader(element));
 						result = parser.readObject(elementType);
 					} catch(IOException ioEx) {
 						throw new UnexpectedInputException("Failed to parse CDO from source: " + element, ioEx);
@@ -295,10 +322,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 				// As we don't have an elementSplitPattern to use, we'll have to parse CDOs from the BufferedReader in serial
 				synchronized(this) {
 					if(ioSource == null) {
-						ioSource = new TextualSource();
-						// We're reading data incrementally so turn this check off
-						ioSource.setEndOfDataRequired(false);
-						ioSource.setReader(reader);
+						ioSource = ioSourceFactory.getSource(reader);
 					}
 					
 					try {

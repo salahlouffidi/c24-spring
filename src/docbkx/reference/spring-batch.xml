@@ -78,7 +78,7 @@
       <para>The C24ItemReader can be used as a standard ItemReader in any Spring Batch flow.
         Assuming the namespace declarations above, it is instantiated as:</para>
       <para>
-        <programlisting><code>  &lt;bat-c24:item-reader id="ioItemReader" model-ref="demoModel" source-ref="fileSource" elementStartPattern=".*201\d-\d\d-\d\dT.*" validate="true" scope="step"/> </code></programlisting>
+        <programlisting><code>  &lt;bat-c24:item-reader id="ioItemReader" model-ref="demoModel" source-ref="fileSource" elementStartPattern=".*201\d-\d\d-\d\dT.*" validate="true" source-factory-ref="..." scope="step"/> </code></programlisting>
       </para>
       <para>In order, these attributes are:</para>
       <para>
@@ -99,6 +99,10 @@
           <listitem>
             <para>validate - whether or not to validate the parsed object [Optional - default
               false]</para>
+          </listitem>
+          <listitem>
+            <para>source-factory-ref - The iO SourceFactory that is used to parse the message
+              [Optional - default is TextualSourceFactory]</para>
           </listitem>
           <listitem>
             <para>scope - the bean's scope [Optional - default step]</para>
