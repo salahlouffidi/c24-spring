@@ -20,14 +20,16 @@ import org.springframework.beans.factory.annotation.Required;
 
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.ValidationManager;
+import biz.c24.io.api.presentation.JavaClassSink;
 import biz.c24.io.api.transform.Transform;
 
 /*
- * A Spring Batch ItemProcesor which invokes a C24 IO Transform to convert a CDO from one model to another
+ * A Spring Batch ItemProcesor which invokes a C24 IO Transform to convert a CDO from one model to another.
+ * Optionally transforms to a target-model compliant Java Bean
  * 
  * @author Andrew Elmore
  */
-public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObject, ComplexDataObject> {
+public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObject, Object> {
 
 	/*
 	 * The C24 IO transform to use
@@ -36,6 +38,11 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	
 	private ValidationManager validationManager = null;
 	
+	/*
+	 * Optional JavaClassSink to use to convert CDOs to POJOs
+	 */
+	private JavaClassSink javaSink = null;
+
 	/*
 	 * Default constructor. Requires that the transformer is initialised separately.
 	 */
@@ -68,7 +75,7 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	 * @see org.springframework.batch.item.ItemProcessor#process(java.lang.Object)
 	 */
 	@Override
-	public ComplexDataObject process(ComplexDataObject item) throws Exception {
+	public Object process(ComplexDataObject item) throws Exception {
 		Object[][] transformedObj = transformer.transform(new Object[][]{{item}});
 		
 		ComplexDataObject result = (ComplexDataObject)transformedObj[0][0];
@@ -77,7 +84,11 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 			validationManager.validateByException(result);
 		}
 		
-		return result;
+		if(javaSink != null) {
+			return javaSink.convertObject(result);
+		} else {		
+			return result;
+		}
 	}
 
 	/*
@@ -115,6 +126,30 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	 */
 	public void setValidation(boolean validate) {
 		validationManager = validate? new ValidationManager() : null;
+	}
+	
+	
+	/*
+	 * Returns the sink being used if any
+	 * 
+	 * @return The current JavaClassSink
+	 */
+	public Class<?> getTargetClass() {
+		return javaSink != null? javaSink.getRootClass() : null;
+	}
+
+	/*
+	 * Turns on/off returning POJOs or ComplexDataObjects
+	 * 
+	 * @param targetClass The Java Bean class to sink to, or CDO if null
+	 */
+	public void setTargetClass(Class<?> targetClass) {
+		if(targetClass != null) {
+			javaSink = new JavaClassSink();
+			javaSink.setRootClass(targetClass);
+		} else {
+			javaSink = null;
+		}
 	}
 	
 

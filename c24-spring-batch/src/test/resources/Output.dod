@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<dataModel targetNamespace="http://www.c24.biz/io/examples/models/basic" hibernateIDGeneratorMethodDefault="native" encrypted="false" encoding="UTF-8" elementFormDefault="Qualified" attributeFormDefault="Unqualified" IOversion="3.1.0" version="0.0.1" name="Output.dod">
+<dataModel targetNamespace="http://www.c24.biz/io/examples/models/basic" hibernateIDGeneratorMethodDefault="native" encrypted="false" encoding="UTF-8" elementFormDefault="Qualified" attributeFormDefault="Unqualified" IOversion="3.1.0" version="0.0.2" name="Output.dod">
     <type>
         <complexType specifyStructure="true" specialisation="Generic complex" processAsBatch="false" excludeFromDatabase="false" contentModel="Sequence" abstract="false" name="Email">
+            <facet facetType="terminator">
+                <value>0d0a|0a|0d</value>
+            </facet>
             <facet facetType="delimiter">
                 <value>Postfix|false|20</value>
             </facet>
@@ -13,7 +16,7 @@
             <element identifier="true" typeRef="DomainName" min="1" max="1" name="DomainName"/>
         </complexType>
     </type>
-	<validationRule severity="Error" name="EmailValidCharsOnly">
+    <validationRule severity="Error" name="EmailValidCharsOnly">
         <code>
         	java.lang.String fragment = (java.lang.String)object;
         	if(fragment.contains(&quot;@&quot;)) {
@@ -27,12 +30,12 @@
     <element identifier="true" typeRef="Email" min="1" max="1" name="Email"/>
     <type>
         <atomicSimpleType baseType="#string" name="FirstNameInitial">
-        	<validationRuleRef ref="EmailValidCharsOnly"/>
+            <validationRuleRef ref="EmailValidCharsOnly"/>
         </atomicSimpleType>
     </type>
     <type>
         <atomicSimpleType baseType="#string" name="Surname">
-        	<validationRuleRef ref="EmailValidCharsOnly"/>
+            <validationRuleRef ref="EmailValidCharsOnly"/>
         </atomicSimpleType>
     </type>
     <type>

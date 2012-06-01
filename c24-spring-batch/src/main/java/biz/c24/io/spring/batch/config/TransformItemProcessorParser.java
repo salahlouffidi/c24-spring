@@ -54,6 +54,12 @@ public class TransformItemProcessorParser extends AbstractSingleBeanDefinitionPa
 			boolean val = Boolean.parseBoolean(validate);
 			builder.addPropertyValue("validation", val);
 		}
+		
+		// Optional
+		String targetClass = element.getAttribute("target-class");
+		if(StringUtils.hasText(targetClass)) {
+			builder.addPropertyValue("targetClass", targetClass);
+		}
 	}
 
 }

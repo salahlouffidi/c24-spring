@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import biz.c24.io.api.transform.Transform;
 import biz.c24.io.spring.batch.processor.C24TransformItemProcessor;
+import biz.c24.io.spring.batch.processor.C24TransformItemProcessorTests.MyEmail;
 
 /*
  * Validate the C24TranformItemProcessor parser
@@ -48,22 +49,32 @@ public class C24TransformItemProcessorParserTests {
 	@Autowired
 	@Qualifier("defaultTransformItemProcessor")
 	C24TransformItemProcessor defaultTransformItemProcessor;
+
+	@Autowired
+	@Qualifier("javaSinkItemProcessor")
+	C24TransformItemProcessor javaSinkItemProcessor;
 	
 	@Autowired
 	Transform transform;
 	
 	
-	private void validateProcessor(C24TransformItemProcessor processor, boolean validating) {
+	private void validateProcessor(C24TransformItemProcessor processor, boolean validating, Class<?> clazz) {
 		assertThat(processor.getTransformer(), is(transform));
 		assertThat(processor.isValidating(), is(validating));
+		if(clazz == null) {
+			assertThat(processor.getTargetClass(), nullValue()) ;
+		} else {
+			assertEquals(clazz, processor.getTargetClass());
+		}
 	}
 	
 	@Test
 	public void validateParser() {
 		
-		validateProcessor(defaultTransformItemProcessor, false);
-		validateProcessor(transformItemProcessor, false);
-		validateProcessor(validatingTransformItemProcessor, true);		
+		validateProcessor(defaultTransformItemProcessor, false, null);
+		validateProcessor(transformItemProcessor, false, null);
+		validateProcessor(validatingTransformItemProcessor, true, null);	
+		validateProcessor(javaSinkItemProcessor, false, MyEmail.class);	
 	}
 	
 	

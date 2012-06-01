@@ -49,7 +49,7 @@ public class C24TransformItemProcessorTests {
 		transformer.setTransformer(employeeToEmail);
 		transformer.setValidation(true);
 		
-		ComplexDataObject email = transformer.process(validEmployee);
+		Object email = transformer.process(validEmployee);
 		
 		assertThat(email, instanceOf(Email.class));
 		
@@ -71,7 +71,7 @@ public class C24TransformItemProcessorTests {
 		transformer.setValidation(false);
 		
 		// Validation is off so this should succeed
-		ComplexDataObject email = transformer.process(employee);
+		Object email = transformer.process(employee);
 		assertThat(email, instanceOf(Email.class));
 		
 		transformer.setValidation(true);
@@ -81,6 +81,57 @@ public class C24TransformItemProcessorTests {
 		} catch(ValidationException vEx) {
 			// Expected behaviour
 		}
+		
+	}
+	
+	public static class MyEmail {
+		
+		private String firstNameInitial;
+	    private String surname;
+	    private String domainName;
+		
+	    public String getFirstNameInitial() {
+			return firstNameInitial;
+		}
+		public void setFirstNameInitial(String firstNameInitial) {
+			this.firstNameInitial = firstNameInitial;
+		}
+		public String getSurname() {
+			return surname;
+		}
+		public void setSurname(String surname) {
+			this.surname = surname;
+		}
+		public String getDomainName() {
+			return domainName;
+		}
+		public void setDomainName(String domainName) {
+			this.domainName = domainName;
+		}
+	}
+	
+	@Test
+	public void testPojoTransform() throws Exception {
+		Employee validEmployee = new Employee();
+		
+		validEmployee.setFirstName("Dave");
+		validEmployee.setLastName("Taylor");
+		validEmployee.setSalutation("Mr");
+		validEmployee.setJobTitle("Compliance Officer");
+		
+		C24TransformItemProcessor transformer = new C24TransformItemProcessor();
+		transformer.setTransformer(employeeToEmail);
+		transformer.setTargetClass(MyEmail.class);
+		transformer.setValidation(true);
+		
+		Object obj = transformer.process(validEmployee);
+		
+		assertThat(obj, instanceOf(MyEmail.class));
+		
+		MyEmail email = (MyEmail) obj;
+		assertThat(email.getFirstNameInitial(), is("D"));
+		assertThat(email.getSurname(), is("Taylor"));
+		assertThat(email.getDomainName(), is("@company.com"));
 		
 	}
 	

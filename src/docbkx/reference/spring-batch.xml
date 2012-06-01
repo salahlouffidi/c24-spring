@@ -166,6 +166,20 @@ public C24TransformItemProcessor getIoItemProcessor() {
     </para>
     <para>The result of the transformation will also be a ComplexDataObject, but its ComplexDataType
       will be that of the destination type.</para>
+    <para>The C24TransformItemProcessor also supports an optional <emphasis>target-class</emphasis>
+      attribute. If specified, instead of returning a ComplexDataObject derirved object, the
+      transformer will attempt to transform to the class specified. This must be a valid Java Bean
+      whose properties match those of the transform's target model. For example:</para>
+    <para>
+      <programlisting>  &lt;bat-c24:transform-item-processor id="ioItemProcessor" transform-ref="demoTransform" target-class="My.JavaBeanClass"/></programlisting>
+    </para>
+    <para>will attempt to return an object of type My.JavaBeanClass, throwing an exception if the
+      target class does not provide the necessary API. For instance, if the target model was
+      originally imported from a Java class, the original Java class could be used as the
+      target-class.</para>
+    <para>Note that if the target-class attribute is used and the specified type is not derived from
+      ComplexDataObject, downstream C24 components which expect a ComplexDataObject as input (such
+      as the C24TransformItemProcessor itself and the C24ItemWriter) cannot be used.</para>
     <section>
       <title>Validation</title>
       <para>The C24TransformItemProcessor can also optionally validate the resultant
