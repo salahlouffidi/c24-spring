@@ -74,7 +74,21 @@ public class TextualSourceFactory implements SourceFactory {
 		// Only set the property if a value has been provided to one of the
 		// setters. If not, let the underlying Source retain the default.
 
-		textualSource.setEncoding(encoding);
+		if(encoding != null) {
+			textualSource.setEncoding(encoding);
+		}
+
+		if(endOfDataRequired != null) {
+			textualSource.setEndOfDataRequired(endOfDataRequired);
+		}
+		
+		if(lookAhead != null) {
+			textualSource.setLookAhead(lookAhead);
+		}
+		
+		if(lookBehind != null) {
+			textualSource.setLookBehind(lookBehind);
+		}
 
 		doConfigure(textualSource);
 
