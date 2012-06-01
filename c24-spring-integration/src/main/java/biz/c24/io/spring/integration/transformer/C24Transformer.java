@@ -56,9 +56,18 @@ InitializingBean {
 		this.transformClass = transformClass;
 	}
 	
-	public void setJavaClass(Class<?> javaClass) {
-		javaSink = new JavaClassSink();
-		javaSink.setRootClass(javaClass);
+	/*
+	 * Controls whether this transformer returns its default ComplexDataObject-based destination type, or instances of the supplied bean-compliant type.
+	 * 
+	 * @param targetClass Either null (to use the default CDO-based type) or a Java Bean compliant class whose fields match those of the target model.
+	 */
+	public void setTargetClass(Class<?> targetClass) {
+		if(targetClass != null) {
+			javaSink = new JavaClassSink();
+			javaSink.setRootClass(targetClass);
+		} else {
+			javaSink = null;
+		}
 	}
 
 	/**

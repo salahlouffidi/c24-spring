@@ -45,7 +45,7 @@ public class TransformerParser extends AbstractTransformerParser {
 				"always-return-array");
 		
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(builder, element, 
-				"java-class");
+				"target-class");
 
 	}
 

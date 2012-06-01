@@ -23,9 +23,12 @@ import org.junit.Test;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
+import biz.c24.io.examples.models.basic.Email;
+import biz.c24.io.examples.models.basic.Employee;
 import biz.c24.io.examples.models.basic.InputDocumentRootElement;
 import biz.c24.io.examples.models.basic.OutputDocumentRoot;
 import biz.c24.io.examples.transforms.basic.ExampleTransform;
+import biz.c24.io.examples.transforms.basic.EmployeeToEmailTransform;
 import biz.c24.io.spring.core.C24Model;
 
 
@@ -47,6 +50,63 @@ public class IoTransformerIUTests {
 		assertThat(outputMessage.getPayload(), is(OutputDocumentRoot.class));
 
 
+	}
+	
+	public static class MyEmail {
+		
+		private String firstNameInitial;
+	    private String surname;
+	    private String domainName;
+		
+	    public String getFirstNameInitial() {
+			return firstNameInitial;
+		}
+		public void setFirstNameInitial(String firstNameInitial) {
+			this.firstNameInitial = firstNameInitial;
+		}
+		public String getSurname() {
+			return surname;
+		}
+		public void setSurname(String surname) {
+			this.surname = surname;
+		}
+		public String getDomainName() {
+			return domainName;
+		}
+		public void setDomainName(String domainName) {
+			this.domainName = domainName;
+		}
+	}
+	
+	@Test
+	public void canTransformToPojo() throws Exception {
+		
+		Employee employee = new Employee();
+		employee.setFirstName("Tom");
+		employee.setLastName("Smith");
+		employee.setJobTitle("Porter");
+		
+		C24Transformer transformer = new C24Transformer();
+		transformer.setTransformClass(EmployeeToEmailTransform.class);
+		
+		Message<?> message = MessageBuilder.withPayload(employee).build();
+		
+		Message<?> result = transformer.transform(message);
+		
+		assertNotNull(result);
+		assertThat(result.getPayload(), is(Email.class));
+
+		transformer.setTargetClass(MyEmail.class);
+		
+		result = transformer.transform(message);
+		
+		assertNotNull(result);
+		assertThat(result.getPayload(), is(MyEmail.class));
+		MyEmail email = (MyEmail) result.getPayload();
+		assertThat(email.getFirstNameInitial(), is("T."));
+		assertThat(email.getSurname(), is("Smith"));
+		assertThat(email.getDomainName(), is("@company.com"));
+		
 	}
 
 }

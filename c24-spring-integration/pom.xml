@@ -73,6 +73,9 @@
                                         deployenvironment="false" generatemainmethods="false"/>
                                 <deploy file="src/test/resources/Output.dod" todir="target/generated-test-classes/model"
                                         deployenvironment="false" generatemainmethods="false"/>
+                                <deploy file="src/test/resources/EmployeeToEmail.tfd"
+                                        todir="target/generated-test-classes/model"
+                                        deployenvironment="false" generatemainmethods="false"/>
                                 <deploy file="src/test/resources/Example.tfd"
                                         todir="target/generated-test-classes/model"
                                         deployenvironment="false" generatemainmethods="false"/>
