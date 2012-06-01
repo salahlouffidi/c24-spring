@@ -140,7 +140,7 @@
                                    use="required"/>
                     <xsd:attribute name="always-return-array" type="xsd:boolean"
                                    default="false"/>
-                    <xsd:attribute name="java-class" type="classType"/>
+                    <xsd:attribute name="target-class" type="classType"/>
                     </xsd:extension>
             </xsd:complexContent>
         </xsd:complexType>
