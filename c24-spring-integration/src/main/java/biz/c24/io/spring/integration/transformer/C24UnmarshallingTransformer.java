@@ -33,6 +33,7 @@ import biz.c24.io.api.presentation.Source;
 import biz.c24.io.spring.core.C24Model;
 import biz.c24.io.spring.source.SourceFactory;
 import biz.c24.io.spring.util.C24Utils;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Unmarshals a raw input to a Complex object.
@@ -133,6 +134,8 @@ AbstractPayloadTransformer<Object, Object> {
 		} else if (payload instanceof byte[]) {
 			source = sourceFactory.getSource(new ByteArrayInputStream(
 					(byte[]) payload));
+        } else if (payload instanceof MultipartFile) {
+            source = sourceFactory.getSource(((MultipartFile) payload).getInputStream());
 		} else if (payload instanceof File) {
 			File file = (File) payload;
 			source = sourceFactory.getSource(new FileInputStream(file));

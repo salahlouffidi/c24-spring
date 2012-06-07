@@ -18,6 +18,8 @@ package biz.c24.io.spring.integration.transformer;
 import static biz.c24.io.spring.integration.test.TestUtils.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 import org.springframework.integration.Message;
@@ -28,6 +30,9 @@ import biz.c24.io.examples.models.basic.InputDocumentRootElement;
 import biz.c24.io.spring.core.C24Model;
 import biz.c24.io.spring.source.TextualSourceFactory;
 import biz.c24.io.spring.source.XmlSourceFactory;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.ByteArrayInputStream;
 
 public class IoUnmarshallingTransformerIUTests {
 
@@ -70,6 +75,26 @@ public class IoUnmarshallingTransformerIUTests {
 		Employees employees = (Employees) outputMessage.getPayload();
 
 	}
+
+    @Test
+    public void canUnmarshalTextFromMultipartFile() throws Exception {
+
+        byte[] valid1 = loadCsvBytes();
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getInputStream()).thenReturn(new ByteArrayInputStream(valid1));
+
+        C24UnmarshallingTransformer transformer = new C24UnmarshallingTransformer(
+      				model, new TextualSourceFactory());
+
+      	Message message = MessageBuilder.withPayload(file).build();
+
+        Message<?> outputMessage = transformer.transform(message);
+
+      		assertThat(outputMessage.getPayload(), notNullValue());
+      		assertThat(outputMessage.getPayload(), is(Employees.class));
+
+      		Employees employees = (Employees) outputMessage.getPayload();
+    }
 
 	@Test
 	public void canUnmarshalXmlFromString() throws Exception {
