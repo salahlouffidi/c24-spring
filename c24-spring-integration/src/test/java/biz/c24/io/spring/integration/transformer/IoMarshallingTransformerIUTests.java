@@ -114,7 +114,9 @@ public class IoMarshallingTransformerIUTests {
 		Message message = MessageBuilder.withPayload(loadObject()).build();
 		Message<?> outputMessage = ioMarshallingTransformer.transform(message);
 
-		assertThat((String) outputMessage.getPayload(), is(loadJsonString()));
+		String result = ((String)outputMessage.getPayload()).replaceAll("\n", "").replaceAll("\t", "");
+		String expected = loadJsonString().replaceAll("\n", "").replaceAll("\t", "");
+		assertThat(result, is(expected));
 	}
 
 }
