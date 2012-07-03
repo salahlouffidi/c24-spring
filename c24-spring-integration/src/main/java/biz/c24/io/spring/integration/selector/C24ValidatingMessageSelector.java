@@ -37,7 +37,7 @@ public class C24ValidatingMessageSelector implements MessageSelector {
 	@SuppressWarnings("unused")
 	private final Log logger = LogFactory.getLog(this.getClass());
 
-	private volatile boolean throwExceptionOnRejection;
+	private volatile boolean throwExceptionOnRejection = false;
 
 	private volatile boolean failFast = false;
 
@@ -60,7 +60,7 @@ public class C24ValidatingMessageSelector implements MessageSelector {
 		}
 
 		boolean result;
-		if (failFast) {
+		if (!throwExceptionOnRejection || failFast) {
 			result = validateFailFast(cdo, message);
 		} else {
 			result = validateAllEvents(cdo);

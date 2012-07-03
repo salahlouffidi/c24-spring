@@ -22,6 +22,23 @@
             Spring Integration support.
         </xsd:documentation>
     </xsd:annotation>
+    
+    <xsd:element name="validating-selector">
+    	<xsd:complexType>
+    		<xsd:annotation>
+    			<xsd:documentation>
+    				Defines a MessageSelector which will accept or reject a message
+    				depending on whether or not it passes validation.
+    			</xsd:documentation>
+    		</xsd:annotation>
+    		<xsd:complexContent>
+    			<xsd:extension base="beans:identifiedType">
+    				<xsd:attribute name="fail-fast" type="xsd:boolean"/>
+    				<xsd:attribute name="throw-exception-on-rejection" type="xsd:boolean"/>
+    			</xsd:extension>
+    		</xsd:complexContent>
+    	</xsd:complexType>
+    </xsd:element>
 
     <xsd:element name="marshalling-transformer">
         <xsd:complexType>

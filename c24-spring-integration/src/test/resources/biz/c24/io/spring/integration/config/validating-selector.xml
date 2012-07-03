@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int-c24="http://schema.c24.biz/spring-integration"
+       xmlns:c24="http://schema.c24.biz/spring-core"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/integration
+        http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
+		http://schema.c24.biz/spring-core
+		http://schema.c24.biz/spring-core.xsd
+		http://schema.c24.biz/spring-integration
+		http://schema.c24.biz/spring-integration.xsd
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- ===== The flow ===== -->
+	<!-- Wire it up as we expect it to be used -->
+
+
+	<!-- Scenario 1 - simple rejection of invalid messages -->
+	<int:channel id="textInputChannel" />
+	<int-c24:validating-selector id="c24Validator" fail-fast="true" throw-exception-on-rejection="false"/>	
+	<int:filter input-channel="textInputChannel" output-channel="validChannel" discard-channel="invalidChannel" ref="c24Validator"/>
+
+
+	<!-- Scenario 2 - throw a detailed exception on invalid messages -->
+	<int:channel id="exceptionThrowingInputChannel" />
+	<int-c24:validating-selector id="c24ThrowingValidator" fail-fast="false" throw-exception-on-rejection="true"/>	
+	<int:filter input-channel="exceptionThrowingInputChannel" output-channel="validChannel" discard-channel="invalidChannel" ref="c24ThrowingValidator"/>
+
+
+
+	<int:channel id="validChannel">
+		<int:queue capacity="1" />
+	</int:channel>
+	
+	<int:channel id="invalidChannel">
+		<int:queue capacity="1" />
+	</int:channel>
+
+</beans>
