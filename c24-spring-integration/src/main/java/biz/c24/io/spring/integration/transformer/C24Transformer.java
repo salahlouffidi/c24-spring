@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2011-2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import biz.c24.io.api.transform.Transform;
  * TODO Consider adding a subclass that uses a pool of transform objects.
  * 
  * @author askogman
+ * @author Andrew Elmore
  * 
  */
 public class C24Transformer extends AbstractTransformer implements

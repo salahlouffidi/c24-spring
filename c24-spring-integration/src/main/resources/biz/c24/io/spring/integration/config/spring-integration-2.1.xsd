@@ -81,6 +81,8 @@
         </xsd:complexType>
     </xsd:element>
 
+ 
+ <!--
     <xsd:element name="file-splitting-transformer">
         <xsd:complexType>
             <xsd:annotation>
@@ -106,6 +108,7 @@
             </xsd:complexContent>
         </xsd:complexType>
     </xsd:element>
+-->
 
     <xsd:element name="unmarshalling-transformer">
         <xsd:complexType>

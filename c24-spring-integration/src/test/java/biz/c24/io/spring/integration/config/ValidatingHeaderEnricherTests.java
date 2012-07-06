@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,9 @@ import biz.c24.io.examples.models.basic.Employee;
 import biz.c24.io.spring.integration.C24Headers;
 import biz.c24.io.spring.integration.transformer.C24ValidatingHeaderEnricher;
 
+/**
+ * @author Andrew Elmore
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("validating-header-enricher.xml")
 public class ValidatingHeaderEnricherTests extends BaseIntegrationTest {
