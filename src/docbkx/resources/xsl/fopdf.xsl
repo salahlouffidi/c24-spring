@@ -62,7 +62,7 @@
                                 </xsl:for-each>
                             </fo:block>
                             <fo:block font-family="Helvetica" font-size="12pt" padding="10mm">
-								<xsl:text>Copyright &#xA9; 2011</xsl:text>
+								<xsl:text>Copyright &#xA9; 2011-2012</xsl:text>
 							</fo:block>
 
                             <fo:block font-family="Helvetica" font-size="10pt" padding="1mm">
