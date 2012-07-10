@@ -22,7 +22,7 @@ import org.w3c.dom.Element;
 
 import biz.c24.io.spring.batch.processor.C24TransformItemProcessor;
 
-/*
+/**
  * Parser for the C24TransformItemProcessor element
  * 
  * @author Andrew Elmore

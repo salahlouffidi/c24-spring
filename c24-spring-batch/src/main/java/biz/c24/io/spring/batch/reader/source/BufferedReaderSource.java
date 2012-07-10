@@ -18,26 +18,26 @@ package biz.c24.io.spring.batch.reader.source;
 import java.io.BufferedReader;
 import org.springframework.batch.core.StepExecution;
 
-/*
+/**
  * Interface to abstract away details of the actual source of BufferedReaders.
  * 
  * @author Andrew Elmore
  */
 public interface BufferedReaderSource {
 
-	/*
+	/**
 	 * Initialise the BufferedReaderSource
 	 * 
 	 * @param stepExecution
 	 */
 	public abstract void initialise(StepExecution stepExecution);
 
-	/*
+	/**
 	 * Close the source, releasing any held resources
 	 */
 	public abstract void close();
 
-	/*
+	/**
 	 * Return a BufferedReader to provide access to the data in the BufferedReaderSource.
 	 * The BufferedReader returned can change between calls.
 	 * 

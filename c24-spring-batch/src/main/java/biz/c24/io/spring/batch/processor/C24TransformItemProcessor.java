@@ -23,7 +23,7 @@ import biz.c24.io.api.data.ValidationManager;
 import biz.c24.io.api.presentation.JavaClassSink;
 import biz.c24.io.api.transform.Transform;
 
-/*
+/**
  * A Spring Batch ItemProcesor which invokes a C24 IO Transform to convert a CDO from one model to another.
  * Optionally transforms to a target-model compliant Java Bean
  * 
@@ -31,26 +31,26 @@ import biz.c24.io.api.transform.Transform;
  */
 public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObject, Object> {
 
-	/*
+	/**
 	 * The C24 IO transform to use
 	 */
 	private Transform transformer;
 	
 	private ValidationManager validationManager = null;
 	
-	/*
+	/**
 	 * Optional JavaClassSink to use to convert CDOs to POJOs
 	 */
 	private JavaClassSink javaSink = null;
 
-	/*
+	/**
 	 * Default constructor. Requires that the transformer is initialised separately.
 	 */
 	public C24TransformItemProcessor() {
 		transformer = null;
 	}
 	
-	/*
+	/**
 	 * Construct a C24TransformItemProcessor
 	 * 
 	 * @param transform The iO-generated transform to use
@@ -59,7 +59,7 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 		setTransformer(transform);
 	}
 	
-	/*
+	/**
 	 * Construct a C24TransformItemProcessor
 	 * 
 	 * @param transform The iO-generated transform to use
@@ -91,7 +91,7 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 		}
 	}
 
-	/*
+	/**
 	 * Get the C24 IO transformer used by this ItemProcessor
 	 * 
 	 * @return The C24 IO transformer
@@ -100,7 +100,7 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 		return transformer;
 	}
 
-	/*
+	/**
 	 * Set the C24 IO transformer that this ItemProcessor will use
 	 * 
 	 * @param transformer The C24 IO transformer to use
@@ -110,7 +110,7 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 		this.transformer = transformer;
 	}
 
-	/*
+	/**
 	 * Whether or not this transformer validates the CDOs resulting from the transformation
 	 * 
 	 * @return True if if validates generated objects
@@ -119,7 +119,7 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 		return validationManager != null;
 	}
 
-	/*
+	/**
 	 * Turn validation on or off
 	 * 
 	 * @param validate 
@@ -129,7 +129,7 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	}
 	
 	
-	/*
+	/**
 	 * Returns the sink being used if any
 	 * 
 	 * @return The current JavaClassSink
@@ -138,7 +138,7 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 		return javaSink != null? javaSink.getRootClass() : null;
 	}
 
-	/*
+	/**
 	 * Turns on/off returning POJOs or ComplexDataObjects
 	 * 
 	 * @param targetClass The Java Bean class to sink to, or CDO if null

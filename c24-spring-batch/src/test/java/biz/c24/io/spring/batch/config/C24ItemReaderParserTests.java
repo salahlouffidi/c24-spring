@@ -34,7 +34,7 @@ import biz.c24.io.spring.source.XmlSourceFactory;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-/*
+/**
  * Validate the C24ItemReaderParser
  * 
  * @author Andrew Elmore

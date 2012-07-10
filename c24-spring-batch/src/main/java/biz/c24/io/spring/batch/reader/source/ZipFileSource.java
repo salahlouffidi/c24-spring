@@ -24,7 +24,7 @@ import java.util.zip.ZipFile;
 
 import org.springframework.batch.core.StepExecution;
 
-/*
+/**
  * An implementation of BufferedReaderSource which extracts its data from Zip files.
  * Expects to get the file name from a property called input.file in the job parameters
  * (as populated by Spring Batch's org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter)
@@ -33,17 +33,17 @@ import org.springframework.batch.core.StepExecution;
  */
 public class ZipFileSource implements BufferedReaderSource {
 	
-	/*
+	/**
 	 * The current BufferedReader to be returned in calls to getReader if not exhausted
 	 */
 	private volatile BufferedReader reader = null;
 	
-	/*
+	/**
 	 * The underlying zipFile
 	 */
 	private ZipFile zipFile;
 	
-	/*
+	/**
 	 * An iterator over the entries in the zip file
 	 */
 	private Enumeration<? extends ZipEntry> zipEntries;

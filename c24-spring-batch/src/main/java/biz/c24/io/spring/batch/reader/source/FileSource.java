@@ -22,7 +22,7 @@ import java.io.InputStreamReader;
 
 import org.springframework.batch.core.StepExecution;
 
-/*
+/**
  * An implementation of BufferedReaderSource which extracts its data from uncompressed files.
  * Expects to get the file name from a property called input.file in the job parameters
  * (as populated by Spring Batch's org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter)

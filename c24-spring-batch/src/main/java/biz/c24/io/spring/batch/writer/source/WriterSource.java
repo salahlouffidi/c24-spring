@@ -19,26 +19,26 @@ import java.io.Writer;
 
 import org.springframework.batch.core.StepExecution;
 
-/*
+/**
  * Abstraction for implementations of WriterSources. Implemented by classes which can provide Writers
  * to a C24ItemWriter for it to write sunk CDOs to.
  * 
  * @author Andrew Elmore
  */
 public interface WriterSource {
-	/*
+	/**
 	 * Initialise the WriterSource
 	 * 
 	 * @param stepExecution
 	 */
 	public abstract void initialise(StepExecution stepExecution);
 
-	/*
+	/**
 	 * Close the source, releasing any held resources
 	 */
 	public abstract void close();
 
-	/*
+	/**
 	 * Return a Writer that callers can use to persist daa.
 	 * The Writer returned can change between calls.
 	 * 

@@ -29,7 +29,7 @@ import biz.c24.io.api.transform.Transform;
 import biz.c24.io.spring.batch.processor.C24TransformItemProcessor;
 import biz.c24.io.spring.batch.processor.C24TransformItemProcessorTests.MyEmail;
 
-/*
+/**
  * Validate the C24TranformItemProcessor parser
  * 
  * @author Andrew Elmore

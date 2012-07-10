@@ -41,7 +41,7 @@ import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-/*
+/**
  * Validate the C24ItemReader
  * 
  * @author Andrew Elmore

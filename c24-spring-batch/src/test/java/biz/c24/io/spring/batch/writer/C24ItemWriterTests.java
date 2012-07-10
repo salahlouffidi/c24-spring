@@ -41,7 +41,7 @@ import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-/*
+/**
  * Validate the C24ItemWriter
  * 
  * @author Andrew Elmore
@@ -158,7 +158,7 @@ public class C24ItemWriterTests {
 		
 	}
 	
-	/*
+	/**
 	 * Utility method to check that the contents of a CSV employee file match the list of employees we used to generate it
 	 * 
 	 * @param fileName The file to read
@@ -184,7 +184,7 @@ public class C24ItemWriterTests {
 	}
 	
 	
-	/*
+	/**
 	 * Mock up the necessary job parameters
 	 * 
 	 * @param outputFileName The filename we want the ItemWriter to write to	

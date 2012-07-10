@@ -33,7 +33,7 @@ import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.presentation.Sink;
 import biz.c24.io.spring.batch.writer.source.WriterSource;
 
-/*
+/**
  * ItemWriter that sinks and writes ComplexDataObjects to a Writer.
  * 
  * Allows concurrent calls to write but synchronises on individual CDO write to the writer.
@@ -47,13 +47,16 @@ public class C24ItemWriter implements ItemWriter<ComplexDataObject>{
 	private WriterSource writerSource = null;
 
 	
+	/**
+	 * Asserts that the object has been properly configured
+	 */
 	@PostConstruct
 	public void validateConfiguration() {
 		Assert.notNull(templateSink, "Sink must be set");
 		Assert.notNull(writerSource, "WriterSource must be set");
 	}
 	
-	/*
+	/**
 	 * Initialise our context
 	 * 
 	 * @param stepExecution The step execution context
@@ -64,7 +67,7 @@ public class C24ItemWriter implements ItemWriter<ComplexDataObject>{
 	}
 	
 	
-	/*
+	/**
 	 * Clean up any resources we're consuming
 	 */
 	@AfterStep
@@ -72,7 +75,7 @@ public class C24ItemWriter implements ItemWriter<ComplexDataObject>{
 		writerSource.close();
 	}
 	
-	/*
+	/**
 	 * Writes the contents of the StringWriter to our output file
 	 * 
 	 * @param writer The StringWriter to read the data from
@@ -98,7 +101,7 @@ public class C24ItemWriter implements ItemWriter<ComplexDataObject>{
 		
 	}
 
-	/*
+	/**
 	 * Get a thread-safe Sink
 	 */
 	private Sink getThreadsafeSink() {
@@ -136,7 +139,7 @@ public class C24ItemWriter implements ItemWriter<ComplexDataObject>{
 
 	}
 	
-	/*
+	/**
 	 * The prototype sink used by this C24ItemWriter
 	 * 
 	 * @returns The prototype sink
@@ -145,7 +148,7 @@ public class C24ItemWriter implements ItemWriter<ComplexDataObject>{
 		return templateSink;
 	}
 	
-	/*
+	/**
 	 * Provides a prototype sink for this C24ItemWriter to use when sinking ComplexDataObjects
 	 * 
 	 * @param sink The prototype sink
@@ -155,7 +158,7 @@ public class C24ItemWriter implements ItemWriter<ComplexDataObject>{
 		templateSink = sink;
 	}
 	
-	/*
+	/**
 	 * Gets the WriterSource used by this C24ItemWriter to get a Writer to persist sunk ComplexDataObjects to
 	 * 
 	 * @returns The WriterSource used by this C24ItemWriter
@@ -164,7 +167,7 @@ public class C24ItemWriter implements ItemWriter<ComplexDataObject>{
 		return writerSource;
 	}
 	
-	/*
+	/**
 	 * Sets the WriterSource that this C24ItemWriter will use to get a Writer to write sunk ComplexDataObjects to
 	 * 
 	 * @param writerSource The WriterSource to use

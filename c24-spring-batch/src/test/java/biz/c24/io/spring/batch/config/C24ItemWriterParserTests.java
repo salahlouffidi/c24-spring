@@ -28,7 +28,7 @@ import biz.c24.io.spring.batch.writer.source.WriterSource;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-/*
+/**
  * Validate the C24ItemWriterParser
  * 
  * @author Andrew Elmore
