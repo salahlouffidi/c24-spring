@@ -169,6 +169,27 @@
         with that line as its initial line. If the ItemReader was already in the process of reading
         an element, it will be returned to the calling process. Thus the splitter can be used to
         skip header rows, by ensuring that they do not match the pattern. </para>
+      <para>The <classname>C24ItemReader</classname> attempts to determine the line terminator used
+        within the message so that it can reconstruct the message as precisely as possible when
+        using the <emphasis>elementStartPattern</emphasis>. The line terminator will be determined
+        once for each <classname>C24ItemReader</classname> instance; given the default scope of
+        ItemReader is 'step' this will be suitable for most usages, however for example if a single
+        file contains multiple line terminators the reconstructed message will not exactly match the
+        original. The <classname>C24ItemReader</classname> detects and supports the following line
+        terminators:</para>
+      <para>
+        <itemizedlist>
+          <listitem>
+            <para>\r\n</para>
+          </listitem>
+          <listitem>
+            <para>\r</para>
+          </listitem>
+          <listitem>
+            <para>\n</para>
+          </listitem>
+        </itemizedlist>
+      </para>
     </section>
     <section>
       <title>Validation</title>

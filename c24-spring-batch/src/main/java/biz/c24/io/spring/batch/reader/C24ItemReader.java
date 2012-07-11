@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.annotation.BeforeStep;
@@ -57,6 +59,8 @@ import biz.c24.io.spring.source.TextualSourceFactory;
  */
 public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	
+	private static Logger LOG = LoggerFactory.getLogger(C24ItemReader.class);
+	
 	/**
 	 * SourceFactory to use to generate our IO Sources
 	 */
@@ -87,7 +91,11 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 */
 	private BufferedReaderSource source;
 
-	private static String lineTerminator = System.getProperty("line.separator");
+	/**
+	 * The lineTerminator we use to join lines from a message back together.
+	 * Determined once when we start processing files.
+	 */
+	private String lineTerminator = null;
 
 	/**
 	 * Control whether or not we validate the parsed CDOs
@@ -236,7 +244,14 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	
 	/**
 	 * Extracts the textual data for an element from the BufferedReader using the elementStartPattern to split
-	 * up the data
+	 * up the data. If this instance has not yet determined the lineTerminator being used, it will read the reader
+	 * character by character until it finds one of the following line terminators:
+	 * \r\n
+	 * \r
+	 * \n
+	 * 
+	 * Once the line terminator has been determined, it will be used for all subsequent calls to readElement; 
+	 * even if the BufferedReaderSource is changed.
 	 * 
 	 * @param reader The BufferedReader to extract the element from
 	 */
@@ -250,27 +265,66 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 				while(reader.ready()) {
 					// Mark the stream in case we need to rewind (ie if we read the start line for the next element)
 					reader.mark(MAX_MESSAGE_SIZE);
-					String line = reader.readLine();
-					
-					if(elementStartPattern.matcher(line).matches()) {
-						// We've encountered the start of a new element
-						String message = elementCache.toString();
-						if(message.trim().length() > 0) {
-							// We were already parsing an element; thus we've finished extracting our element
-							// Rewind the stream...
-							reader.reset();
-							// ...and return what we have already extracted
-							return message;
-						} else {
-							// This is the start of our element. Add it to our elementCache.
+					String line = null;
+					if(lineTerminator != null) {
+						line = reader.readLine();
+					} else {
+						// We need to parse the file to determine the line terminator
+						// We support \n, \r and \r\n
+						StringBuffer buffer = new StringBuffer();
+						int curr;
+						while(lineTerminator == null) {
+							curr = reader.read();
+							if(curr == -1) {
+								// EOF - we don't know if this is the terminator or not. Assume not
+								break;
+							} else if(curr == '\n') {
+								lineTerminator = "\n";
+								LOG.debug("Determined line terminator is \\n");
+							} else if(curr == '\r') {
+								// Need to see if we're \r or \r\n
+								// We can safely mark; we're the first line hence no danger of being asked to reset later on
+								reader.mark(1);
+								curr = reader.read();
+								if(curr == '\n') {
+									lineTerminator = "\r\n";
+									LOG.debug("Determined line terminator is \\r\\n");
+								} else {
+									lineTerminator = "\r";
+									LOG.debug("Determined line terminator is \\r");
+									reader.reset();
+								}
+							} else {
+								buffer.append((char)curr);
+							}
+						}
+						
+						line = buffer.toString();
+					}
+				
+					if(line != null) {					
+						if(elementStartPattern.matcher(line).matches()) {
+							// We've encountered the start of a new element
+							String message = elementCache.toString();
+							if(message.trim().length() > 0) {
+								// We were already parsing an element; thus we've finished extracting our element
+								// Rewind the stream...
+								reader.reset();
+								// ...and return what we have already extracted
+								return message;
+							} else {
+								// This is the start of our element. Add it to our elementCache.
+								elementCache.append(line);
+								if(lineTerminator != null) {
+									elementCache.append(lineTerminator);
+								}
+								inElement = true;
+							}
+						} else if(inElement) {
+							// More data for our current element
 							elementCache.append(line);
 							elementCache.append(lineTerminator);
-							inElement = true;
 						}
-					} else if(inElement) {
-						// More data for our current element
-						elementCache.append(line);
-						elementCache.append(lineTerminator);
 					}
 				}
 			} catch(IOException ioEx) {

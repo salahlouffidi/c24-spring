@@ -94,6 +94,7 @@
     <properties>
         <spring.version>3.1.1.RELEASE</spring.version>
 		<spring.integration.version>2.1.3.RELEASE</spring.integration.version>
+		<slf4j.api.version>1.6.6</slf4j.api.version>
         <c24.version>4.1.1</c24.version>
         <c24.studio.version>4.1.0</c24.studio.version>
         <xerces.version>2.9.1</xerces.version>
@@ -124,6 +125,11 @@
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
             </dependency>
+	        <dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.api.version}</version>
+			</dependency>
         </dependencies>
     </dependencyManagement>
 
