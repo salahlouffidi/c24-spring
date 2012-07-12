@@ -5,7 +5,7 @@
 
 	<groupId>biz.c24.io.spring</groupId>
     <artifactId>c24-spring</artifactId>
-	<version>2.1.0</version>
+	<version>2.1.1-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -62,15 +62,15 @@
                 <role>Developer</role>
             </roles>
         </developer>
-	<developer>
-		<name>Andrew Elmore</name>
-		<organization>Incept5</organization>
-		<email>andrew.elmore(at)incept5.com</email>
-		<organizationUrl>http://www.incept5.com</organizationUrl>
-		<roles>
-                	<role>Developer</role>
-		</roles>
-	</developer>
+        <developer>
+            <name>Andrew Elmore</name>
+            <organization>Incept5</organization>
+            <email>andrew.elmore(at)incept5.com</email>
+            <organizationUrl>http://www.incept5.com</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
         <developer>
             <name>Adam Skogman</name>
             <organization>SpringSource - a division of VMware</organization>
