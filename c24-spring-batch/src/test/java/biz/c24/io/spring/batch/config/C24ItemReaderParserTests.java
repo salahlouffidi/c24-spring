@@ -15,6 +15,7 @@
  */
 package biz.c24.io.spring.batch.config;
 
+import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +78,7 @@ public class C24ItemReaderParserTests {
 	
 	private void validateReader(C24ItemReader reader, String expectedStartPattern, boolean expectedValidate, 
 								Class<? extends BufferedReaderSource> expectedSource) {
-		validateReader(reader, expectedStartPattern, expectedValidate, expectedSource, TextualSourceFactory.class);
+		validateReader(reader, expectedStartPattern, expectedValidate, expectedSource, null);
 	}
 		
 	private void validateReader(C24ItemReader reader, String expectedStartPattern, boolean expectedValidate, 
@@ -87,7 +88,7 @@ public class C24ItemReaderParserTests {
 		assertThat(reader.isValidating(), is(expectedValidate));
 		assertThat(reader.getElementType(), is(employeeElement));
 		assertThat(reader.getSource(), instanceOf(expectedSource));
-		assertThat(reader.getSourceFactory(), instanceOf(expectedSourceFactory));
+		assertThat(reader.getSourceFactory(), expectedSourceFactory == null? nullValue() : instanceOf(expectedSourceFactory));
 
 		
 	}
