@@ -28,5 +28,5 @@
                 <appender-ref ref="STDOUT"/>
         </root>
         
-        <logger name="biz.c24.dataloader" level="DEBUG"/>
+        <logger name="biz.c24.io.spring" level="WARN"/>
 </configuration>
