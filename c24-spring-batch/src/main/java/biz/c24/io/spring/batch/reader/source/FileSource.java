@@ -83,6 +83,18 @@ public class FileSource implements BufferedReaderSource {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public BufferedReader getNextReader() {
+		BufferedReader retVal = reader;
+		reader = null;
+		return retVal;
+	}
+
+	@Override
+	public boolean useMultipleThreadsPerReader() {
+		return true;
 	}	
 	
 }

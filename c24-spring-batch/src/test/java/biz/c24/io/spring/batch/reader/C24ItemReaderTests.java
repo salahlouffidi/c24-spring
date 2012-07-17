@@ -163,17 +163,25 @@ public class C24ItemReaderTests {
 		// Validation but no splitting
 		objs = readFile(employeeModel, null, true, source, filename);
 		assertThat(objs.size(), is(5));
+		assertThat(source.useMultipleThreadsPerReader(), is(true));
 		
 		// Validation & splitting
 		objs = readFile(employeeModel, ".*", true, source, filename);
 		assertThat(objs.size(), is(5));
+		assertThat(source.useMultipleThreadsPerReader(), is(true));
+		
+		// Now give is a zip file with lots of small entries. Check that it encourages 1 thread per ZipEntry
+		filename = "employees-50-valid.zip";
+		objs = readFile(employeeModel, ".*", true, source, filename);
+		assertThat(objs.size(), is(50));
+		assertThat(source.useMultipleThreadsPerReader(), is(false));
 	}
 	
 	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, boolean validate, BufferedReaderSource source, String filename) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
 		return readFile(model, optionalElementStartRegEx, validate, source, filename, null);
 	}
-	
-	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, boolean validate, BufferedReaderSource source, String filename, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
+
+	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, boolean validate, BufferedReaderSource source, String filename, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
 		C24ItemReader reader = new C24ItemReader();
 		reader.setModel(model);
 		if(optionalElementStartRegEx != null) {
@@ -189,7 +197,7 @@ public class C24ItemReaderTests {
 		StepExecution stepExecution = getStepExecution(filename);
 		
 		reader.setup(stepExecution);
-		
+
 		ComplexDataObject obj = null;
 		Collection<ComplexDataObject> objs = new LinkedList<ComplexDataObject>();
 		

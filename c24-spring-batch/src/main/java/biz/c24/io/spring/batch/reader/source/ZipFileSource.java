@@ -48,6 +48,12 @@ public class ZipFileSource implements BufferedReaderSource {
 	 */
 	private Enumeration<? extends ZipEntry> zipEntries;
 
+	/**
+	 * A hint to our users; should they use multiple threads on a single reader or ask us
+	 * for a different reader for each thread?
+	 */
+	private boolean useMultipleThreadsPerReader = true;
+	
 	
 	/* (non-Javadoc)
 	 * @see biz.c24.spring.batch.BufferedReaderSource#initialise(org.springframework.batch.core.StepExecution)
@@ -65,9 +71,17 @@ public class ZipFileSource implements BufferedReaderSource {
 		try {
 			zipFile = new ZipFile(fileName);
 			zipEntries = zipFile.entries();
+			ZipEntry entry = null;
 			if(zipEntries.hasMoreElements()) {
+				entry = zipEntries.nextElement();
 				// Prime the reader
-				reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntries.nextElement())));
+				reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+			}
+			
+			// If we have a large number of ZipEntries and the first one looks relatively small, advise 
+			// callers to use a thread per reader
+			if(entry != null && zipFile.size() > 20 && (entry.getSize() == -1 || entry.getSize() < 10000)) {
+				useMultipleThreadsPerReader = false;
 			}
 			
 		} catch (IOException e) {
@@ -93,6 +107,7 @@ public class ZipFileSource implements BufferedReaderSource {
 	 */
 	public BufferedReader getReader() {
 		try {
+
 			if(reader != null && !reader.ready()) {
 				synchronized(this) {
 					// Multiple threads could be calling this in parallel; check the work hasn't already been performed for us
@@ -118,7 +133,35 @@ public class ZipFileSource implements BufferedReaderSource {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public synchronized BufferedReader getNextReader() {
+		BufferedReader retVal = reader;
+		
+		if(retVal != null) {
+			// Set up the next reader to return
+			if(zipEntries.hasMoreElements()) {
+				try {
+					reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntries.nextElement())));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					throw new RuntimeException(e);
+				}
+			} else {
+				reader = null;
+			}
+		}
+		
+		return retVal;
+
+	}
+
+	@Override
+	public boolean useMultipleThreadsPerReader() {
+		return useMultipleThreadsPerReader;
 	}	
+	
 	
 }
 

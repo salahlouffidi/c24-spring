@@ -82,6 +82,27 @@
       <para>Note that the source is declared with a scope of step. This is because it holds data
         relevant to the current step execution, hence a separate instance is required for
         each.</para>
+      <para>The <interface>Sources</interface> provide guidance to the
+          <classname>C24ItemReader</classname> on how it should process the Source in the event that
+        multiple threads are concurrently invoking <methodname>read</methodname> on it. By default
+        each file will be processed serially, however in the case of a zip file containing multiple
+        entries:</para>
+      <para>
+        <itemizedlist>
+          <listitem>
+            <para>If the zip file contains more than 20 entries and the first entry is less than
+              10,000 bytes (or of indeterminate size) use 1 thread per entry</para>
+          </listitem>
+          <listitem>
+            <para>Otherwise all threads process the same entry until it is exhausted, at which point
+              they move on to the next one</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>The former has the advantage of less synchronisation between threads during the read
+        phase (as only one thread can be reading from a zip entry at any time) at the potential cost
+        of increased seeking as data is requested from different parts of the zip file by multiple
+        threads.</para>
     </section>
     <section>
       <title>C24ItemReader</title>
@@ -121,8 +142,7 @@
           </listitem>
           <listitem>
             <para><emphasis>source-factory-ref</emphasis> - The iO SourceFactory that is used to
-              parse the message [Optional - default is
-              <classname>TextualSourceFactory</classname>]</para>
+              parse the message [Optional - default is to use the model's default source]</para>
           </listitem>
           <listitem>
             <para><emphasis>scope</emphasis> - the bean's scope [Optional - default step]</para>

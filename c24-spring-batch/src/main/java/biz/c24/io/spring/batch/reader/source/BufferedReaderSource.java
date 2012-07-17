@@ -44,5 +44,19 @@ public interface BufferedReaderSource {
 	 * @return A BufferedReader
 	 */
 	public abstract BufferedReader getReader();
-
+	
+	/**
+	 * Returns the next available reader if any.
+	 * Allows multiple threads to process multiple readers before the prior one is exhausted
+	 * 
+	 * @return A BufferedReader
+	 */
+	public abstract BufferedReader getNextReader();
+	
+	/**
+	 * Indicates to a reader whether or not it should use multiple threads per reader
+	 * 
+	 * @return True iff it should use multiple threads per reader
+	 */
+	public abstract boolean useMultipleThreadsPerReader();
 }
