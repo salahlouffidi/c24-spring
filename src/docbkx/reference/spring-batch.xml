@@ -151,10 +151,10 @@
       </para>
       <para>If validation is selected then a ValidationManager will be used to check all parsed
           <classname>ComplexDataObject</classname>s, and a
-          <classname>ValidationException</classname> will be thrown in the event of any validation
-        failures. If all reads (and validations if enabled) are successful then the ItemReader will
-        return null once there is no data left to parse (in the case of the zip file, all contained
-        files will be parsed before this happens).</para>
+          <classname>C24ValidationException</classname> will be thrown in the event of any
+        validation failures. If all reads (and validations if enabled) are successful then the
+        ItemReader will return null once there is no data left to parse (in the case of the zip
+        file, all contained files will be parsed before this happens).</para>
       <para>The <classname>C24ItemReader</classname> bean defaults to a <emphasis>scope</emphasis>
         of 'step' to ensure that concurrent invocations of the same step do not conflict with
         eachother. This can be overriden if desired but is not recommended.</para>
@@ -165,7 +165,7 @@
         the chunk size appropriately means that the parsing, validation &amp; transformation can run
         with relatively low memory consumption even with extremely large source files.</para>
       <para>During the parsing phase, exceptions thrown by the iO generated code will be wrapped up
-        as Spring Batch <classname>UnexpectedInputException</classname> or
+        as Spring Batch <classname>ParseException</classname> or
           <classname>NonTransientResourceExceptions</classname> (at least, as best as the ItemReader
         can determine) and rethrown.</para>
     </section>
