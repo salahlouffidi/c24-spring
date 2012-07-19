@@ -18,6 +18,7 @@ package biz.c24.io.spring.batch.reader.source;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -32,6 +33,11 @@ import org.springframework.batch.core.StepExecution;
  * @author Andrew Elmore
  */
 public class ZipFileSource implements BufferedReaderSource {
+	
+	/**
+	 * The name of the zip file we're reading from
+	 */
+	private String name;
 	
 	/**
 	 * The current BufferedReader to be returned in calls to getReader if not exhausted
@@ -55,6 +61,14 @@ public class ZipFileSource implements BufferedReaderSource {
 	private boolean useMultipleThreadsPerReader = true;
 	
 	
+	/*
+	 * (non-Javadoc)
+	 * @see biz.c24.io.spring.batch.reader.source.BufferedReaderSource#getName()
+	 */
+	public String getName() {
+		return name;
+	}
+	
 	/* (non-Javadoc)
 	 * @see biz.c24.spring.batch.BufferedReaderSource#initialise(org.springframework.batch.core.StepExecution)
 	 */
@@ -67,6 +81,8 @@ public class ZipFileSource implements BufferedReaderSource {
         if(fileName.startsWith("file://")) {
         		fileName = fileName.substring("file://".length());
         }
+        
+        name = fileName;
 
 		try {
 			zipFile = new ZipFile(fileName);
@@ -160,6 +176,13 @@ public class ZipFileSource implements BufferedReaderSource {
 	@Override
 	public boolean useMultipleThreadsPerReader() {
 		return useMultipleThreadsPerReader;
+	}
+
+	@Override
+	public synchronized void discard(Reader reader) {
+		if(this.reader == reader) {
+			getNextReader();
+		}	
 	}	
 	
 	

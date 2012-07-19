@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 
 import org.springframework.batch.core.StepExecution;
 
@@ -33,6 +34,16 @@ public class FileSource implements BufferedReaderSource {
 	
 	private BufferedReader reader = null;
 	
+	private String name;
+	
+	/*
+	 * (non-Javadoc)
+	 * @see biz.c24.io.spring.batch.reader.source.BufferedReaderSource#getName()
+	 */
+	public String getName() {
+		return name;
+	}
+	
 	/* (non-Javadoc)
 	 * @see biz.c24.spring.batch.BufferedReaderSource#initialise(org.springframework.batch.core.StepExecution)
 	 */
@@ -45,6 +56,8 @@ public class FileSource implements BufferedReaderSource {
         if(fileName.startsWith("file://")) {
         		fileName = fileName.substring("file://".length());
         }
+        
+        name = fileName;
 
 		try {
 			// Prime the reader
@@ -95,6 +108,14 @@ public class FileSource implements BufferedReaderSource {
 	@Override
 	public boolean useMultipleThreadsPerReader() {
 		return true;
+	}
+
+	@Override
+	public void discard(Reader reader) {
+		if(this.reader == reader) {
+			this.reader = null;
+		}
+		
 	}	
 	
 }

@@ -104,8 +104,8 @@ public class C24ItemReaderTests {
 		// Validation but no splitting
 		try {
 			readFile(employeeModel, null, true, source, filename);
-			fail("Structurally invalid file did not generate a ValidationException");
-		} catch(ParseException pEx) {
+			fail("Semantically invalid file did not generate a ValidationException");
+		} catch(C24ValidationException pEx) {
 			// Expected behaviour
 		}
 		
@@ -113,8 +113,8 @@ public class C24ItemReaderTests {
 		// Validation but no splitting
 		try {
 			readFile(employeeModel, ".*", true, source, filename);
-			fail("Structurally invalid file did not generate a ValidationException");
-		} catch(ParseException pEx) {
+			fail("Semantically invalid file did not generate a ValidationException");
+		} catch(C24ValidationException pEx) {
 			// Expected behaviour
 		}
 	}
@@ -129,7 +129,7 @@ public class C24ItemReaderTests {
 		try {
 			readFile(employeeModel, null, false, source, filename);
 			fail("Structurally invalid file did not generate a ParserException");
-		} catch(UnexpectedInputException uiEx) {
+		} catch(ParseException uiEx) {
 			// Expected behaviour
 		}
 		
@@ -137,7 +137,7 @@ public class C24ItemReaderTests {
 		try {
 			readFile(employeeModel, null, true, source, filename);
 			fail("Structurally invalid file did not generate a ParserException");
-		} catch(UnexpectedInputException uiEx) {
+		} catch(ParseException uiEx) {
 			// Expected behaviour
 		}
 		
@@ -145,7 +145,7 @@ public class C24ItemReaderTests {
 		try {
 			readFile(employeeModel, ".*", true, source, filename);
 			fail("Structurally invalid file did not generate a ParserException");
-		} catch(UnexpectedInputException uiEx) {
+		} catch(ParseException uiEx) {
 			// Expected behaviour
 		}
 	}

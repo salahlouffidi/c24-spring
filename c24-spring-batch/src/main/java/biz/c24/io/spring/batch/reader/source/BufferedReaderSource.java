@@ -16,6 +16,8 @@
 package biz.c24.io.spring.batch.reader.source;
 
 import java.io.BufferedReader;
+import java.io.Reader;
+
 import org.springframework.batch.core.StepExecution;
 
 /**
@@ -24,6 +26,11 @@ import org.springframework.batch.core.StepExecution;
  * @author Andrew Elmore
  */
 public interface BufferedReaderSource {
+	
+	/**
+	 * Get an identifier for the underlying source of BufferedReaders
+	 */
+	public abstract String getName();
 
 	/**
 	 * Initialise the BufferedReaderSource
@@ -59,4 +66,11 @@ public interface BufferedReaderSource {
 	 * @return True iff it should use multiple threads per reader
 	 */
 	public abstract boolean useMultipleThreadsPerReader();
+	
+	/**
+	 * Discard the supplied reader and ensure that it is not returned in any future calls
+	 * 
+	 * @param reader The Reader to be discarded
+	 */
+	public abstract void discard(Reader reader);
 }

@@ -336,7 +336,17 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 		return elementCache.toString();
 	}
 	
+	/**
+	 * Called once a thread determines it has exhausted the current iO source (more accurately, the underlying Reader).
+	 * Triggers creation of an appropriate new Source next time getParser is called.
+	 * 
+	 * @param parser The source that has been exhausted.
+	 */
 	private void discardParser(Source parser) {
+		// If there's no splitting pattern, we have to ensure that we discard the underlying reader too
+		if(elementStartPattern == null) {
+			source.discard(parser.getReader());
+		}
 		if(this.elementStartPattern == null && source.useMultipleThreadsPerReader()) {
 			synchronized(this) {
 				if(ioSource == parser) {
@@ -348,6 +358,41 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 		}
 	}
 	
+	/**
+	 * Gets the appropriate iO Source to use to read the message.
+	 * If ioSourceFactory is not set, it defaults to the model's default source.
+	 * 
+	 * @param An optional BufferedReader to pass to the source's setReader method
+	 * 
+	 * @return A configured iO source
+	 */
+	private Source getIoSource(BufferedReader reader) {
+		Source source = null;
+		
+		if(ioSourceFactory == null) {
+			// Use the default
+			source = elementType.getModel().source();
+			if(reader != null) {
+				source.setReader(reader);
+			}
+		} else {
+			// If the reader is null, we have to give the factory a dummy one
+			source = ioSourceFactory.getSource(reader != null? reader : new StringReader(""));
+		}
+		
+		if(source instanceof TextualSource) {
+			((TextualSource)source).setEndOfDataRequired(false);
+		}
+		
+		return source;
+	}
+	
+	/**
+	 * Gets a configured iO source for this thread to use to parse messages.
+	 * Depending on configuration, threads may or may not share the source.
+	 * 
+	 * @return The iO source this thread should use to parse messages.
+	 */
 	private Source getParser() {
 		
 		Source returnSource = null;
@@ -362,26 +407,15 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 					if(ioSource == null) {
 						BufferedReader reader = source.getReader();
 						if(reader != null) {
-							if(ioSourceFactory == null) {
-								// Use the default
-								returnSource = elementType.getModel().source();
-								returnSource.setReader(reader);
-								if(returnSource instanceof TextualSource) {
-									((TextualSource)returnSource).setEndOfDataRequired(false);
-								}
-							} else {
-								returnSource = ioSourceFactory.getSource(reader);
-							}
-						
-							ioSource = returnSource;
-							
+							returnSource = getIoSource(reader);
+							ioSource = returnSource;							
 						}
 					}
 				}
 			}
 		}
 		
-		// 2. The ReaderSources advises us not to share the reader between threads
+		// 2. The ReaderSource advises us not to share the reader between threads
 		// In this case, each thread will have its own ioSource and we need to ask for a new Reader each time we create one
 		else if(!source.useMultipleThreadsPerReader()) {
 			returnSource = threadedIOSource.get();
@@ -400,12 +434,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 			if(needNewReader) {
 				BufferedReader reader = source.getNextReader();
 				if(reader != null) {
-					returnSource = elementType.getModel().source();
-					returnSource.setReader(reader);
-					if(returnSource instanceof TextualSource) {
-						((TextualSource)returnSource).setEndOfDataRequired(false);
-					}
-					
+					returnSource = getIoSource(reader);					
 					threadedIOSource.set(returnSource);
 				}
 			}
@@ -419,12 +448,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 			if(returnSource == null) {
 				BufferedReader reader = source.getReader();
 				if(reader != null) {
-					returnSource = elementType.getModel().source();
-					//returnSource.setReader(reader);
-					if(returnSource instanceof TextualSource) {
-						((TextualSource)returnSource).setEndOfDataRequired(false);
-					}
-					
+					returnSource = getIoSource(null);					
 					threadedIOSource.set(returnSource);
 				}
 			}			
@@ -444,19 +468,23 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 		ComplexDataObject result = null;
 		Source parser = null;
 		
-		// Keep trying to parse an entity until either we get one (result != null) or we run out of data to read (reader == null)
+		// Keep trying to parse an entity until either we get one (result != null) or we run out of data to read (parser == null)
 		// BufferedReaderSources such as the ZipFileSource can return multiple BufferedReaders; when our current one is exhausted it
 		// will return another one
 		while(result == null && (parser = getParser()) != null) {
 			
 			if(elementStartPattern != null && source.useMultipleThreadsPerReader()) {
 				
+				// We're sharing a BufferedReader with other threads. Get our data out of it as quickly as we can to reduce
+				// the amount of time we spend blocking others
+				
 				BufferedReader reader = source.getReader();
 				if(reader == null) {
 					// There's nothing left to read
 					break;
 				}
-				// Get the textual source from an element
+				
+				// Get the textual source for an element from the reader
 				String element = readElement(reader);
 				
 				// If we got something then parse it
@@ -469,7 +497,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 					try {
 						result = parser.readObject(elementType);
 					} catch(IOException ioEx) {
-						throw new UnexpectedInputException("Failed to parse CDO from source: " + element, ioEx);
+						throw new ParseException("Failed to parse CDO from " + source.getName() + ". Message: " + element, ioEx);
 					}
 				} else {
 					// This parser has been exhausted
@@ -482,6 +510,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 					try {
 						result = parser.readObject(elementType);
 					} catch(IOException ioEx) {
+						
 						// If we're using the XML source, the underlying SAXParser can helpfully close the stream
 						// when it finished parsing the previous element, presumably because it assumes the document 
 						// is well-formed (ie only one per file)
@@ -495,20 +524,22 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 								// Sigh. That looks like that's what's happened.
 								result = null;
 							} else {
-								throw new UnexpectedInputException("Failed to parse CDO", ioEx);
+								throw new ParseException("Failed to parse CDO from " + source.getName(), ioEx);
 							}
 						} else {
-							throw new UnexpectedInputException("Failed to parse CDO", ioEx);
+							throw new ParseException("Failed to parse CDO from " + source.getName(), ioEx);
 						}
-					}
-					
-					if(result != null && (result.getTotalAttrCount() + result.getTotalElementCount() == 0)) {
-						// We didn't manage to read anything
-						result = null;
-					}
-					if(result == null) {
-						// We've exhausted this reader
-						discardParser(parser);
+					} finally {
+						if(result != null && (result.getTotalAttrCount() + result.getTotalElementCount() == 0)) {
+							// We didn't manage to read anything
+							result = null;
+						}
+						if(result == null) {
+							// We've exhausted this reader
+							// In the event of an exception being thrown there might still be data left in the reader 
+							// but as we have no way to skip to the next message, we have to abandon it
+							discardParser(parser);
+						}
 					}
 				}
 			}
@@ -523,11 +554,12 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 				}
 				mgr.validateByException(result);
 			} catch(ValidationException vEx) {
-				throw new ParseException("Failed to validate CDO", vEx);
+				throw new C24ValidationException("Failed to validate message: " + vEx.getLocalizedMessage() + " [" + source.getName() + "]", result, vEx);
 			}
 		}
 		
 		return result;
+		
 	}
 	
 
