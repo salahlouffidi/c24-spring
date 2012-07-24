@@ -73,7 +73,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 */
 	private volatile Source ioSource = null;
 	/**
-	 * Cache for IO sources where we have an elementStartPattern and can parallelise parsing
+	 * Cache for IO sources where we can parallelise parsing
 	 */
 	private ThreadLocal<Source> threadedIOSource = new ThreadLocal<Source>();
 	
