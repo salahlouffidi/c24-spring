@@ -16,6 +16,7 @@
 package biz.c24.io.spring.batch.reader.source;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Reader;
 
 import org.springframework.batch.core.StepExecution;
@@ -72,5 +73,5 @@ public interface BufferedReaderSource {
 	 * 
 	 * @param reader The Reader to be discarded
 	 */
-	public abstract void discard(Reader reader);
+	public abstract void discard(Reader reader) throws IOException;
 }

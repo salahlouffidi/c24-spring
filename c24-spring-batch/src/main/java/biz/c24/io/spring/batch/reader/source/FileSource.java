@@ -111,8 +111,9 @@ public class FileSource implements BufferedReaderSource {
 	}
 
 	@Override
-	public void discard(Reader reader) {
+	public void discard(Reader reader) throws IOException {
 		if(this.reader == reader) {
+			reader.close();
 			this.reader = null;
 		}
 		

@@ -179,10 +179,11 @@ public class ZipFileSource implements BufferedReaderSource {
 	}
 
 	@Override
-	public synchronized void discard(Reader reader) {
+	public synchronized void discard(Reader reader) throws IOException {
 		if(this.reader == reader) {
 			getNextReader();
 		}	
+		reader.close();
 	}	
 	
 	
