@@ -28,7 +28,7 @@
 	<bat-c24:item-reader id="nonSplittingValidatingZipReader" model-ref="employeeModel" validate="true" source-ref="zipFileSource" scope="singleton"/>
 	<bat-c24:item-reader id="splittingValidatingZipReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="zipFileSource" scope="singleton"/>
 
-	<bat-c24:item-reader id="xmlSourceFactoryReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="fileSource" source-factory-ref="xmlSourceFactory" scope="singleton"/>
+	<bat-c24:item-reader id="xmlSourceFactoryReader" model-ref="employeeModel" validate="true" elementStartPattern=" *&lt;[a-zA-Z].*" elementStopPattern=" *&lt;/.*" source-ref="fileSource" source-factory-ref="xmlSourceFactory" scope="singleton"/>
 	
 
 </beans>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dataModel targetPackage="biz.c24.io.examples.models.xml" outputMask="XML" inputMask="XML" hibernateIDGeneratorMethodDefault="native" encrypted="false" encoding="UTF-8" elementFormDefault="Unqualified" attributeFormDefault="Unqualified" IOversion="3.1.0" version="0.0.4" name="employees.dod">
+    <element identifier="false" min="1" max="1" name="employees">
+        <type>
+            <complexType specifyStructure="true" specialisation="Generic complex" processAsBatch="false" excludeFromDatabase="false" contentModel="Sequence" abstract="false" name="employees">
+                <element identifier="false" typeRef="employee" min="1" max="-1" name="employee"/>
+            </complexType>
+        </type>
+    </element>
+    <type>
+        <complexType specifyStructure="true" specialisation="Generic complex" processAsBatch="false" excludeFromDatabase="false" contentModel="Sequence" abstract="false" name="employee">
+            <attribute typeRef="#string" min="1" max="1" name="salutation"/>
+            <attribute typeRef="#string" min="1" max="1" name="firstName"/>
+            <attribute typeRef="#string" min="1" max="1" name="lastName"/>
+            <attribute typeRef="#string" min="1" max="1" name="jobTitle"/>
+        </complexType>
+    </type>
+    <element identifier="false" typeRef="employee" min="1" max="1" name="employee"/> 
+    <namespace uri="http://www.w3.org/2001/XMLSchema" prefix="xs"/>
+</dataModel>

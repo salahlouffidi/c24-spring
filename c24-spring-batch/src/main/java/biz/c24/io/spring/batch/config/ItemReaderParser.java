@@ -69,6 +69,12 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
     	}
     	
     	// Optional
+    	String elementStopPattern = element.getAttribute("elementStopPattern");
+    	if(StringUtils.hasText(elementStopPattern)) {
+    		bean.addPropertyValue("elementStopPattern", elementStopPattern);
+    	}
+    	
+    	// Optional
     	String validate = element.getAttribute("validate");
     	if(StringUtils.hasText(validate)) {
     		boolean val = Boolean.parseBoolean(validate);

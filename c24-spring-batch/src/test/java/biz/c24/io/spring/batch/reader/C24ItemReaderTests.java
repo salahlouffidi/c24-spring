@@ -49,6 +49,7 @@ import static org.junit.Assert.*;
 public class C24ItemReaderTests {
 	
 	private C24Model employeeModel = new C24Model(EmployeeElement.getInstance());
+	private C24Model employeeXmlModel = new C24Model(biz.c24.io.examples.models.xml.EmployeeElement.getInstance());
 
 	@Test
 	public void testValidCsvRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
@@ -57,16 +58,26 @@ public class C24ItemReaderTests {
 		String filename = "employees-3-valid.csv";
 		
 		// No validation, no splitting
-		Collection<ComplexDataObject> objs = readFile(employeeModel, null, false, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename);
 		assertThat(objs.size(), is(3));
 		
 		// Validation but no splitting
-		objs = readFile(employeeModel, null, true, source, filename);
+		objs = readFile(employeeModel, null, null, true, source, filename);
 		assertThat(objs.size(), is(3));
 		
 		// Validation & splitting
-		objs = readFile(employeeModel, ".*", true, source, filename);
+		objs = readFile(employeeModel, ".*", null, true, source, filename);
 		assertThat(objs.size(), is(3));
+	}
+	
+	@Test
+	public void testValidXmlRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
+		FileSource source = new FileSource();
+		String filename = "employees-3-valid.xml";
+		
+		// Validation & splitting
+		Collection<ComplexDataObject> objs = readFile(employeeXmlModel, " *<employee .*", " *<employee .*", true, source, filename);
+		assertThat(objs.size(), is(3));		
 	}
 	
 	@Test
@@ -79,15 +90,15 @@ public class C24ItemReaderTests {
 		factory.setEndOfDataRequired(false);
 		
 		// No validation, no splitting
-		Collection<ComplexDataObject> objs = readFile(employeeModel, null, false, source, filename, factory);
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename, factory);
 		assertThat(objs.size(), is(3));
 		
 		// Validation but no splitting
-		objs = readFile(employeeModel, null, true, source, filename, factory);
+		objs = readFile(employeeModel, null, null, true, source, filename, factory);
 		assertThat(objs.size(), is(3));
 		
 		// Validation & splitting
-		objs = readFile(employeeModel, ".*", true, source, filename, factory);
+		objs = readFile(employeeModel, ".*", null, true, source, filename, factory);
 		assertThat(objs.size(), is(3));
 	}
 	
@@ -98,12 +109,12 @@ public class C24ItemReaderTests {
 		String filename = "employees-3-semanticallyinvalid.csv";
 		
 		// No validation, no splitting
-		Collection<ComplexDataObject> objs = readFile(employeeModel, null, false, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename);
 		assertThat(objs.size(), is(3));
 
 		// Validation but no splitting
 		try {
-			readFile(employeeModel, null, true, source, filename);
+			readFile(employeeModel, null, null, true, source, filename);
 			fail("Semantically invalid file did not generate a ValidationException");
 		} catch(C24ValidationException pEx) {
 			// Expected behaviour
@@ -112,7 +123,7 @@ public class C24ItemReaderTests {
 		// Validation & splitting
 		// Validation but no splitting
 		try {
-			readFile(employeeModel, ".*", true, source, filename);
+			readFile(employeeModel, ".*", null, true, source, filename);
 			fail("Semantically invalid file did not generate a ValidationException");
 		} catch(C24ValidationException pEx) {
 			// Expected behaviour
@@ -127,7 +138,7 @@ public class C24ItemReaderTests {
 		
 		// No validation, no splitting
 		try {
-			readFile(employeeModel, null, false, source, filename);
+			readFile(employeeModel, null, null, false, source, filename);
 			fail("Structurally invalid file did not generate a ParserException");
 		} catch(ParseException uiEx) {
 			// Expected behaviour
@@ -135,7 +146,7 @@ public class C24ItemReaderTests {
 		
 		// Validation but no splitting
 		try {
-			readFile(employeeModel, null, true, source, filename);
+			readFile(employeeModel, null, null, true, source, filename);
 			fail("Structurally invalid file did not generate a ParserException");
 		} catch(ParseException uiEx) {
 			// Expected behaviour
@@ -143,7 +154,7 @@ public class C24ItemReaderTests {
 		
 		// Validation & splitting
 		try {
-			readFile(employeeModel, ".*", true, source, filename);
+			readFile(employeeModel, ".*", null, true, source, filename);
 			fail("Structurally invalid file did not generate a ParserException");
 		} catch(ParseException uiEx) {
 			// Expected behaviour
@@ -157,35 +168,38 @@ public class C24ItemReaderTests {
 		String filename = "employees-5-valid.zip";
 		
 		// No validation, no splitting
-		Collection<ComplexDataObject> objs = readFile(employeeModel, null, false, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename);
 		assertThat(objs.size(), is(5));
 		
 		// Validation but no splitting
-		objs = readFile(employeeModel, null, true, source, filename);
+		objs = readFile(employeeModel, null, null, true, source, filename);
 		assertThat(objs.size(), is(5));
 		assertThat(source.useMultipleThreadsPerReader(), is(true));
 		
 		// Validation & splitting
-		objs = readFile(employeeModel, ".*", true, source, filename);
+		objs = readFile(employeeModel, ".*", null, true, source, filename);
 		assertThat(objs.size(), is(5));
 		assertThat(source.useMultipleThreadsPerReader(), is(true));
 		
 		// Now give is a zip file with lots of small entries. Check that it encourages 1 thread per ZipEntry
 		filename = "employees-50-valid.zip";
-		objs = readFile(employeeModel, ".*", true, source, filename);
+		objs = readFile(employeeModel, ".*", null, true, source, filename);
 		assertThat(objs.size(), is(50));
 		assertThat(source.useMultipleThreadsPerReader(), is(false));
 	}
 	
-	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, boolean validate, BufferedReaderSource source, String filename) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
-		return readFile(model, optionalElementStartRegEx, validate, source, filename, null);
+	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source, String filename) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
+		return readFile(model, optionalElementStartRegEx, optionalElementStopRegEx, validate, source, filename, null);
 	}
 
-	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, boolean validate, BufferedReaderSource source, String filename, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
+	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source, String filename, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
 		C24ItemReader reader = new C24ItemReader();
 		reader.setModel(model);
 		if(optionalElementStartRegEx != null) {
 			reader.setElementStartPattern(optionalElementStartRegEx);
+		}
+		if(optionalElementStopRegEx != null) {
+			reader.setElementStopPattern(optionalElementStopRegEx);
 		}
 		if(factory != null) {
 			reader.setSourceFactory(factory);
@@ -202,7 +216,7 @@ public class C24ItemReaderTests {
 		Collection<ComplexDataObject> objs = new LinkedList<ComplexDataObject>();
 		
 		while((obj = reader.read()) != null) {
-			assertThat(obj.getDefiningElementDecl(), is(EmployeeElement.getInstance()));
+			assertThat(obj.getDefiningElementDecl(), is(model.getRootElement()));
 			objs.add(obj);
 		}
 		

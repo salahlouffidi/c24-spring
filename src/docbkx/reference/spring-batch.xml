@@ -113,6 +113,7 @@
                      model-ref="demoModel" 
                      source-ref="fileSource" 
                      elementStartPattern=".*201\d-\d\d-\d\dT.*" 
+                     elementStopPattern="..." 
                      validate="true" 
                      source-factory-ref="..." 
                      scope="step"/> </programlisting>
@@ -134,7 +135,11 @@
           </listitem>
           <listitem>
             <para><emphasis>elementStartPattern</emphasis> - a regular expression used to speed up
-              parsing performance [Optional]</para>
+              parsing performance by identifying the start of an element [Optional]</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>elementStopPattern</emphasis> - a regular expression used to speed up
+              parsing performance by identifying the end of an element [Optional]</para>
           </listitem>
           <listitem>
             <para><emphasis>validate</emphasis> - whether or not to validate the parsed object
@@ -189,6 +194,21 @@
         with that line as its initial line. If the ItemReader was already in the process of reading
         an element, it will be returned to the calling process. Thus the splitter can be used to
         skip header rows, by ensuring that they do not match the pattern. </para>
+      <para>Where an <emphasis>elementStartPattern</emphasis> has been specified, an
+          <emphasis>elementStopPattern</emphasis> can also optionally be used. In this case, rather
+        than using the <emphasis>elementStartPattern</emphasis> to infer the end of the previous
+        element, an element is only deemed to be complete when either a line matching the
+          <emphasis>elementStopPattern</emphasis> is encountered or the parser reaches the end of
+        the file. Thus the <emphasis>elementStopPattern</emphasis> takes precedence over the
+          <emphasis>elementStartPattern</emphasis> and it is possible for there to be multiple lines
+        matching the <emphasis>elementStartPattern</emphasis> with a single element.</para>
+      <para>Both <emphasis>elementStartPattern</emphasis> and
+          <emphasis>elementStopPattern</emphasis> are inclusive; on other words the lines that match
+        them are included in the element.</para>
+      <para>A typical use case would be to split child elements out of an XML document. By having
+        the start and stop patterns match the initiator ("&lt;child ...") and terminator
+        ("&lt;/child>") of the elements, they can be extracted without having to also process their
+        containing element.</para>
       <para>The <classname>C24ItemReader</classname> attempts to determine the line terminator used
         within the message so that it can reconstruct the message as precisely as possible when
         using the <emphasis>elementStartPattern</emphasis>. The line terminator will be determined

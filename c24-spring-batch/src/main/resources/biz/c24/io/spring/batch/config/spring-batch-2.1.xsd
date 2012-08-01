@@ -51,6 +51,7 @@
     					</xsd:annotation>
     				</xsd:attribute>
     				<xsd:attribute name="elementStartPattern" type="xsd:string"/>
+                    <xsd:attribute name="elementStopPattern" type="xsd:string"/>
     		   		<xsd:attribute name="model-ref" type="xsd:string" use="required">
     					<xsd:annotation>
     						<xsd:appinfo>

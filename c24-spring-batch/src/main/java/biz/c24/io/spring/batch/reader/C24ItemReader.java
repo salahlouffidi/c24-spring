@@ -89,6 +89,13 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	private Pattern elementStartPattern = null;
 	
 	/**
+	 * An optional pattern to use to identify the end of a message. If specified, the message must end with an
+	 * EOF or this pattern. Additional matches of the startPattern before presence of the stop pattern will
+	 * not trigger the start of a new message
+	 */
+	private Pattern elementStopPattern = null;
+	
+	/**
 	 * The source from which we'll read the data
 	 */
 	private BufferedReaderSource source;
@@ -116,6 +123,9 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	public void validateConfiguration() {
 		Assert.notNull(elementType, "Element type must be set, either explicitly or by setting the model");
 		Assert.notNull(source, "Source must be set");
+		if(elementStopPattern != null) {
+			Assert.notNull(elementStartPattern, "elementStopPattern can only be used if an elementStartPattern is also set");
+		}
 	}
 	
 	/**
@@ -160,6 +170,25 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 		this.elementStartPattern = Pattern.compile(elementStartRegEx);
 	}
 	
+	/**
+	 * Returns the pattern we're using to to determine the end of a message. Null if not set
+	 * 
+	 * @return
+	 */
+	public String getElementStopPattern() {
+		return elementStopPattern != null? elementStopPattern.pattern() : null;
+	}
+
+	/**
+	 * In conjunction with the element start regex, used to detect the end of a message. Note that it is possible for a single
+	 * line to match both the start and stop patterns and hence be a complete element on its own.
+	 * 
+	 * @param elementStopRegEx The regular expression to identify the end of an entity in the source
+	 */
+	public void setElementStopPattern(String elementStopRegEx) {
+		this.elementStopPattern = Pattern.compile(elementStopRegEx);
+	}
+
 	/**
 	 * Set whether or not you want validation to be performed on the parsed CDOs. 
 	 * An exception will be thrown for any entity which fails validation.
@@ -301,8 +330,12 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 						line = buffer.toString();
 					}
 				
-					if(line != null) {					
-						if(elementStartPattern.matcher(line).matches()) {
+					if(line != null) {		
+						// We look for the start of a new element if either:
+						// a) We're not in an element or
+						// b) We don't have an elementStopPattern set (if we do and we're in a element, the presence of a line
+						// that matches the element start pattern is deemed to still be part of the same element)
+						if((!inElement || elementStopPattern == null) && elementStartPattern.matcher(line).matches()) {
 							// We've encountered the start of a new element
 							String message = elementCache.toString();
 							if(message.trim().length() > 0) {
@@ -313,17 +346,21 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 								return message;
 							} else {
 								// This is the start of our element. Add it to our elementCache.
-								elementCache.append(line);
-								if(lineTerminator != null) {
-									elementCache.append(lineTerminator);
-								}
 								inElement = true;
 							}
-						} else if(inElement) {
+						} 
+						
+						if(inElement) {
 							// More data for our current element
 							elementCache.append(line);
 							if(lineTerminator != null) {
 								elementCache.append(lineTerminator);
+							}
+							
+							// If we have an elementStopPattern, see if the line matched
+							if(elementStopPattern != null && elementStopPattern.matcher(line).matches()) {
+								// We've encountered the end of the element
+								break;
 							}
 						}
 					}
