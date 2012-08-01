@@ -68,6 +68,40 @@
 		</xsd:complexType>
 	</xsd:element>
 	
+    <xsd:element name="batch-item-reader">
+        <xsd:complexType>
+            <xsd:annotation>
+                <xsd:documentation>
+                    Defines a C24 IO Batch ItemReader.
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:attribute name="source-ref" type="xsd:string" use="required">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="biz.c24.io.spring.batch.reader.source.BufferedReaderSource"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="model-ref" type="xsd:string" use="required">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="biz.c24.io.spring.core.C24Model"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="validate" type="xsd:boolean"/>
+                    <xsd:attribute name="scope" type="xsd:string"/>
+                </xsd:extension>
+              </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+	
 	<xsd:element name="transform-item-processor">
     	<xsd:complexType>
     		<xsd:annotation>
