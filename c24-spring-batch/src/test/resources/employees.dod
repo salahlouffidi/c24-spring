@@ -10,11 +10,29 @@
     <type>
         <complexType specifyStructure="true" specialisation="Generic complex" processAsBatch="false" excludeFromDatabase="false" contentModel="Sequence" abstract="false" name="employee">
             <attribute typeRef="#string" min="1" max="1" name="salutation"/>
-            <attribute typeRef="#string" min="1" max="1" name="firstName"/>
-            <attribute typeRef="#string" min="1" max="1" name="lastName"/>
+            <attribute typeRef="Name" min="1" max="1" name="firstName"/>
+            <attribute typeRef="Name" min="1" max="1" name="lastName"/>
             <attribute typeRef="#string" min="1" max="1" name="jobTitle"/>
         </complexType>
     </type>
+    <type>
+        <atomicSimpleType baseType="#string" name="Name">
+            <facet facetType="terminator">
+                <value></value>
+            </facet>
+            <validationRuleRef ref="FirstLetterCapital"/>
+        </atomicSimpleType>
+    </type>
+    <validationRule severity="Error" name="FirstLetterCapital">
+        <code>java.lang.String name = (java.lang.String)object;
+if (!java.lang.Character.isUpperCase(name.charAt(0))) //object is invalid
+{
+         manager.fireValidationEvent(new biz.c24.io.api.data.ValidationEvent(object, component, context, biz.c24.io.api.ValidationResultEnum.FAILED_RULE_ERROR, &quot;Names must begin with a capital letter&quot;));
+        return false;
+}
+else
+    return true;</code>
+    </validationRule>
     <element identifier="false" typeRef="employee" min="1" max="1" name="employee"/> 
     <namespace uri="http://www.w3.org/2001/XMLSchema" prefix="xs"/>
 </dataModel>

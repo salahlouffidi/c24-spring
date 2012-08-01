@@ -94,7 +94,8 @@ public class FileSource implements BufferedReaderSource {
 				return null;
 			}
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			// Stream has been closed beneath our feet. Nothing to read.
+			return null;
 		}
 	}
 
