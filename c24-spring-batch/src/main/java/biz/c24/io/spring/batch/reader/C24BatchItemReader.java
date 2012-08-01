@@ -36,11 +36,11 @@ public class C24BatchItemReader implements ItemReader<ComplexDataObject> {
 
 	private boolean validate = false;
 	
-	private Thread parsingThread = null;
+	private volatile Thread parsingThread = null;
 	/**
 	 * Store this separately to make sure we report a job abort once only
 	 */
-	private Throwable abortJobException = null;
+	private volatile Throwable abortJobException = null;
 	private BlockingQueue<Object> queue = new ArrayBlockingQueue<Object>(128);
 	
 	private ThreadLocal<ValidationManager> validator = new ThreadLocal<ValidationManager>();
@@ -138,10 +138,12 @@ public class C24BatchItemReader implements ItemReader<ComplexDataObject> {
 		
 		if(cdo == null && abortJobException != null) {
 			synchronized(this) {
-				Throwable ex = abortJobException;
-				abortJobException = null;
-				ParseException rethrow = ex instanceof ParseException? (ParseException)ex : new ParseException("Failure during parsing", ex);
-				throw rethrow;
+				if(abortJobException != null) {
+					Throwable ex = abortJobException;
+					abortJobException = null;
+					ParseException rethrow = ex instanceof ParseException? (ParseException)ex : new ParseException("Failure during parsing", ex);
+					throw rethrow;
+				}
 			}
 		} else if(cdo != null && validate) {
 			try {
