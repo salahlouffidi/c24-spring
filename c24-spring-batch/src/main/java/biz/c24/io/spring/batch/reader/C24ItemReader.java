@@ -330,7 +330,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 						line = buffer.toString();
 					}
 				
-					if(line != null) {		
+					if(line.trim() != null) {
 						// We look for the start of a new element if either:
 						// a) We're not in an element or
 						// b) We don't have an elementStopPattern set (if we do and we're in a element, the presence of a line
