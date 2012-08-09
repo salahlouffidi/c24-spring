@@ -15,13 +15,15 @@
  */
 package biz.c24.io.spring.batch.reader;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.regex.Pattern;
-
-import javax.annotation.PostConstruct;
-
+import biz.c24.io.api.data.ComplexDataObject;
+import biz.c24.io.api.data.Element;
+import biz.c24.io.api.data.ValidationException;
+import biz.c24.io.api.data.ValidationManager;
+import biz.c24.io.api.presentation.Source;
+import biz.c24.io.api.presentation.TextualSource;
+import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
+import biz.c24.io.spring.core.C24Model;
+import biz.c24.io.spring.source.SourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
@@ -33,17 +35,11 @@ import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.util.Assert;
 
-import biz.c24.io.api.data.ComplexDataObject;
-import biz.c24.io.api.data.Element;
-import biz.c24.io.api.data.ValidationException;
-import biz.c24.io.api.data.ValidationManager;
-import biz.c24.io.api.presentation.Source;
-import biz.c24.io.api.presentation.TextualSource;
-import biz.c24.io.api.presentation.XMLSource;
-import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
-import biz.c24.io.spring.core.C24Model;
-import biz.c24.io.spring.source.SourceFactory;
-import biz.c24.io.spring.source.TextualSourceFactory;
+import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.regex.Pattern;
 
 /**
  * ItemReader that reads ComplexDataObjects from a BufferedReaderSource.
@@ -329,8 +325,8 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 						
 						line = buffer.toString();
 					}
-				
-					if(line.trim() != null) {
+                    line = line.replaceAll("\t","");
+					if(line  != null) {
 						// We look for the start of a new element if either:
 						// a) We're not in an element or
 						// b) We don't have an elementStopPattern set (if we do and we're in a element, the presence of a line
