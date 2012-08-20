@@ -18,9 +18,9 @@
     <dependencies>
         <!--  Logging -->
         <dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
         <!--  Use LogBack during tests -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -40,18 +40,18 @@
             <artifactId>log4j-over-slf4j</artifactId>
             <scope>test</scope>
         </dependency>
-    	<dependency>
-  			<groupId>org.springframework</groupId>
-  			<artifactId>spring-core</artifactId>
-  			<version>${spring.version}</version>
-		</dependency>
+        <dependency>
+              <groupId>org.springframework</groupId>
+              <artifactId>spring-core</artifactId>
+              <version>${spring.version}</version>
+        </dependency>
         <!-- Spring Batch Dependencies -->
         <dependency>
             <groupId>org.springframework.batch</groupId>
-        	<artifactId>spring-batch-core</artifactId>
+            <artifactId>spring-batch-core</artifactId>
             <version>2.1.8.RELEASE</version>
             <exclusions>
-            	<!-- Spring Batch still resolves some dependencies to older versions of Spring -->
+                <!-- Spring Batch still resolves some dependencies to older versions of Spring -->
                 <exclusion>
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-aop</artifactId>
@@ -80,12 +80,12 @@
             <version>1.1</version>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
    </dependencies>
 
     <build>
@@ -93,17 +93,17 @@
             <plugin>
                 <groupId>biz.c24.io.maven</groupId>
                 <artifactId>c24-maven-plugin</artifactId>
-                <version>4.0.1-SNAPSHOT</version>
+                <version>4.0.2-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <id>c24-model-deploy</id>
-                        <phase>generate-sources</phase>
+                        <phase>generate-test-sources</phase>
                         <configuration>
                             <session>
                                 <deploy>
-                                	<generateMainMethods>false</generateMainMethods>
-                                    <toDir>target/generated-sources</toDir>
-				    <!--<scope>test</scope>-->
+                                    <generateMainMethods>false</generateMainMethods>
+                                    <toDir>target/generated-test-sources</toDir>
+                                    <scope>test</scope>
                                     <deployEnvironment>false</deployEnvironment>
                                     <fileSet>
                                         <directory>${basedir}/src/test/resources</directory>
@@ -113,15 +113,15 @@
                                     </fileSet>
                                     <deployEnvironment>false</deployEnvironment>
                                     <namespace>
-                                   	    <uri>http://www.hibernate.org/hibernate-mapping-3.0</uri>
+                                       <uri>http://www.hibernate.org/hibernate-mapping-3.0</uri>
                                        <packageName>biz.c24.io.api.presentation.hibernate.mappingv30</packageName>
                                    </namespace>
                                 </deploy>
                                 <deploy>
                                     <generateMainMethods>false</generateMainMethods>
-                                    <toDir>target/generated-sources</toDir>
+                                    <toDir>target/generated-test-sources</toDir>
                                     <deployEnvironment>false</deployEnvironment>
-				    <!--<scope>test</scope>-->
+                                    <scope>test</scope>
                                     <fileSet>
                                         <directory>${basedir}/src/test/resources</directory>
                                         <includes>
@@ -129,7 +129,7 @@
                                         </includes>
                                     </fileSet>
                                     <namespace>
-                                   	    <uri>http://www.hibernate.org/hibernate-mapping-3.0</uri>
+                                       <uri>http://www.hibernate.org/hibernate-mapping-3.0</uri>
                                        <packageName>biz.c24.io.api.presentation.hibernate.mappingv30</packageName>
                                    </namespace>
                                 </deploy>
