@@ -109,8 +109,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	/**
 	 * Control whether or not we validate the parsed CDOs
 	 */
-	private boolean validate = false;
-	private ThreadLocal<ValidationManager> validator = new ThreadLocal<ValidationManager>();
+	private ThreadLocal<ValidationManager> validator = null;
 	
 	public C24ItemReader() {
 
@@ -196,7 +195,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 * @param validate Whether or not to validate parsed CDOs
 	 */
 	public void setValidate(boolean validate) {
-		this.validate = validate;
+		validator = validate? new ThreadLocal<ValidationManager>() : null;
 	}
 	
 	/**
@@ -205,7 +204,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 * @return True iff this ItemReader will automtically validate read CDOs
 	 */
 	public boolean isValidating() {
-		return validate;
+		return validator != null;
 	}
 	
 	/**
@@ -250,10 +249,13 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	}
 	
 	/**
-	 * Clean up and resources we're consuming
+	 * Clean up any resources we're consuming
 	 */
 	@AfterStep
 	public void cleanup() {
+		if(validator != null) {
+			validator = new ThreadLocal<ValidationManager>();
+		}
 		source.close();
 	}
 	
@@ -568,7 +570,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 			}
 		}
 		
-		if(validate && result != null) {
+		if(validator != null && result != null) {
 			try {
 				ValidationManager mgr = validator.get();
 				if(mgr == null) {

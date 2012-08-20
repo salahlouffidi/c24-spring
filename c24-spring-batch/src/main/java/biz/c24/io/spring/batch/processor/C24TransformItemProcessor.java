@@ -15,6 +15,7 @@
  */
 package biz.c24.io.spring.batch.processor;
 
+import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -36,7 +37,7 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	 */
 	private Transform transformer;
 	
-	private ValidationManager validationManager = null;
+	private ThreadLocal<ValidationManager> validator = null;
 	
 	/**
 	 * Optional JavaClassSink to use to convert CDOs to POJOs
@@ -80,8 +81,13 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 		
 		ComplexDataObject result = (ComplexDataObject)transformedObj[0][0];
 		
-		if(validationManager != null) {
-			validationManager.validateByException(result);
+		if(validator != null) {
+			ValidationManager mgr = validator.get();
+			if(mgr == null) {
+				mgr = new ValidationManager();
+				validator.set(mgr);
+			}
+			mgr.validateByException(result);
 		}
 		
 		if(javaSink != null) {
@@ -116,7 +122,7 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	 * @return True if if validates generated objects
 	 */
 	public boolean isValidating() {
-		return validationManager != null;
+		return validator != null;
 	}
 
 	/**
@@ -125,7 +131,18 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	 * @param validate 
 	 */
 	public void setValidation(boolean validate) {
-		validationManager = validate? new ValidationManager() : null;
+		validator = validate? new ThreadLocal<ValidationManager>() : null;
+	}
+	
+	/**
+	 * Releases any transient state left over from this transformation step
+	 */
+	@AfterStep
+	public void cleanup() {
+		// Release any validation managers we're holding; no guarantee the same thread pool will be used next time
+		if(validator != null) {
+			validator = new ThreadLocal<ValidationManager>();
+		}
 	}
 	
 	
