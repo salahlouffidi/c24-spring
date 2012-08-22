@@ -63,6 +63,15 @@
   			  		</xsd:attribute>
   			  		<xsd:attribute name="validate" type="xsd:boolean"/>
   			  		<xsd:attribute name="scope" type="xsd:string"/>
+  			  		<xsd:attribute name="parse-listener-ref" type="xsd:string">
+    					<xsd:annotation>
+    						<xsd:appinfo>
+    							<tool:annotation kind="ref">
+    								<tool:expected-type type="biz.c24.io.spring.batch.reader.ParseListener"/>
+    							</tool:annotation>
+    						</xsd:appinfo>
+    					</xsd:annotation>
+    				</xsd:attribute>		  		
   			  	</xsd:extension>
   			  </xsd:complexContent>
 		</xsd:complexType>

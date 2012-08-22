@@ -86,5 +86,12 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
     	if(StringUtils.hasText(sourceFactoryRef)) {
     		bean.addPropertyReference("sourceFactory", sourceFactoryRef);
     	}
+    	
+    	// Optional
+    	String parseListenerRef = element.getAttribute("parse-listener-ref");
+    	if(StringUtils.hasText(parseListenerRef)) {
+    		bean.addPropertyReference("parseListener", parseListenerRef);
+    	}
+
     }    
 }

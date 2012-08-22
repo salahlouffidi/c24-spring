@@ -76,7 +76,7 @@ public class C24ItemReaderTests {
 		String filename = "employees-3-valid.xml";
 		
 		// Validation & splitting
-		Collection<ComplexDataObject> objs = readFile(employeeXmlModel, " *<employee .*", " *<employee .*", true, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeeXmlModel, "^[ \t]*<employee .*", "^[ \t]*<employee .*", true, source, filename);
 		assertThat(objs.size(), is(3));		
 	}
 	
@@ -193,7 +193,7 @@ public class C24ItemReaderTests {
 	}
 
 	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source, String filename, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
-		C24ItemReader reader = new C24ItemReader();
+		C24ItemReader<ComplexDataObject> reader = new C24ItemReader<ComplexDataObject>();
 		reader.setModel(model);
 		if(optionalElementStartRegEx != null) {
 			reader.setElementStartPattern(optionalElementStartRegEx);

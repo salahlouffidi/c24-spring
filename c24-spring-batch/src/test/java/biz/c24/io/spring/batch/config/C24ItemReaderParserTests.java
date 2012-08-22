@@ -104,7 +104,7 @@ public class C24ItemReaderParserTests {
 		validateReader(splittingValidatingCsvReader, ".*", null, true, FileSource.class);
 		validateReader(nonSplittingValidatingZipReader, null, null, true, ZipFileSource.class);
 		validateReader(splittingValidatingZipReader, ".*", null, true, ZipFileSource.class);
-		validateReader(xmlSourceFactoryReader, " *<[a-zA-Z].*", " *</.*", true, FileSource.class, XmlSourceFactory.class);
+		validateReader(xmlSourceFactoryReader, "^[ \t]*<[a-zA-Z].*", "^[ \t]*</.*", true, FileSource.class, XmlSourceFactory.class);
 
 	}
 	

@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
  * 
  * @author Andrew Elmore
  */
-public class C24ItemReader implements ItemReader<ComplexDataObject> {
+public class C24ItemReader<Result> implements ItemReader<Result> {
 	
 	private static Logger LOG = LoggerFactory.getLogger(C24ItemReader.class);
 	
@@ -107,6 +107,12 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 */
 	private ThreadLocal<ValidationManager> validator = null;
 	
+	/**
+	 * Allow clients to register a callback to intercept elements as we read them. NB only works in the splitting case.
+	 */
+	private ParseListener<Object, Result> parseListener = null;
+	
+	
 	public C24ItemReader() {
 
 	}
@@ -123,6 +129,14 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 		}
 	}
 	
+	public ParseListener<Object, Result> getParseListener() {
+		return parseListener;
+	}
+
+	public void setParseListener(ParseListener<Object, Result> parseListener) {
+		this.parseListener = parseListener;
+	}
+
 	/**
 	 * Returns the element type that we will attempt to parse from the source
 	 */
@@ -268,6 +282,16 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 */
 	private static final int MAX_MESSAGE_SIZE = 1000000;
 	
+	private static class ElementContext {
+		public ElementContext(String element, Object context) {
+			this.element = element;
+			this.context = context;
+		}
+		public Object context;
+		public String element;
+	}
+	
+	
 	/**
 	 * Extracts the textual data for an element from the BufferedReader using the elementStartPattern to split
 	 * up the data. If this instance has not yet determined the lineTerminator being used, it will read the reader
@@ -281,7 +305,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 * 
 	 * @param reader The BufferedReader to extract the element from
 	 */
-	private String readElement(BufferedReader reader) {
+	private ElementContext readElement(BufferedReader reader) {
 
 		StringBuffer elementCache = new StringBuffer();
 		boolean inElement = false;		
@@ -327,8 +351,11 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 						
 						line = buffer.toString();
 					}
-                    line = line.replaceAll("\t","");
-					if(line  != null) {
+
+					if(line != null) {
+						if(parseListener != null) {
+							line = parseListener.processLine(line);
+						}
 						// We look for the start of a new element if either:
 						// a) We're not in an element or
 						// b) We don't have an elementStopPattern set (if we do and we're in a element, the presence of a line
@@ -341,7 +368,8 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 								// Rewind the stream...
 								reader.reset();
 								// ...and return what we have already extracted
-								return message;
+								ElementContext context = new ElementContext(message, parseListener == null? null : parseListener.getContext(message));
+								return context;
 							} else {
 								// This is the start of our element. Add it to our elementCache.
 								inElement = true;
@@ -367,8 +395,10 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 				throw new NonTransientResourceException("Failed to extract entity", ioEx);
 			}
 		}
-		
-		return elementCache.toString();
+
+		String message = elementCache.toString();
+		ElementContext context = new ElementContext(message, parseListener == null? null : parseListener.getContext(message));
+		return context;
 	}
 	
 	/**
@@ -502,11 +532,13 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 	 * (non-Javadoc)
 	 * @see org.springframework.batch.item.ItemReader#read()
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public ComplexDataObject read() throws UnexpectedInputException,
+	public Result read() throws UnexpectedInputException,
 			ParseException, NonTransientResourceException {
 		
 		ComplexDataObject result = null;
+		Object context = null;
 		Parser parser = null;
 		
 		// Keep trying to parse an entity until either we get one (result != null) or we run out of data to read (parser == null)
@@ -526,7 +558,9 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 				}
 				
 				// Get the textual source for an element from the reader
-				String element = readElement(reader);
+				ElementContext elementContext = readElement(reader);
+				String element = elementContext.element;
+				context = elementContext.context;
 				
 				// If we got something then parse it
 				if(element != null && element.trim().length() > 0) {
@@ -579,7 +613,7 @@ public class C24ItemReader implements ItemReader<ComplexDataObject> {
 			}
 		}
 		
-		return result;
+		return parseListener == null || result == null? (Result)result : parseListener.process(result, context);
 		
 	}
 	
