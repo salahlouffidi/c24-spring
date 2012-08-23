@@ -82,6 +82,14 @@
       <para>Note that the source is declared with a scope of step. This is because it holds data
         relevant to the current step execution, hence a separate instance is required for
         each.</para>
+      <para>Both the <classname>FileSource</classname> and the <classname>ZipFileSource</classname>
+        allow the first n lines of each file they encounter to be skipped (in the case of the
+          <classname>ZipFileSource</classname>, the first n lines of each file within the Zip file).
+        For example to skip a one line header at the start of each file, the
+          <classname>FileSource</classname> would be configured as:</para>
+      <programlisting>&lt;beans:bean id="fileSource" class="biz.c24.io.spring.batch.reader.source.FileSource" scope="step">
+    &lt;beans:property name="skipLines" value="1"/>
+&lt;/beans:bean></programlisting>
       <para>The <interface>Sources</interface> provide guidance to the
           <classname>C24ItemReader</classname> on how it should process the Source in the event that
         multiple threads are concurrently invoking <methodname>read</methodname> on it. By default
@@ -112,10 +120,11 @@
         <programlisting language="xml">&lt;bat-c24:item-reader id="ioItemReader" 
                      model-ref="demoModel" 
                      source-ref="fileSource" 
-                     elementStartPattern=".*201\d-\d\d-\d\dT.*" 
+                     elementStartPattern="..." 
                      elementStopPattern="..." 
                      validate="true" 
-                     source-factory-ref="..." 
+                     source-factory-ref="..."
+                     parse-listener-ref="..." 
                      scope="step"/> </programlisting>
       </para>
       <para>In order, these attributes are:</para>
@@ -146,8 +155,12 @@
               [Optional - default false]</para>
           </listitem>
           <listitem>
-            <para><emphasis>source-factory-ref</emphasis> - The iO SourceFactory that is used to
+            <para><emphasis>source-factory-ref</emphasis> - the iO SourceFactory that is used to
               parse the message [Optional - default is to use the model's default source]</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>parse-listener-ref</emphasis> - a listener which will be invoked at key
+              points during the parsing process [Optional - default is none]</para>
           </listitem>
           <listitem>
             <para><emphasis>scope</emphasis> - the bean's scope [Optional - default step]</para>
@@ -237,6 +250,56 @@
           <classname>C24ItemReader</classname> will use a validation manager to validate the parsed
           <classname>ComplexDataObject</classname>. In the event of a violation, the iO exception
         will be wrapped and rethrown as a Spring Batch <classname>ParseException</classname>.</para>
+    </section>
+    <section>
+      <title>Intercepting the Parsing Process</title>
+      <para>Callers can register a
+          <interfacename>biz.c24.io.spring.batch.reader.ParseListener</interfacename> with the
+          <classname>C24ItemReader</classname> in order to add custom logic to the parsing process.
+        There are 3 key interaction points:</para>
+      <para>
+        <itemizedlist>
+          <listitem>
+            <para>As each line is read from the <interfacename>Source</interfacename> [only
+              available where Splitting is being used]. This can be used for informational purposes
+              (e.g. to extract contextual information from the file beyond the elements that are
+              being parsed), or to influence the parsing process as the callback allows the line to
+              the modified.</para>
+          </listitem>
+          <listitem>
+            <para>As each element is extracted from the <interfacename>Source</interfacename> [only
+              available where Splitting is being used]. Allows the callback to associate context
+              with the element.</para>
+          </listitem>
+          <listitem>
+            <para>Before the parsed <classname>ComplexDataObject</classname> is returned from the
+                <classname>C24ItemReader</classname>. Allows the
+                <classname>ComplexDataObject</classname> to be modified or the object to be wrapped
+              before it is passed to downstream processors.</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>An example usage would be where the <classname>C24ItemReader</classname> is extracting
+        child elements from an XML file however the downstream
+          <interfacename>ItemProcessor</interfacename>s or<interfacename>
+        ItemWriter</interfacename>s required additional context from the parent elements. In this
+        case the ParseListener logic would be:</para>
+      <para>
+        <itemizedlist>
+          <listitem>
+            <para>Extract and cache the parent information in the
+                <methodname>processLine</methodname> callback</para>
+          </listitem>
+          <listitem>
+            <para>Supply the cached information back to the <classname>C24ItemReader</classname> in
+              the <methodname>getContext</methodname> call</para>
+          </listitem>
+          <listitem>
+            <para>Combine the <classname>ComplexDataObject</classname> and the cached context in the
+                <methodname>process</methodname> call</para>
+          </listitem>
+        </itemizedlist>
+      </para>
     </section>
   </section>
   <section>
