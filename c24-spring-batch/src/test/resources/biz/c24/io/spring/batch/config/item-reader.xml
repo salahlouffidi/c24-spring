@@ -10,7 +10,9 @@
 
 
 	<!-- File sources used to read files from disk -->
-	<bean id="fileSource" class="biz.c24.io.spring.batch.reader.source.FileSource" />
+	<bean id="fileSource" class="biz.c24.io.spring.batch.reader.source.FileSource">
+		<property name="skipLines" value="1"/>
+	</bean>
 	<bean id="zipFileSource" class="biz.c24.io.spring.batch.reader.source.ZipFileSource" />
 
 	<!-- The type of model we're going to be parsing -->
