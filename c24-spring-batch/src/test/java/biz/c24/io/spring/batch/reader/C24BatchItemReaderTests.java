@@ -54,19 +54,19 @@ public class C24BatchItemReaderTests {
 	@Test
 	public void testValidXmlRead() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
 		FileSource source = new FileSource();
-		String filename = "employees-3-valid.xml";
+		source.setResource(new ClassPathResource("employees-3-valid.xml"));
 		
-		Collection<ComplexDataObject> objs = readFile(employeesXmlModel, employeeXmlModel, true, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeesXmlModel, employeeXmlModel, true, source);
 		assertThat(objs.size(), is(3));		
 	}
 	
 	@Test
 	public void testSemanticallyInvalidXmlRead() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
 		FileSource source = new FileSource();
-		String filename = "employees-3-semanticallyinvalid.xml";
+		source.setResource(new ClassPathResource("employees-3-semanticallyinvalid.xml"));
 		
 		try {
-			readFile(employeesXmlModel, employeeXmlModel, true, source, filename);
+			readFile(employeesXmlModel, employeeXmlModel, true, source);
 			fail("Semantically invalid file did not generate a C24ValidationException");
 		} catch(C24ValidationException ex) {
 			// Expected behaviour
@@ -76,10 +76,10 @@ public class C24BatchItemReaderTests {
 	@Test
 	public void testStructurallyInvalidXmlRead() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
 		FileSource source = new FileSource();
-		String filename = "employees-3-structurallyinvalid.xml";
+		source.setResource(new ClassPathResource("employees-3-structurallyinvalid.xml"));
 		
 		try {
-			readFile(employeesXmlModel, employeeXmlModel, true, source, filename);
+			readFile(employeesXmlModel, employeeXmlModel, true, source);
 			fail("Semantically invalid file did not generate a ParseException");
 		} catch(ParseException ex) {
 			// Expected behaviour
@@ -87,13 +87,13 @@ public class C24BatchItemReaderTests {
 	}
 	
 
-	private Collection<ComplexDataObject> readFile(C24Model batchModel, C24Model batchEntryModel, boolean validate, BufferedReaderSource source, String filename) throws Exception, IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
+	private Collection<ComplexDataObject> readFile(C24Model batchModel, C24Model batchEntryModel, boolean validate, BufferedReaderSource source) throws Exception, IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
 		C24BatchItemReader reader = new C24BatchItemReader();
 		reader.setModel(batchModel);		
 		reader.setSource(source);
 		reader.setValidate(validate);
 		
-		StepExecution stepExecution = getStepExecution(filename);
+		StepExecution stepExecution = getStepExecution();
 		
 		reader.setup(stepExecution);
 
@@ -110,12 +110,9 @@ public class C24BatchItemReaderTests {
 		return objs;
 	}
 		
-	private StepExecution getStepExecution(String classPathResourceName) throws IOException {
-		
-		ClassPathResource sourceFile = new ClassPathResource(classPathResourceName);
+	private StepExecution getStepExecution() throws IOException {
 		
 		JobParameters jobParams = mock(JobParameters.class);
-		when(jobParams.getString("input.file")).thenReturn(sourceFile.getFile().getAbsolutePath());
 
 		StepExecution stepExecution = mock(StepExecution.class);
 		when(stepExecution.getJobParameters()).thenReturn(jobParams);

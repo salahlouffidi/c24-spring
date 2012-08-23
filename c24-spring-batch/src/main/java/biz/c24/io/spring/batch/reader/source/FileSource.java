@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 import org.springframework.batch.core.StepExecution;
+import org.springframework.core.io.Resource;
 
 /**
  * An implementation of BufferedReaderSource which extracts its data from uncompressed files.
@@ -35,6 +36,8 @@ public class FileSource implements BufferedReaderSource {
 	private BufferedReader reader = null;
 	
 	private String name;
+	
+	private Resource resource;
 	
 	/**
 	 * How many lines at the start of the file should we skip?
@@ -54,19 +57,10 @@ public class FileSource implements BufferedReaderSource {
 	 */
 	public void initialise(StepExecution stepExecution) {
 		
-		// Extract the name of the file we're supposed to be reading
-        String fileName = stepExecution.getJobParameters().getString("input.file");
-        
-        // Remove any leading file:// if it exists
-        if(fileName.startsWith("file://")) {
-        		fileName = fileName.substring("file://".length());
-        }
-        
-        name = fileName;
-
+		name = resource.getFilename();
 		try {
 			// Prime the reader
-			reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+			reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
 			if(skipLines > 0) {
 				for(int i = 0; i < skipLines && reader.ready(); i++) {
 					// Skip the line
@@ -145,6 +139,22 @@ public class FileSource implements BufferedReaderSource {
 	 */
 	public void setSkipLines(int skipLines) {
 		this.skipLines = skipLines;
+	}
+
+	/**
+	 * The resource we acquire InputStreams from
+	 * @return
+	 */
+	public Resource getResource() {
+		return resource;
+	}
+
+	/**
+	 * Set the resource we acquire InputStreams from
+	 * @return
+	 */
+	public void setResource(Resource resource) {
+		this.resource = resource;
 	}	
 	
 }

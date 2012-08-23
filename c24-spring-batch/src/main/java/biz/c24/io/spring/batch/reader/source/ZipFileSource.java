@@ -24,6 +24,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.springframework.batch.core.StepExecution;
+import org.springframework.core.io.Resource;
 
 /**
  * An implementation of BufferedReaderSource which extracts its data from Zip files.
@@ -65,6 +66,11 @@ public class ZipFileSource implements BufferedReaderSource {
 	 */
 	private int skipLines = 0;
 	
+	/**
+	 * The Resource we acquire InputStreams from
+	 */
+	private Resource resource;
+	
 	/*
 	 * (non-Javadoc)
 	 * @see biz.c24.io.spring.batch.reader.source.BufferedReaderSource#getName()
@@ -77,19 +83,11 @@ public class ZipFileSource implements BufferedReaderSource {
 	 * @see biz.c24.spring.batch.BufferedReaderSource#initialise(org.springframework.batch.core.StepExecution)
 	 */
 	public void initialise(StepExecution stepExecution) {
-		
-		// Extract the name of the file we're supposed to be reading
-        String fileName = stepExecution.getJobParameters().getString("input.file");
         
-        // Remove any leading file:// if it exists
-        if(fileName.startsWith("file://")) {
-        		fileName = fileName.substring("file://".length());
-        }
-        
-        name = fileName;
+        name = resource.getDescription();
 
 		try {
-			zipFile = new ZipFile(fileName);
+			zipFile = new ZipFile(resource.getFile());
 			zipEntries = zipFile.entries();
 			ZipEntry entry = null;
 			if(zipEntries.hasMoreElements()) {
@@ -215,7 +213,22 @@ public class ZipFileSource implements BufferedReaderSource {
 	public void setSkipLines(int skipLines) {
 		this.skipLines = skipLines;
 	}	
-	
+
+	/**
+	 * The resource we acquire InputStreams from
+	 * @return
+	 */
+	public Resource getResource() {
+		return resource;
+	}
+
+	/**
+	 * Set the resource we acquire InputStreams from
+	 * @return
+	 */
+	public void setResource(Resource resource) {
+		this.resource = resource;
+	}	
 	
 	
 }

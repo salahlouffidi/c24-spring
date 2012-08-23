@@ -26,7 +26,6 @@ import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.core.io.ClassPathResource;
-
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.examples.models.basic.EmployeeElement;
@@ -54,28 +53,28 @@ public class C24ItemReaderTests {
 	public void testValidCsvRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
 		
 		FileSource source = new FileSource();
-		String filename = "employees-3-valid.csv";
+		source.setResource(new ClassPathResource("employees-3-valid.csv"));
 		
 		// No validation, no splitting
-		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source);
 		assertThat(objs.size(), is(3));
 		
 		// Validation but no splitting
-		objs = readFile(employeeModel, null, null, true, source, filename);
+		objs = readFile(employeeModel, null, null, true, source);
 		assertThat(objs.size(), is(3));
 		
 		// Validation & splitting
-		objs = readFile(employeeModel, ".*", null, true, source, filename);
+		objs = readFile(employeeModel, ".*", null, true, source);
 		assertThat(objs.size(), is(3));
 	}
 	
 	@Test
 	public void testValidXmlRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
 		FileSource source = new FileSource();
-		String filename = "employees-3-valid.xml";
+		source.setResource(new ClassPathResource("employees-3-valid.xml"));
 		
 		// Validation & splitting
-		Collection<ComplexDataObject> objs = readFile(employeeXmlModel, "^[ \t]*<employee .*", "^[ \t]*<employee .*", true, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeeXmlModel, "^[ \t]*<employee .*", "^[ \t]*<employee .*", true, source);
 		assertThat(objs.size(), is(3));		
 	}
 	
@@ -83,21 +82,21 @@ public class C24ItemReaderTests {
 	public void testSourceFactory() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
 		
 		FileSource source = new FileSource();
-		String filename = "employees-3-valid.csv";
+		source.setResource(new ClassPathResource("employees-3-valid.csv"));
 		
 		TextualSourceFactory factory = new TextualSourceFactory();
 		factory.setEndOfDataRequired(false);
 		
 		// No validation, no splitting
-		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename, factory);
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, factory);
 		assertThat(objs.size(), is(3));
 		
 		// Validation but no splitting
-		objs = readFile(employeeModel, null, null, true, source, filename, factory);
+		objs = readFile(employeeModel, null, null, true, source, factory);
 		assertThat(objs.size(), is(3));
 		
 		// Validation & splitting
-		objs = readFile(employeeModel, ".*", null, true, source, filename, factory);
+		objs = readFile(employeeModel, ".*", null, true, source, factory);
 		assertThat(objs.size(), is(3));
 	}
 	
@@ -105,15 +104,15 @@ public class C24ItemReaderTests {
 	@Test
 	public void testSemanticallyInvalidCsvRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
 		FileSource source = new FileSource();
-		String filename = "employees-3-semanticallyinvalid.csv";
+		source.setResource(new ClassPathResource("employees-3-semanticallyinvalid.csv"));
 		
 		// No validation, no splitting
-		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source);
 		assertThat(objs.size(), is(3));
 
 		// Validation but no splitting
 		try {
-			readFile(employeeModel, null, null, true, source, filename);
+			readFile(employeeModel, null, null, true, source);
 			fail("Semantically invalid file did not generate a ValidationException");
 		} catch(C24ValidationException pEx) {
 			// Expected behaviour
@@ -122,7 +121,7 @@ public class C24ItemReaderTests {
 		// Validation & splitting
 		// Validation but no splitting
 		try {
-			readFile(employeeModel, ".*", null, true, source, filename);
+			readFile(employeeModel, ".*", null, true, source);
 			fail("Semantically invalid file did not generate a ValidationException");
 		} catch(C24ValidationException pEx) {
 			// Expected behaviour
@@ -133,11 +132,11 @@ public class C24ItemReaderTests {
 	@Test
 	public void testStructurallyInvalidCsvRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
 		FileSource source = new FileSource();
-		String filename = "employees-3-structurallyinvalid.csv";
+		source.setResource(new ClassPathResource("employees-3-structurallyinvalid.csv"));
 		
 		// No validation, no splitting
 		try {
-			readFile(employeeModel, null, null, false, source, filename);
+			readFile(employeeModel, null, null, false, source);
 			fail("Structurally invalid file did not generate a ParserException");
 		} catch(ParseException uiEx) {
 			// Expected behaviour
@@ -145,7 +144,7 @@ public class C24ItemReaderTests {
 		
 		// Validation but no splitting
 		try {
-			readFile(employeeModel, null, null, true, source, filename);
+			readFile(employeeModel, null, null, true, source);
 			fail("Structurally invalid file did not generate a ParserException");
 		} catch(ParseException uiEx) {
 			// Expected behaviour
@@ -153,7 +152,7 @@ public class C24ItemReaderTests {
 		
 		// Validation & splitting
 		try {
-			readFile(employeeModel, ".*", null, true, source, filename);
+			readFile(employeeModel, ".*", null, true, source);
 			fail("Structurally invalid file did not generate a ParserException");
 		} catch(ParseException uiEx) {
 			// Expected behaviour
@@ -163,26 +162,26 @@ public class C24ItemReaderTests {
 	@Test
 	public void testValidZipRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
 		
-		BufferedReaderSource source = new ZipFileSource();
-		String filename = "employees-5-valid.zip";
+		ZipFileSource source = new ZipFileSource();
+		source.setResource(new ClassPathResource("employees-5-valid.zip"));
 		
 		// No validation, no splitting
-		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source);
 		assertThat(objs.size(), is(5));
 		
 		// Validation but no splitting
-		objs = readFile(employeeModel, null, null, true, source, filename);
+		objs = readFile(employeeModel, null, null, true, source);
 		assertThat(objs.size(), is(5));
 		assertThat(source.useMultipleThreadsPerReader(), is(true));
 		
 		// Validation & splitting
-		objs = readFile(employeeModel, ".*", null, true, source, filename);
+		objs = readFile(employeeModel, ".*", null, true, source);
 		assertThat(objs.size(), is(5));
 		assertThat(source.useMultipleThreadsPerReader(), is(true));
 		
 		// Now give is a zip file with lots of small entries. Check that it encourages 1 thread per ZipEntry
-		filename = "employees-50-valid.zip";
-		objs = readFile(employeeModel, ".*", null, true, source, filename);
+		source.setResource(new ClassPathResource("employees-50-valid.zip"));
+		objs = readFile(employeeModel, ".*", null, true, source);
 		assertThat(objs.size(), is(50));
 		assertThat(source.useMultipleThreadsPerReader(), is(false));
 	}
@@ -193,18 +192,18 @@ public class C24ItemReaderTests {
 		
 		FileSource source = new FileSource();
 		source.setSkipLines(1);
-		String filename = "employees-3-valid-header.csv";
+		source.setResource(new ClassPathResource("employees-3-valid-header.csv"));
 		
 		// No validation, no splitting
-		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source);
 		assertThat(objs.size(), is(3));
 		
 		// Validation but no splitting
-		objs = readFile(employeeModel, null, null, true, source, filename);
+		objs = readFile(employeeModel, null, null, true, source);
 		assertThat(objs.size(), is(3));
 		
 		// Validation & splitting
-		objs = readFile(employeeModel, ".*", null, true, source, filename);
+		objs = readFile(employeeModel, ".*", null, true, source);
 		assertThat(objs.size(), is(3));
 	}
 	
@@ -213,28 +212,28 @@ public class C24ItemReaderTests {
 		
 		ZipFileSource source = new ZipFileSource();
 		source.setSkipLines(1);
-		String filename = "employees-5-valid-header.zip";
+		source.setResource(new ClassPathResource("employees-5-valid-header.zip"));
 		
 		// No validation, no splitting
-		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename);
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source);
 		assertThat(objs.size(), is(5));
 		
 		// Validation but no splitting
-		objs = readFile(employeeModel, null, null, true, source, filename);
+		objs = readFile(employeeModel, null, null, true, source);
 		assertThat(objs.size(), is(5));
 		assertThat(source.useMultipleThreadsPerReader(), is(true));
 		
 		// Validation & splitting
-		objs = readFile(employeeModel, ".*", null, true, source, filename);
+		objs = readFile(employeeModel, ".*", null, true, source);
 		assertThat(objs.size(), is(5));
 		assertThat(source.useMultipleThreadsPerReader(), is(true));
 	}
 	
-	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source, String filename) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
-		return readFile(model, optionalElementStartRegEx, optionalElementStopRegEx, validate, source, filename, null);
+	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
+		return readFile(model, optionalElementStartRegEx, optionalElementStopRegEx, validate, source, null);
 	}
 
-	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source, String filename, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
+	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
 		C24ItemReader<ComplexDataObject> reader = new C24ItemReader<ComplexDataObject>();
 		reader.setModel(model);
 		if(optionalElementStartRegEx != null) {
@@ -250,7 +249,7 @@ public class C24ItemReaderTests {
 		reader.setSource(source);
 		reader.setValidate(validate);
 		
-		StepExecution stepExecution = getStepExecution(filename);
+		StepExecution stepExecution = getStepExecution();
 		
 		reader.setup(stepExecution);
 
@@ -267,12 +266,9 @@ public class C24ItemReaderTests {
 		return objs;
 	}
 		
-	private StepExecution getStepExecution(String classPathResourceName) throws IOException {
-		
-		ClassPathResource sourceFile = new ClassPathResource(classPathResourceName);
+	private StepExecution getStepExecution() throws IOException {
 		
 		JobParameters jobParams = mock(JobParameters.class);
-		when(jobParams.getString("input.file")).thenReturn(sourceFile.getFile().getAbsolutePath());
 
 		StepExecution stepExecution = mock(StepExecution.class);
 		when(stepExecution.getJobParameters()).thenReturn(jobParams);
