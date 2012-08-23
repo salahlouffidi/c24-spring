@@ -3,8 +3,6 @@ package biz.c24.io.spring.batch.reader;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.springframework.batch.item.ParseException;
-
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.Element;
 import biz.c24.io.api.presentation.Source;

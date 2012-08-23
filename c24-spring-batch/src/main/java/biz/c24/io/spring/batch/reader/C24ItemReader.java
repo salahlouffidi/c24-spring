@@ -108,7 +108,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	private ThreadLocal<ValidationManager> validator = null;
 	
 	/**
-	 * Allow clients to register a callback to intercept elements as we read them. NB only works in the splitting case.
+	 * Allow clients to register a callback to intercept elements as we read them.
 	 */
 	private ParseListener<Object, Result> parseListener = null;
 	
@@ -129,10 +129,18 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 		}
 	}
 	
+	/**
+	 * Get the parser listener registered with this C24ItemReader (if any)
+	 * @return The currently registered ParseListener, null if there isn't one.
+	 */
 	public ParseListener<Object, Result> getParseListener() {
 		return parseListener;
 	}
 
+	/**
+	 * Registers a ParseListener
+	 * @param parseListener The object which should receive the callbacks, null to remove an existing ParseListener
+	 */
 	public void setParseListener(ParseListener<Object, Result> parseListener) {
 		this.parseListener = parseListener;
 	}
@@ -282,6 +290,13 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	 */
 	private static final int MAX_MESSAGE_SIZE = 1000000;
 	
+	/**
+	 * Structure to associate a to-be-parsed element with externally supplied context.
+	 * The ParseListener callback enables an external object to associate context with an element. This structure 
+	 * allows them to be held together during processing; this is necessary to avoid race conditions.
+	 * 
+	 * @author Andrew Elmore
+	 */
 	private static class ElementContext {
 		public ElementContext(String element, Object context) {
 			this.element = element;
@@ -302,6 +317,9 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	 * 
 	 * Once the line terminator has been determined, it will be used for all subsequent calls to readElement; 
 	 * even if the BufferedReaderSource is changed.
+	 * 
+	 * If a ParseListener is registered, it will receive a callback when a line is read from the reader and when 
+	 * an element has been extracted.
 	 * 
 	 * @param reader The BufferedReader to extract the element from
 	 */
@@ -354,6 +372,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 
 					if(line != null) {
 						if(parseListener != null) {
+							// Invoke callback
 							line = parseListener.processLine(line);
 						}
 						// We look for the start of a new element if either:
@@ -613,6 +632,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 			}
 		}
 		
+		// If we have a ParseListener registered, allow it to intercept the return value
 		return parseListener == null || result == null? (Result)result : parseListener.process(result, context);
 		
 	}

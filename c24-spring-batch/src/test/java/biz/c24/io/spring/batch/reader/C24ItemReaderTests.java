@@ -27,7 +27,6 @@ import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.core.io.ClassPathResource;
 
-import biz.c24.io.api.ParserException;
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.examples.models.basic.EmployeeElement;
@@ -186,6 +185,49 @@ public class C24ItemReaderTests {
 		objs = readFile(employeeModel, ".*", null, true, source, filename);
 		assertThat(objs.size(), is(50));
 		assertThat(source.useMultipleThreadsPerReader(), is(false));
+	}
+	
+	// Header Skipping Tests
+	@Test
+	public void testValidCsvHeaderRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
+		
+		FileSource source = new FileSource();
+		source.setSkipLines(1);
+		String filename = "employees-3-valid-header.csv";
+		
+		// No validation, no splitting
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename);
+		assertThat(objs.size(), is(3));
+		
+		// Validation but no splitting
+		objs = readFile(employeeModel, null, null, true, source, filename);
+		assertThat(objs.size(), is(3));
+		
+		// Validation & splitting
+		objs = readFile(employeeModel, ".*", null, true, source, filename);
+		assertThat(objs.size(), is(3));
+	}
+	
+	@Test
+	public void testValidZipHeaderRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
+		
+		ZipFileSource source = new ZipFileSource();
+		source.setSkipLines(1);
+		String filename = "employees-5-valid-header.zip";
+		
+		// No validation, no splitting
+		Collection<ComplexDataObject> objs = readFile(employeeModel, null, null, false, source, filename);
+		assertThat(objs.size(), is(5));
+		
+		// Validation but no splitting
+		objs = readFile(employeeModel, null, null, true, source, filename);
+		assertThat(objs.size(), is(5));
+		assertThat(source.useMultipleThreadsPerReader(), is(true));
+		
+		// Validation & splitting
+		objs = readFile(employeeModel, ".*", null, true, source, filename);
+		assertThat(objs.size(), is(5));
+		assertThat(source.useMultipleThreadsPerReader(), is(true));
 	}
 	
 	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source, String filename) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {

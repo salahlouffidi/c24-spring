@@ -60,6 +60,10 @@ public class ZipFileSource implements BufferedReaderSource {
 	 */
 	private boolean useMultipleThreadsPerReader = true;
 	
+	/**
+	 * How many lines at the start of the file should we skip?
+	 */
+	private int skipLines = 0;
 	
 	/*
 	 * (non-Javadoc)
@@ -91,7 +95,7 @@ public class ZipFileSource implements BufferedReaderSource {
 			if(zipEntries.hasMoreElements()) {
 				entry = zipEntries.nextElement();
 				// Prime the reader
-				reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+				reader = getReader(entry);
 			}
 			
 			// If we have a large number of ZipEntries and the first one looks relatively small, advise 
@@ -118,6 +122,17 @@ public class ZipFileSource implements BufferedReaderSource {
 		}
 	}
 	
+	private BufferedReader getReader(ZipEntry entry) throws IOException {
+		BufferedReader newReader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+		if(skipLines > 0) {
+			for(int i = 0; i < skipLines && newReader.ready(); i++) {
+				// Skip the line
+				newReader.readLine();
+			}
+		}
+		return newReader;
+	}
+	
 	/* (non-Javadoc)
 	 * @see biz.c24.spring.batch.BufferedReaderSource#getReader()
 	 */
@@ -132,7 +147,7 @@ public class ZipFileSource implements BufferedReaderSource {
 						if(zipEntries.hasMoreElements()) {
 							// ... but there are more files to process in the zip file
 							try {
-								reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntries.nextElement())));
+								reader = getReader(zipEntries.nextElement());
 							} catch (IOException e) {
 								throw new RuntimeException(e);
 							}		
@@ -159,9 +174,8 @@ public class ZipFileSource implements BufferedReaderSource {
 			// Set up the next reader to return
 			if(zipEntries.hasMoreElements()) {
 				try {
-					reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntries.nextElement())));
+					reader = getReader(zipEntries.nextElement());
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					throw new RuntimeException(e);
 				}
 			} else {
@@ -184,7 +198,24 @@ public class ZipFileSource implements BufferedReaderSource {
 			getNextReader();
 		}	
 		reader.close();
+	}
+	
+	/**
+	 * How many lines will be skipped at the start of the file before the Reader is handed to callers?
+	 * @return
+	 */
+	public int getSkipLines() {
+		return skipLines;
+	}
+
+	/**
+	 * How many lines should be skipped at the start of the file before the Reader is handed to callers?
+	 * @param skipLines
+	 */
+	public void setSkipLines(int skipLines) {
+		this.skipLines = skipLines;
 	}	
+	
 	
 	
 }

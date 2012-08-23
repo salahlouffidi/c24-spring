@@ -15,7 +15,6 @@
  */
 package biz.c24.io.spring.batch.config;
 
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +22,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.Element;
+import biz.c24.io.examples.models.basic.Employee;
 import biz.c24.io.examples.models.basic.EmployeeElement;
 import biz.c24.io.spring.batch.reader.C24ItemReader;
 import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
 import biz.c24.io.spring.batch.reader.source.FileSource;
 import biz.c24.io.spring.batch.reader.source.ZipFileSource;
 import biz.c24.io.spring.source.SourceFactory;
-import biz.c24.io.spring.source.TextualSourceFactory;
 import biz.c24.io.spring.source.XmlSourceFactory;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -45,44 +45,43 @@ import static org.junit.Assert.*;
 public class C24ItemReaderParserTests {
 	
 	private Element employeeElement = EmployeeElement.getInstance();
-	private Element employeeXmlElement = biz.c24.io.examples.models.xml.EmployeeElement.getInstance();
 	
 	@Autowired
 	@Qualifier("nonSplittingNonValidatingCsvReader")
-	private C24ItemReader nonSplittingNonValidatingCsvReader;
+	private C24ItemReader<Employee> nonSplittingNonValidatingCsvReader;
 
 	@Autowired
 	@Qualifier("nonSplittingValidatingCsvReader")
-	private C24ItemReader nonSplittingValidatingCsvReader;
+	private C24ItemReader<Employee> nonSplittingValidatingCsvReader;
 	
 	@Autowired
 	@Qualifier("splittingValidatingCsvReader")
-	private C24ItemReader splittingValidatingCsvReader;
+	private C24ItemReader<Employee> splittingValidatingCsvReader;
 	
 	@Autowired
 	@Qualifier("splittingNonValidatingCsvReader")
-	private C24ItemReader splittingNonValidatingCsvReader;
+	private C24ItemReader<Employee> splittingNonValidatingCsvReader;
 	
 	@Autowired
 	@Qualifier("nonSplittingValidatingZipReader")
-	private C24ItemReader nonSplittingValidatingZipReader;
+	private C24ItemReader<Employee> nonSplittingValidatingZipReader;
 	
 	@Autowired
 	@Qualifier("splittingValidatingZipReader")
-	private C24ItemReader splittingValidatingZipReader;
+	private C24ItemReader<Employee> splittingValidatingZipReader;
 	
 	@Autowired
 	@Qualifier("xmlSourceFactoryReader")
-	private C24ItemReader xmlSourceFactoryReader;
+	private C24ItemReader<biz.c24.io.examples.models.xml.Employee> xmlSourceFactoryReader;
 	
 	
 	
-	private void validateReader(C24ItemReader reader, String expectedStartPattern, String expectedStopPattern, boolean expectedValidate, 
+	private void validateReader(C24ItemReader<? extends ComplexDataObject> reader, String expectedStartPattern, String expectedStopPattern, boolean expectedValidate, 
 								Class<? extends BufferedReaderSource> expectedSource) {
 		validateReader(reader, expectedStartPattern, expectedStopPattern, expectedValidate, expectedSource, null);
 	}
 		
-	private void validateReader(C24ItemReader reader, String expectedStartPattern, String expectedStopPattern, boolean expectedValidate, 
+	private void validateReader(C24ItemReader<? extends ComplexDataObject> reader, String expectedStartPattern, String expectedStopPattern, boolean expectedValidate, 
 				Class<? extends BufferedReaderSource> expectedSource, Class<? extends SourceFactory> expectedSourceFactory) {
 		
 		assertThat(reader.getElementStartPattern(), is(expectedStartPattern));

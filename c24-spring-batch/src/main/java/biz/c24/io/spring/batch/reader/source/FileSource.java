@@ -36,6 +36,11 @@ public class FileSource implements BufferedReaderSource {
 	
 	private String name;
 	
+	/**
+	 * How many lines at the start of the file should we skip?
+	 */
+	private int skipLines = 0;
+	
 	/*
 	 * (non-Javadoc)
 	 * @see biz.c24.io.spring.batch.reader.source.BufferedReaderSource#getName()
@@ -62,6 +67,12 @@ public class FileSource implements BufferedReaderSource {
 		try {
 			// Prime the reader
 			reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+			if(skipLines > 0) {
+				for(int i = 0; i < skipLines && reader.ready(); i++) {
+					// Skip the line
+					reader.readLine();
+				}
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} 
@@ -118,6 +129,22 @@ public class FileSource implements BufferedReaderSource {
 			this.reader = null;
 		}
 		
+	}
+
+	/**
+	 * How many lines will be skipped at the start of the file before the Reader is handed to callers?
+	 * @return
+	 */
+	public int getSkipLines() {
+		return skipLines;
+	}
+
+	/**
+	 * How many lines should be skipped at the start of the file before the Reader is handed to callers?
+	 * @param skipLines
+	 */
+	public void setSkipLines(int skipLines) {
+		this.skipLines = skipLines;
 	}	
 	
 }
