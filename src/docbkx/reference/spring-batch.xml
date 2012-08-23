@@ -66,29 +66,43 @@
           </listitem>
         </itemizedlist>The first of these reads from a single, uncompressed file while the latter
         accepts a zip file as input and will process the contents of all contained entries.</para>
-      <para>Both sources derive their input filename from a <classname>JobParameter</classname>
-        called '<emphasis>input.file</emphasis>' (as populated by the Spring Batch Admin
-          <classname>org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter</classname>). </para>
-      <para>Constructing the source requires creating an appropriate bean, for example:</para>
+      <para>Both sources derive their input from a Spring Resource. The resource can be set directly
+        on the <interfacename>Source</interfacename>, for example:</para>
       <para>
-        <programlisting language="xml">&lt;beans:bean id="fileSource"    
+        <programlisting>&lt;beans:bean id="fileSource"    
             class="biz.c24.io.spring.batch.reader.source.FileSource" 
-            scope="step"/>
-
-&lt;beans:bean id="zipFileSource" 
+            scope="step">
+  &lt;beans:property name="resource" value="/tmp/data.csv"/>
+&lt;/beans:bean></programlisting>
+      </para>
+      <para>In many cases, the filename we need to process will be different on each invocation of
+        the job. Spring's late binding capability allows far greater flexibility on how the
+        parameter is set. For example, the Spring Batch Admin
+          <classname>org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter</classname>
+        creates a Job with a  <classname>JobParameter</classname> called
+          '<emphasis>input.file</emphasis>'. We can create a <classname>ZipFileSource</classname>
+        that will use the contents of this parameter as follows:</para>
+      <para>
+        <programlisting language="xml">&lt;beans:bean id="zipFileSource" 
             class="biz.c24.io.spring.batch.reader.source.ZipFileSource" 
-            scope="step"/></programlisting>
+            scope="step">
+  &lt;beans:property name="resource" value="#{jobParameters['input.file']}" />
+&lt;/beans:bean></programlisting>
       </para>
       <para>Note that the source is declared with a scope of step. This is because it holds data
-        relevant to the current step execution, hence a separate instance is required for
-        each.</para>
+        relevant to the current step execution, hence a separate instance is required for each.
+        While other scopes might be applicable for individual use cases, if you wish to use late
+        binding from the jobParameters the Source must be declared with a scope of step.</para>
       <para>Both the <classname>FileSource</classname> and the <classname>ZipFileSource</classname>
         allow the first n lines of each file they encounter to be skipped (in the case of the
           <classname>ZipFileSource</classname>, the first n lines of each file within the Zip file).
         For example to skip a one line header at the start of each file, the
           <classname>FileSource</classname> would be configured as:</para>
-      <programlisting>&lt;beans:bean id="fileSource" class="biz.c24.io.spring.batch.reader.source.FileSource" scope="step">
+      <programlisting>&lt;beans:bean id="fileSource" 
+            class="biz.c24.io.spring.batch.reader.source.FileSource"
+            scope="step">
     &lt;beans:property name="skipLines" value="1"/>
+    &lt;beans:property name="resource" value="..."/>
 &lt;/beans:bean></programlisting>
       <para>The <interface>Sources</interface> provide guidance to the
           <classname>C24ItemReader</classname> on how it should process the Source in the event that
@@ -484,7 +498,9 @@ public C24TransformItemProcessor getIoItemProcessor() {
 
     &lt;beans:bean id="fileSource" 
                 class="biz.c24.io.spring.batch.reader.source.FileSource" 
-                scope="step"/>
+                scope="step">
+        &lt;beans:property name="resource" value="#{jobParameters['input.file']}" />
+    &lt;/beans:bean>
 
     &lt;bat-c24:item-reader id="ioItemReader" 
                          model-ref="employeeModel" 
@@ -556,7 +572,7 @@ public C24TransformItemProcessor getIoItemProcessor() {
         // Create the job parameters and supply the name of the file to parse
         Map&lt;String, JobParameter> params = new HashMap&lt;String, JobParameter>();
 
-        // The C24 Spring Batch sources expect to get the filename from 
+        // The C24 Spring Batch source is configured to get the filename from 
         // a job property called input.file
         // In this case, the file is in the classpath and is called employees-3-valid.csv
         params.put("input.file", new JobParameter(
