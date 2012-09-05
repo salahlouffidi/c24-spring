@@ -605,7 +605,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 				} catch(IOException ioEx) {
 					throw new ParseException("Failed to parse CDO from " + source.getName(), ioEx);
 				} finally {
-					if(result != null && (result.getTotalAttrCount() + result.getTotalElementCount() == 0)) {
+					if(result != null && result.getTotalAttrCount() == 0 && result.getTotalElementCount() == 0) {
 						// We didn't manage to read anything
 						result = null;
 					}
