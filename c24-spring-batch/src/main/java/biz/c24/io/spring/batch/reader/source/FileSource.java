@@ -18,6 +18,7 @@ package biz.c24.io.spring.batch.reader.source;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
@@ -37,7 +38,7 @@ public class FileSource implements BufferedReaderSource {
 	
 	private String name;
 	
-	private Resource resource;
+	private Resource resource = null;
 	
 	/**
 	 * How many lines at the start of the file should we skip?
@@ -56,11 +57,30 @@ public class FileSource implements BufferedReaderSource {
 	 * @see biz.c24.spring.batch.BufferedReaderSource#initialise(org.springframework.batch.core.StepExecution)
 	 */
 	public void initialise(StepExecution stepExecution) {
-		
-		name = resource.getFilename();
-		try {
+	    
+        try {
+    	    // Get an InputStream and a name for where we're reading from
+    	    // Use the Resource if supplied
+    	    
+    	    InputStream source = null;
+    	    if(resource != null) {
+    	        name = resource.getFilename();
+    	        source = resource.getInputStream();
+    	    } else {
+    	        
+    	        // If no resource supplied, fallback to a Job parameter called input.file
+    	        name = stepExecution.getJobParameters().getString("input.file");
+    	        
+    	        // Remove any leading file:// if it exists
+    	        if(name.startsWith("file://")) {
+    	            name = name.substring("file://".length());
+    	        }
+    	      
+    	        source = new FileInputStream(name);   
+    	    }
+    
 			// Prime the reader
-			reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
+			reader = new BufferedReader(new InputStreamReader(source));
 			if(skipLines > 0) {
 				for(int i = 0; i < skipLines && reader.ready(); i++) {
 					// Skip the line
@@ -127,7 +147,7 @@ public class FileSource implements BufferedReaderSource {
 
 	/**
 	 * How many lines will be skipped at the start of the file before the Reader is handed to callers?
-	 * @return
+	 * @return the number of lines to skip at the start of the file
 	 */
 	public int getSkipLines() {
 		return skipLines;
@@ -143,7 +163,7 @@ public class FileSource implements BufferedReaderSource {
 
 	/**
 	 * The resource we acquire InputStreams from
-	 * @return
+	 * @return the resource that we'll read from
 	 */
 	public Resource getResource() {
 		return resource;
@@ -151,7 +171,6 @@ public class FileSource implements BufferedReaderSource {
 
 	/**
 	 * Set the resource we acquire InputStreams from
-	 * @return
 	 */
 	public void setResource(Resource resource) {
 		this.resource = resource;

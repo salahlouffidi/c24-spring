@@ -188,9 +188,9 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	}
 	
 	/**
-	 * Returns the pattern we're using to to determine the end of a message. Null if not set
+	 * Returns the pattern we're using to to determine the end of a message.
 	 * 
-	 * @return
+	 * @return end of element pattern. Null if not set.
 	 */
 	public String getElementStopPattern() {
 		return elementStopPattern != null? elementStopPattern.pattern() : null;

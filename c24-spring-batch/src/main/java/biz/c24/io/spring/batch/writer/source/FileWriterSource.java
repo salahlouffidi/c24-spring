@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.springframework.batch.core.StepExecution;
+import org.springframework.core.io.FileSystemResource;
 
 /**
  * WriterSource that writes all output to a single file.
@@ -30,11 +31,13 @@ import org.springframework.batch.core.StepExecution;
 public class FileWriterSource implements WriterSource {
 
 	private FileWriter outputFile = null;
+	private FileSystemResource resource = null;
+	
 
 	@Override
 	public void initialise(StepExecution stepExecution) {
 		// Extract the name of the file we're supposed to be writing to
-	    String fileName = stepExecution.getJobParameters().getString("output.file");
+	    String fileName = resource != null? resource.getPath() : stepExecution.getJobParameters().getString("output.file");
 	    
 	    // Remove any leading file:// if it exists
 	    if(fileName.startsWith("file://")) {
@@ -66,4 +69,21 @@ public class FileWriterSource implements WriterSource {
 	public Writer getWriter() {
 		return outputFile;
 	}
+	
+
+    /**
+     * The resource we use to determine our output path
+     * @return the resource this FileWriterSource will write to
+     */
+    public FileSystemResource getResource() {
+        return resource;
+    }
+
+    /**
+     * Set the resource we acquire our output path from
+     */
+    public void setResource(FileSystemResource resource) {
+        this.resource = resource;
+    }   
+    
 }

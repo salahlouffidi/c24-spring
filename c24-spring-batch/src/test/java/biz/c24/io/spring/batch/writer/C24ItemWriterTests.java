@@ -71,91 +71,71 @@ public class C24ItemWriterTests {
 	
 	@Test
 	public void testFileWrite() throws Exception {
-
-		String outputFileName = null;
-		
-		try {
-			// Get somewhere temporary to write out to
-			outputFileName = File.createTempFile("ItemWriterTest-", ".csv").getAbsolutePath();
-		
-			// Configure the ItemWriter
-			C24ItemWriter itemWriter = new C24ItemWriter();		
-			itemWriter.setSink(new TextualSink());
-			itemWriter.setWriterSource(new FileWriterSource());
-			itemWriter.setup(getStepExecution(outputFileName));
-			// Write the employees out
-			itemWriter.write(employees);
-			// Close the file
-			itemWriter.cleanup();
 	
-			// Check that we wrote out what was expected
-			FileInputStream inputStream = new FileInputStream(outputFileName);
-			try {
-				compareCsv(inputStream, employees);
-			} finally {
-				if(inputStream != null) {
-					inputStream.close();
-				}
-			}
-			
+		// Get somewhere temporary to write out to    
+		File outputFile = File.createTempFile("ItemWriterTest-", ".csv");
+		outputFile.deleteOnExit();
+		String outputFileName = outputFile.getAbsolutePath();
+	
+		// Configure the ItemWriter
+		C24ItemWriter itemWriter = new C24ItemWriter();		
+		itemWriter.setSink(new TextualSink());
+		itemWriter.setWriterSource(new FileWriterSource());
+		itemWriter.setup(getStepExecution(outputFileName));
+		// Write the employees out
+		itemWriter.write(employees);
+		// Close the file
+		itemWriter.cleanup();
+
+		// Check that we wrote out what was expected
+		FileInputStream inputStream = new FileInputStream(outputFileName);
+		try {
+			compareCsv(inputStream, employees);
 		} finally {
-			if(outputFileName != null) {
-				// Clear up our temporary file
-				File file = new File(outputFileName);
-				file.delete();
+			if(inputStream != null) {
+				inputStream.close();
 			}
 		}
-		
 	}
 	
 	@Test
 	public void testZipFileWrite() throws Exception {
 
-		String outputFileName = null;
+	    // Get somewhere temporary to write out to
+	    File outputFile = File.createTempFile("ItemWriterTest-", ".csv.zip");
+	    outputFile.deleteOnExit();
+		String outputFileName = outputFile.getAbsolutePath();
+	
+		// Configure the ItemWriter
+		C24ItemWriter itemWriter = new C24ItemWriter();		
+		itemWriter.setSink(new TextualSink());
+		itemWriter.setWriterSource(new ZipFileWriterSource());
+		itemWriter.setup(getStepExecution(outputFileName));
+		// Write the employees out
+		itemWriter.write(employees);
+		// Close the file
+		itemWriter.cleanup();
+
+		// Check that we wrote out what was expected
+		ZipFile zipFile = new ZipFile(outputFileName);
+		Enumeration<? extends ZipEntry> entries = zipFile.entries();
+		assertNotNull(entries);
+		// Make sure there's at least one entry
+		assertTrue(entries.hasMoreElements());
+		ZipEntry entry = entries.nextElement();
+		// Make sure that the trailing .zip has been removed and the leading path has been removed
+		assertFalse(entry.getName().contains(System.getProperty("file.separator")));
+		assertFalse(entry.getName().endsWith(".zip"));
+		// Make sure that there aren't any other entries
+		assertFalse(entries.hasMoreElements());
 		
 		try {
-			// Get somewhere temporary to write out to
-			outputFileName = File.createTempFile("ItemWriterTest-", ".csv.zip").getAbsolutePath();
-		
-			// Configure the ItemWriter
-			C24ItemWriter itemWriter = new C24ItemWriter();		
-			itemWriter.setSink(new TextualSink());
-			itemWriter.setWriterSource(new ZipFileWriterSource());
-			itemWriter.setup(getStepExecution(outputFileName));
-			// Write the employees out
-			itemWriter.write(employees);
-			// Close the file
-			itemWriter.cleanup();
-	
-			// Check that we wrote out what was expected
-			ZipFile zipFile = new ZipFile(outputFileName);
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-			assertNotNull(entries);
-			// Make sure there's at least one entry
-			assertTrue(entries.hasMoreElements());
-			ZipEntry entry = entries.nextElement();
-			// Make sure that the trailing .zip has been removed and the leading path has been removed
-			assertFalse(entry.getName().contains(System.getProperty("file.separator")));
-			assertFalse(entry.getName().endsWith(".zip"));
-			// Make sure that there aren't any other entries
-			assertFalse(entries.hasMoreElements());
-			
-			try {
-				compareCsv(zipFile.getInputStream(entry), employees);
-			} finally {
-				if(zipFile != null) {
-					zipFile.close();
-				}
-			}
-			
+			compareCsv(zipFile.getInputStream(entry), employees);
 		} finally {
-			if(outputFileName != null) {
-				// Clear up our temporary file
-				File file = new File(outputFileName);
-				file.delete();
+			if(zipFile != null) {
+				zipFile.close();
 			}
-		}
-		
+		}	
 	}
 	
 	/**

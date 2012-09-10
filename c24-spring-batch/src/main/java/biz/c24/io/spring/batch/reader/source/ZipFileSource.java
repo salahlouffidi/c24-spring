@@ -16,7 +16,10 @@
 package biz.c24.io.spring.batch.reader.source;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Enumeration;
@@ -69,7 +72,7 @@ public class ZipFileSource implements BufferedReaderSource {
 	/**
 	 * The Resource we acquire InputStreams from
 	 */
-	private Resource resource;
+	private Resource resource = null;
 	
 	/*
 	 * (non-Javadoc)
@@ -84,10 +87,28 @@ public class ZipFileSource implements BufferedReaderSource {
 	 */
 	public void initialise(StepExecution stepExecution) {
         
-        name = resource.getDescription();
+        try {
+            // Get an File and a name for where we're reading from
+            // Use the Resource if supplied
+            
+            File source = null;
+            if(resource != null) {
+                name = resource.getDescription();
+                source = resource.getFile();
+            } else {
+                
+                // If no resource supplied, fallback to a Job parameter called input.file
+                name = stepExecution.getJobParameters().getString("input.file");
+                
+                // Remove any leading file:// if it exists
+                if(name.startsWith("file://")) {
+                    name = name.substring("file://".length());
+                }
+              
+                source = new File(name);   
+            }
 
-		try {
-			zipFile = new ZipFile(resource.getFile());
+			zipFile = new ZipFile(source);
 			zipEntries = zipFile.entries();
 			ZipEntry entry = null;
 			if(zipEntries.hasMoreElements()) {
@@ -200,7 +221,7 @@ public class ZipFileSource implements BufferedReaderSource {
 	
 	/**
 	 * How many lines will be skipped at the start of the file before the Reader is handed to callers?
-	 * @return
+	 * @return the number of lines to skip at the start of each ZipEntry
 	 */
 	public int getSkipLines() {
 		return skipLines;
@@ -216,7 +237,7 @@ public class ZipFileSource implements BufferedReaderSource {
 
 	/**
 	 * The resource we acquire InputStreams from
-	 * @return
+	 * @return the resource which references the zip file this ZipFileSource will read from
 	 */
 	public Resource getResource() {
 		return resource;
@@ -224,7 +245,6 @@ public class ZipFileSource implements BufferedReaderSource {
 
 	/**
 	 * Set the resource we acquire InputStreams from
-	 * @return
 	 */
 	public void setResource(Resource resource) {
 		this.resource = resource;

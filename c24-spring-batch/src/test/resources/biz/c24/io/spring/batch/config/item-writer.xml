@@ -17,4 +17,9 @@
 	<!-- Declare a C24ItemWriter -->	
 	<bat-c24:item-writer id="ioItemWriter" sink-ref="textualSink" writer-source-ref="fileWriterSource" scope="singleton"/>
 	
+	<!-- Declare a FileWriterSource using a Resource to specify the target -->
+	<bean id="fileWriterSource2" class="biz.c24.io.spring.batch.writer.source.FileWriterSource">
+	   <property name="resource" value="/tmp/data.csv"/>
+	</bean>
+	
 </beans>

@@ -142,7 +142,7 @@ public class C24ItemWriter implements ItemWriter<ComplexDataObject>{
 	/**
 	 * The prototype sink used by this C24ItemWriter
 	 * 
-	 * @returns The prototype sink
+	 * @return The prototype sink
 	 */
 	public Sink getSink() {
 		return templateSink;
@@ -161,7 +161,7 @@ public class C24ItemWriter implements ItemWriter<ComplexDataObject>{
 	/**
 	 * Gets the WriterSource used by this C24ItemWriter to get a Writer to persist sunk ComplexDataObjects to
 	 * 
-	 * @returns The WriterSource used by this C24ItemWriter
+	 * @return The WriterSource used by this C24ItemWriter
 	 */
 	public WriterSource getWriterSource() {
 		return writerSource;

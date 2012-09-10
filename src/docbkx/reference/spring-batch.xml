@@ -64,15 +64,27 @@
           <listitem>
             <para><classname>biz.c24.io.spring.batch.reader.source.ZipFileSource</classname></para>
           </listitem>
-        </itemizedlist>The first of these reads from a single, uncompressed file while the latter
-        accepts a zip file as input and will process the contents of all contained entries.</para>
+        </itemizedlist>The first of these reads from a single, uncompressed file<footnoteref
+          linkend="FileSource" xreflabel="FileSource"/><footnote id="FileSource">
+          <para>Although the <classname>FileSource</classname> is explicitly intended to work with
+            files, internally it only requires an <interfacename>InputStream</interfacename> from
+            its <interfacename>Resource</interfacename>. In theory therefore other types of resource
+            can be used with this source so long as they return a valid input stream from
+              <methodname>getInputStream</methodname> and a valid value from their
+              <methodname>getFilename</methodname> method (which the
+              <classname>FileSource</classname> uses to provide contextual information).</para>
+          <para>In contrast, the <classname>ZipFileSource</classname> invokes the
+              <methodname>getFile</methodname> method on the supplied
+            <classname>Resouce</classname>.</para>
+        </footnote> while the latter accepts a zip file as input and will process the contents of
+        all contained entries.</para>
       <para>Both sources derive their input from a Spring Resource. The resource can be set directly
         on the <interfacename>Source</interfacename>, for example:</para>
       <para>
-        <programlisting>&lt;beans:bean id="fileSource"    
+        <programlisting language="xml">&lt;beans:bean id="fileSource"    
             class="biz.c24.io.spring.batch.reader.source.FileSource" 
             scope="step">
-  &lt;beans:property name="resource" value="/tmp/data.csv"/>
+    &lt;beans:property name="resource" value="/tmp/data.csv"/>
 &lt;/beans:bean></programlisting>
       </para>
       <para>In many cases, the filename we need to process will be different on each invocation of
@@ -86,9 +98,14 @@
         <programlisting language="xml">&lt;beans:bean id="zipFileSource" 
             class="biz.c24.io.spring.batch.reader.source.ZipFileSource" 
             scope="step">
-  &lt;beans:property name="resource" value="#{jobParameters['input.file']}" />
+    &lt;beans:property name="resource" value="#{jobParameters['input.file']}" />
 &lt;/beans:bean></programlisting>
       </para>
+      <para>In fact, both the <classname>FileSource</classname> and the
+          <classname>ZipFileSource</classname> fall back to looking for a
+          <classname>JobParameter</classname> call <emphasis>input.file</emphasis> if you don't
+        supply them with a <classname>Resource</classname>, however we recommend using the explicit
+        declaration above to aid future maintainers of your configuration.</para>
       <para>Note that the source is declared with a scope of step. This is because it holds data
         relevant to the current step execution, hence a separate instance is required for each.
         While other scopes might be applicable for individual use cases, if you wish to use late
@@ -98,7 +115,7 @@
           <classname>ZipFileSource</classname>, the first n lines of each file within the Zip file).
         For example to skip a one line header at the start of each file, the
           <classname>FileSource</classname> would be configured as:</para>
-      <programlisting>&lt;beans:bean id="fileSource" 
+      <programlisting language="xml">&lt;beans:bean id="fileSource" 
             class="biz.c24.io.spring.batch.reader.source.FileSource"
             scope="step">
     &lt;beans:property name="skipLines" value="1"/>
@@ -207,20 +224,21 @@
           <classname>C24ItemReader</classname> allows multiple threads to be consuming data from it
         concurrently, however as by default an element needs to be fully parsed before the start
         point of the next element in the file can be determined, this part of the process
-        effectively becomes single-threaded (validation will always be performed in parallel
-        however).</para>
+        effectively becomes single-threaded as each thread blocks waiting to be able to read from
+        the input source (validation will always be performed in parallel however).</para>
       <para>The <classname>C24ItemReader</classname> supports an optional
-          '<emphasis>elementStartPattern</emphasis>' regular expression to allow individual elements
-        to be rapidly 'split' out of the inbound data stream so subequent parsing operations can
-        take place in parallel. While the splitting is also a single-threaded activity it is usually
-        much faster than a full parse and hence allows more of the process to happen in
-        parallel.</para>
+          '<emphasis>elementStartPattern</emphasis>' regular expression (as defined by Java's
+        Pattern class) to allow individual elements to be rapidly 'split' out of the inbound data
+        stream so subequent parsing operations can take place in parallel. While the splitting is
+        also a single-threaded activity it is usually much faster than a full parse and hence allows
+        more of the process to happen in parallel.</para>
       <para>The <emphasis>elementStartPattern</emphasis> is used to detect the first line in a new
-        element (e.g. in the example above we are looking for a line which contains a date in the
-        201x, e.g. 2012-05-21T). When the ItemReader sees a matching line, it starts a new element
-        with that line as its initial line. If the ItemReader was already in the process of reading
-        an element, it will be returned to the calling process. Thus the splitter can be used to
-        skip header rows, by ensuring that they do not match the pattern. </para>
+        element. When the ItemReader sees a matching line, it starts a new element with that line as
+        its initial line. If the ItemReader was already in the process of reading an element, that
+        element will be deemed to be complete and a new element will be started with the matching
+        line. The ItemReader will skip all lines at the start of a file until it finds a line that
+        matches the elementStartPattern. Thus the splitter can also be used to skip header rows, by
+        ensuring that they do not match the pattern. </para>
       <para>Where an <emphasis>elementStartPattern</emphasis> has been specified, an
           <emphasis>elementStopPattern</emphasis> can also optionally be used. In this case, rather
         than using the <emphasis>elementStartPattern</emphasis> to infer the end of the previous
@@ -232,6 +250,8 @@
       <para>Both <emphasis>elementStartPattern</emphasis> and
           <emphasis>elementStopPattern</emphasis> are inclusive; on other words the lines that match
         them are included in the element.</para>
+      <para>Splitting is line-based. In other words it is not supported for an individual line to
+        form part of 2 different elements (either in part or in its entirely).</para>
       <para>A typical use case would be to split child elements out of an XML document. By having
         the start and stop patterns match the initiator ("&lt;child ...") and terminator
         ("&lt;/child>") of the elements, they can be extracted without having to also process their
@@ -240,10 +260,10 @@
         within the message so that it can reconstruct the message as precisely as possible when
         using the <emphasis>elementStartPattern</emphasis>. The line terminator will be determined
         once for each <classname>C24ItemReader</classname> instance; given the default scope of
-        ItemReader is 'step' this will be suitable for most usages, however for example if a single
-        file contains multiple line terminators the reconstructed message will not exactly match the
-        original. The <classname>C24ItemReader</classname> detects and supports the following line
-        terminators:</para>
+        ItemReader is 'step' this will be suitable for most usages, however if a single file
+        contains multiple different line terminators, the reconstructed message will not exactly
+        match the original. The <classname>C24ItemReader</classname> detects and supports the
+        following line terminators:</para>
       <para>
         <itemizedlist>
           <listitem>
@@ -261,9 +281,10 @@
     <section>
       <title>Validation</title>
       <para>If enabled via the '<emphasis>validate</emphasis>' attribute, the
-          <classname>C24ItemReader</classname> will use a validation manager to validate the parsed
-          <classname>ComplexDataObject</classname>. In the event of a violation, the iO exception
-        will be wrapped and rethrown as a Spring Batch <classname>ParseException</classname>.</para>
+          <classname>C24ItemReader</classname> will use a <classname>ValidationManager</classname>
+        to validate the parsed <classname>ComplexDataObject</classname>. In the event of a
+        validation failure, the iO exception will be wrapped and rethrown as a Spring Batch
+          <classname>ParseException</classname>.</para>
     </section>
     <section>
       <title>Intercepting the Parsing Process</title>
@@ -340,8 +361,9 @@ public C24TransformItemProcessor getIoItemProcessor() {
     <para>The <classname>C24TransformItemProcessor</classname> also supports an optional
         <emphasis>target-class</emphasis> attribute. If specified, instead of returning a
         <classname>ComplexDataObject</classname> derirved object, the transformer will attempt to
-      transform to the class specified. This must be a valid Java Bean whose properties match those
-      of the transform's target model. For example:</para>
+      transform to the class specified using iO's <classname>JavaSink</classname>. The target class
+      must be a valid Java Bean class whose properties match those of the transform's target model.
+      For example:</para>
     <para>
       <programlisting language="xml">&lt;bat-c24:transform-item-processor id="ioItemProcessor" 
                                   transform-ref="demoTransform" 
@@ -371,14 +393,14 @@ public C24TransformItemProcessor getIoItemProcessor() {
   <section>
     <title>Writing</title>
     <para>C24 iO Components for Spring Batch provides a convenient mechanism to write a
-        <classname>ComplexDataObject</classname> through a <interface>Sink</interface> to a
+        <classname>ComplexDataObject</classname> through a <interfacename>Sink</interfacename> to a
         <classname>java.io.Writer</classname>. As with the <classname>C24ItemReader</classname>, the
         <classname>C24ItemWriter</classname> also decouples the external container to allow multiple
       potential (types of) destination to be supported.</para>
     <section>
       <title>WriterSources</title>
       <para>The C24 ItemWrtier needs to know where to write the output from the
-          <interface>Sink</interface>. The following implementations are available in the distribution:<itemizedlist>
+          <interfacename>Sink</interfacename>. The following implementations are available in the distribution:<itemizedlist>
           <listitem>
             <para><classname>biz.c24.io.spring.batch.writer.source.FileWriterSource</classname></para>
           </listitem>
@@ -387,26 +409,38 @@ public C24TransformItemProcessor getIoItemProcessor() {
           </listitem>
         </itemizedlist></para>
       <para>The <classname>FileWriterSource</classname> writes all data to a single file, without
-        any limits on the file size. It determines the file to write from a
+        any limits on the file size. It determines the file to write from a supplied
+          <classname>FileSystemResource</classname> or, if not specified, a
           <classname>JobParameter</classname> called '<emphasis>output.file</emphasis>'.</para>
       <para>Constructing the source requires creating an appropriate bean, for example:</para>
       <para>
         <programlisting language="xml">&lt;beans:bean id="fileWriterSource" 
             class="biz.c24.io.spring.batch.writer.source.FileWriterSource" 
+            scope="step">
+    &lt;beans:property name="resource" value="/tmp/data.csv"/>
+&lt;/beans:bean></programlisting>
+      </para>
+      <para>Or to use the <emphasis>output.file</emphasis>
+        <classname>JobParameter</classname>:</para>
+      <para>
+        <programlisting language="xml">&lt;beans:bean id="fileWriterSource" 
+            class="biz.c24.io.spring.batch.writer.source.FileWriterSource" 
             scope="step"/></programlisting>
       </para>
+      <para>See the <classname>FileSource</classname> documentation under Reading for other examples
+        on how the <classname>Resource</classname> can be set.</para>
       <para>Note that the source is declared with a <emphasis>scope</emphasis> of step. This is
         because it holds data relevant to the current step execution, hence a separate instance is
         required for each.</para>
       <para>The <classname>ZipFileWriterSource</classname> behaves identically except that it will
-        create a zip file (thus the filename supplied in <emphasis>output.file</emphasis> should end
-        with .zip) with a single entry, named after the filename with any leading path and the file
-        suffix stripped off.</para>
+        create a zip file (thus the filename supplied in the <classname>Resource</classname> or
+          <emphasis>output.file</emphasis> should end with .zip) with a single entry, named after
+        the filename with any leading path and the file suffix stripped off.</para>
     </section>
     <section>
       <title>C24ItemWriter</title>
-      <para>The <classname>C24ItemWriter</classname> wraps a <interface>Sink</interface> &amp; a
-          <interface>WriterSource</interface>. It is declared as:</para>
+      <para>The <classname>C24ItemWriter</classname> wraps a <interfacename>Sink</interfacename>
+        &amp; a <interfacename>WriterSource</interfacename>. It is declared as:</para>
       <para>
         <programlisting language="xml">&lt;beans:bean id="textualSink" class="biz.c24.io.api.presentation.TextualSink"/>
 
@@ -451,9 +485,9 @@ public C24TransformItemProcessor getIoItemProcessor() {
       up a basic job repository, transaction manager &amp; launcher. These are purely in-memory,
       minimum effort implementations and are unlikely to be sufficient for most practical purposes;
       please see the Spring Batch documentation for approrpriate alternatives.</para>
-    <para>The code shown in this section and sample data are included in the c24-springbatch
-      example, part of the C24 Spring Examples repository on GitHub:
-      https://github.com/C24-Technologies/c24-spring-samples </para>
+    <para>The code shown in this section and sample data are included in the c24-sample-springbatch
+      example on GitHub: <ulink url="https://github.com/C24-Technologies/c24-sample-springbatch"
+        >https://github.com/C24-Technologies/c24-sample-springbatch </ulink></para>
     <programlisting language="xml">&lt;beans:beans xmlns="http://www.springframework.org/schema/batch" 
      xmlns:beans="http://www.springframework.org/schema/beans" 
      xmlns:c24="http://schema.c24.biz/spring-core"
@@ -474,11 +508,11 @@ public C24TransformItemProcessor getIoItemProcessor() {
     
     &lt;!-- A no-op transaction manager -->
     &lt;beans:bean id="transactionManager" class=
-          "org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
+         "org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
 
     &lt;!-- An in-memory job repository -->
     &lt;beans:bean id="jobRepository" class=
-          "org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean"/>
+         "org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean"/>
 
     &lt;!-- A simple job launcher which kicks off tasks asynchronously -->
     &lt;beans:bean id="jobLauncher" 
@@ -542,8 +576,8 @@ public C24TransformItemProcessor getIoItemProcessor() {
         </itemizedlist></para>
       <para>We'll come back to the writer attribute shortly, but normally it will be specific to
         your application as you hand off the parsed &amp; validated objects to downstream
-        processing. If you're using the c24-springbatch example application you can use the supplied
-          <classname>ConsoleItemWriter</classname> to write the
+        processing. If you're using the c24-sample-springbatch example application you can use the
+        supplied <classname>ConsoleItemWriter</classname> to write the
           <classname>ComplexDataObject</classname> to the console:</para>
       <para>
         <programlisting language="xml">  &lt;beans:bean id="ioItemWriter" class="biz.c24.batchdemo.writers.ConsoleWriter"/></programlisting>
@@ -575,10 +609,7 @@ public C24TransformItemProcessor getIoItemProcessor() {
         // The C24 Spring Batch source is configured to get the filename from 
         // a job property called input.file
         // In this case, the file is in the classpath and is called employees-3-valid.csv
-        params.put("input.file", new JobParameter(
-                                    new ClassPathResource("employees-3-valid.csv")
-                                    .getFile().getAbsolutePath()
-                                 ));
+        params.put("input.file", new JobParameter("classpath:/employees-3-valid.csv"));
 
         JobParameters jobParameters = new JobParameters(params);
 
@@ -587,8 +618,8 @@ public C24TransformItemProcessor getIoItemProcessor() {
 
     }</programlisting>
       </para>
-      <para>If you're using the sample data from the c24-springbatch example you should see the
-        following written to the console:</para>
+      <para>If you're using the sample data from the c24-sample-springbatch example you should see
+        the following written to the console:</para>
       <para>
         <programlisting>Mr,Andy,Acheson,Software Developer
 Mr,Joe,Bloggs,Security Guard
@@ -639,17 +670,19 @@ G.Gatsby@company.com</programlisting>
       <para>The <classname>ConsoleItemWriter</classname> we've used so far does nothing more than
         call <code>toString()</code> on the <classname>Object</classname>s that are passed to it.
         The <classname>C24ItemWriter</classname> supports a pluggable marshaller
-          (<interface>Sink</interface>) and destination (<interface>Writer</interface>). To finish
-        off the final stage of our example application, we'll use iO's
-          <classname>TextualSink</classname> to generate a valid representation of our object and
-        write the result to a file.</para>
-      <para>First we need to declare the <interface>Sink</interface> &amp; a
-          <interface>WriterSource</interface>:</para>
+          (<interfacename>Sink</interfacename>) and destination
+          (<interfacename>Writer</interfacename>). To finish off the final stage of our example
+        application, we'll use iO's <classname>TextualSink</classname> to generate a valid
+        representation of our object and write the result to a file.</para>
+      <para>First we need to declare the <interfacename>Sink</interfacename> &amp; a
+          <interfacename>WriterSource</interfacename>:</para>
       <para><programlisting language="xml">  &lt;beans:bean id="textualSink" 
               class="biz.c24.io.api.presentation.TextualSink"/>
 
   &lt;beans:bean id="fileWriterSource" 
-              class="biz.c24.io.spring.batch.writer.source.FileWriterSource"/></programlisting>
+              class="biz.c24.io.spring.batch.writer.source.FileWriterSource">
+      &lt;beans:property name="resource" value="#{jobParameters['output.file']}" />
+  &lt;/beans:bean></programlisting>
         Next we need to declare the <classname>C24ItemWriter</classname>:</para>
       <para>
         <programlisting language="xml">  &lt;bat-c24:item-writer id="ioItemWriter" 
@@ -669,9 +702,9 @@ G.Gatsby@company.com</programlisting>
         &lt;/step>
     &lt;/job></programlisting>
       </para>
-      <para>Recall that the <classname>FileWriterSource</classname> expects a job parameter called
-          <emphasis>output.file</emphasis> to tell it where to write to. We need to update our test
-        job launching code to supply this parameter:</para>
+      <para>Note that we configured the <classname>FileWriterSource</classname> to expect a job
+        parameter called <emphasis>output.file</emphasis> to tell it where to write to. We need to
+        update our test job launching code to supply this parameter:</para>
       <para>
         <programlisting language="java">        ...
 
@@ -785,7 +818,7 @@ G.Gatsby@company.com</programlisting>
     &lt;chain input-channel="inboundEmployeeFile" output-channel="logger">
         &lt;service-activator>
             &lt;beans:bean class=
-                  "org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter">
+              "org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter">
                 &lt;beans:property name="job" ref="fileLoader" />
             &lt;/beans:bean>
         &lt;/service-activator>
@@ -800,19 +833,19 @@ G.Gatsby@company.com</programlisting>
           component to bridge from a Spring Integration Message into the Spring Batch domain:</para>
         <para>
           <programlisting language="xml">    &lt;beans:bean id="jobMessageLauncher" 
-                class="org.springframework.batch.integration.launch.JobLaunchingMessageHandler">
+           class="org.springframework.batch.integration.launch.JobLaunchingMessageHandler">
         &lt;beans:constructor-arg ref="jobLauncher"/>
     &lt;/beans:bean></programlisting>
         </para>
-        <para>It's constructor takes a Spring Batch job launcher as an argument, such as the
+        <para>Its constructor takes a Spring Batch job launcher as an argument, such as the
           SimpleJobLauncher that we used in the earlier examples.</para>
       </section>
       <section>
         <title>Writing back to Spring Integration</title>
         <para>While using Spring Batch is great for dealing with the file, once we have our
           individual Elements it can be desirable to push them back in to our Spring Integration
-          flows. This requires us to create an <interface>ItemWriter</interface> that our job can
-          use to write items as messages to a Spring Integration channel.</para>
+          flows. This requires us to create an <interfacename>ItemWriter</interfacename> that our
+          job can use to write items as messages to a Spring Integration channel.</para>
         <para>Existing Spring Integration componentry makes this task straightforward. The Spring
           Integration gateway can proxy any interface, wrapping the parameter in a Message and
           delivering to a channel:</para>
@@ -822,10 +855,10 @@ G.Gatsby@company.com</programlisting>
                default-request-timeout="100" 
                default-request-channel="processEmployeeCollection" /> </programlisting>
         </para>
-        <para>Recall that the <interface>ItemWriter</interface> interface takes a
-            <interface>Collection</interface> of objects, hence the message that this generates will
-          have a <interface>Collection</interface> as its payload. If we want to push the individual
-          objects in to our flow, we need to wire in a splitter:</para>
+        <para>Recall that the <interfacename>ItemWriter</interfacename> interface takes a
+            <interfacename>Collection</interfacename> of objects, hence the message that this
+          generates will have a <interfacename>Collection</interfacename> as its payload. If we want
+          to push the individual objects in to our flow, we need to wire in a splitter:</para>
         <para>
           <programlisting language="xml">    &lt;channel id="processEmployeeCollection"/>
     &lt;splitter input-channel="processEmployeeCollection" output-channel="processEmployee"/>    </programlisting>
