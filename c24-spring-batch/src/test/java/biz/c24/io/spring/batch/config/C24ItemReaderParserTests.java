@@ -19,6 +19,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -74,7 +77,18 @@ public class C24ItemReaderParserTests {
 	@Qualifier("xmlSourceFactoryReader")
 	private C24ItemReader<biz.c24.io.examples.models.xml.Employee> xmlSourceFactoryReader;
 	
+	@Autowired
+	@Qualifier("fileSourceReader")
+	private C24ItemReader<Employee> fileSourceReader;
 	
+    @Autowired
+    @Qualifier("fileSourceResourceReader")
+    private C24ItemReader<Employee> fileSourceResourceReader;
+    
+    @Autowired
+    @Qualifier("zipFileSourceResourceReader")
+    private C24ItemReader<Employee> zipFileSourceResourceReader;
+ 	
 	
 	private void validateReader(C24ItemReader<? extends ComplexDataObject> reader, String expectedStartPattern, String expectedStopPattern, boolean expectedValidate, 
 								Class<? extends BufferedReaderSource> expectedSource) {
@@ -94,6 +108,19 @@ public class C24ItemReaderParserTests {
 		
 	}
 	
+	private void validateSource(BufferedReaderSource source, Class<? extends BufferedReaderSource> expectedClass, int expectedSkipLines, Class<? extends Resource> expectedResource) {
+	    assertThat(source, is(expectedClass));
+	    if(source instanceof FileSource) {
+	        FileSource fileSource = (FileSource)source;
+	        assertThat(fileSource.getSkipLines(), is(expectedSkipLines));
+	        assertThat(fileSource.getResource(), expectedResource != null? is(expectedResource) : nullValue());
+	    } else if(source instanceof ZipFileSource) {
+            ZipFileSource fileSource = (ZipFileSource)source;
+            assertThat(fileSource.getSkipLines(), is(expectedSkipLines));
+            assertThat(fileSource.getResource(), expectedResource != null? is(expectedResource) : nullValue());
+	    }
+	}
+	
 	@Test
 	public void validateParser() {
 		
@@ -104,7 +131,12 @@ public class C24ItemReaderParserTests {
 		validateReader(nonSplittingValidatingZipReader, null, null, true, ZipFileSource.class);
 		validateReader(splittingValidatingZipReader, ".*", null, true, ZipFileSource.class);
 		validateReader(xmlSourceFactoryReader, "^[ \t]*<[a-zA-Z].*", "^[ \t]*</.*", true, FileSource.class, XmlSourceFactory.class);
-
+		validateReader(fileSourceReader, null, null, false, FileSource.class);
+		validateSource(fileSourceReader.getSource(), FileSource.class, 0, null);
+        validateReader(fileSourceResourceReader, null, null, false, FileSource.class);
+        validateSource(fileSourceResourceReader.getSource(), FileSource.class, 5, UrlResource.class);
+        validateReader(zipFileSourceResourceReader, null, null, false, ZipFileSource.class);
+        validateSource(zipFileSourceResourceReader.getSource(), ZipFileSource.class, 0, UrlResource.class);
 	}
 	
 

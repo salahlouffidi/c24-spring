@@ -32,7 +32,31 @@
     		</xsd:annotation>
     		<xsd:complexContent>
     			<xsd:extension base="beans:identifiedType">
-    				<xsd:attribute name="source-ref" type="xsd:string" use="required">
+                    <xsd:choice>
+                        <xsd:element name="file-source" maxOccurs="1" minOccurs="0">
+                            <xsd:complexType>
+                                <xsd:annotation>
+                                    <xsd:documentation>
+                                        Defines a C24 IO FileSource.
+                                    </xsd:documentation>
+                                </xsd:annotation>
+                                <xsd:attribute name="resource" type="xsd:string"/>
+                                <xsd:attribute name="skip-lines" type="xsd:integer"/>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <xsd:element name="zip-file-source" maxOccurs="1" minOccurs="0">
+                            <xsd:complexType>
+                                <xsd:annotation>
+                                    <xsd:documentation>
+                                        Defines a C24 IO ZipFileSource.
+                                    </xsd:documentation>
+                                </xsd:annotation>
+                                <xsd:attribute name="resource" type="xsd:string"/>
+                                <xsd:attribute name="skip-lines" type="xsd:integer"/>
+                            </xsd:complexType>
+                        </xsd:element> 
+                    </xsd:choice>
+    				<xsd:attribute name="source-ref" type="xsd:string">
     					<xsd:annotation>
     						<xsd:appinfo>
     							<tool:annotation kind="ref">
@@ -71,7 +95,7 @@
     							</tool:annotation>
     						</xsd:appinfo>
     					</xsd:annotation>
-    				</xsd:attribute>		  		
+    				</xsd:attribute>					  		
   			  	</xsd:extension>
   			  </xsd:complexContent>
 		</xsd:complexType>

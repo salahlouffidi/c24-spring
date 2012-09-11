@@ -15,12 +15,17 @@
  */
 package biz.c24.io.spring.batch.config;
 
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
+import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 import biz.c24.io.spring.batch.reader.C24ItemReader;
+import biz.c24.io.spring.batch.reader.source.FileSource;
+import biz.c24.io.spring.batch.reader.source.ZipFileSource;
 
 /**
  * Parser for the 'C24ItemReader' element.
@@ -43,8 +48,8 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
 	 * @see org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser#doParse(org.w3c.dom.Element, org.springframework.beans.factory.support.BeanDefinitionBuilder)
 	 */
     @Override
-    protected void doParse(Element element, BeanDefinitionBuilder bean) {
-    
+    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder bean) {
+
     	// Optional
     	String scope = element.getAttribute("scope");
     	if(StringUtils.hasText(scope)) {
@@ -54,9 +59,11 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
     		bean.setScope("step");
     	}
     	
-    	// Mandatory
+    	// Optional
     	String sourceRef = element.getAttribute("source-ref");
-    	bean.addPropertyReference("source", sourceRef);
+    	if(StringUtils.hasText(sourceRef)) {
+    	    bean.addPropertyReference("source", sourceRef);
+    	}
     	
     	// Mandatory
     	String modelRef = element.getAttribute("model-ref");
@@ -92,6 +99,22 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
     	if(StringUtils.hasText(parseListenerRef)) {
     		bean.addPropertyReference("parseListener", parseListenerRef);
     	}
-
+    	
+    	   	
+    	Element fileSourceElement = DomUtils.getChildElementByTagName(element, "file-source");
+    	if(fileSourceElement != null) {
+            BeanDefinition beanDefinition = parserContext.getDelegate().parseCustomElement(fileSourceElement,
+                    bean.getBeanDefinition());
+            beanDefinition.setBeanClassName(FileSource.class.getName());
+            bean.addPropertyValue("source", beanDefinition);
+    	}
+    	
+        Element zipFileSourceElement = DomUtils.getChildElementByTagName(element, "zip-file-source");
+        if(zipFileSourceElement != null) {
+            BeanDefinition beanDefinition = parserContext.getDelegate().parseCustomElement(zipFileSourceElement,
+                    bean.getBeanDefinition());
+            beanDefinition.setBeanClassName(ZipFileSource.class.getName());
+            bean.addPropertyValue("source", beanDefinition);
+        }
     }    
 }

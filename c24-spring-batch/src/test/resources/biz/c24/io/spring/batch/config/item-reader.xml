@@ -32,5 +32,16 @@
 
 	<bat-c24:item-reader id="xmlSourceFactoryReader" model-ref="employeeModel" validate="true" elementStartPattern="^[ &#x9;]*&lt;[a-zA-Z].*" elementStopPattern="^[ &#x9;]*&lt;/.*" source-ref="fileSource" source-factory-ref="xmlSourceFactory" scope="singleton"/>
 	
+    <!-- ItemReaders with nested BufferedReaderSources -->
+    <bat-c24:item-reader id="fileSourceReader" model-ref="employeeModel" scope="singleton">
+        <bat-c24:file-source/>
+    </bat-c24:item-reader>
 
+    <bat-c24:item-reader id="fileSourceResourceReader" model-ref="employeeModel" scope="singleton">
+        <bat-c24:file-source resource="file://tmp/test.txt" skip-lines="5"/>
+    </bat-c24:item-reader>
+
+    <bat-c24:item-reader id="zipFileSourceResourceReader" model-ref="employeeModel" scope="singleton">
+        <bat-c24:zip-file-source resource="file://tmp/test.txt"/>
+    </bat-c24:item-reader>
 </beans>

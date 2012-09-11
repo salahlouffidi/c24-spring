@@ -33,9 +33,11 @@ class C24NamespaceHandler extends NamespaceHandlerSupport {
 	 * @see org.springframework.beans.factory.xml.NamespaceHandler#init()
 	 */
 	public void init() {
+        registerBeanDefinitionParser("file-source", new FileSourceParser());
+        registerBeanDefinitionParser("zip-file-source", new ZipFileSourceParser());
 		registerBeanDefinitionParser("item-reader", new ItemReaderParser());
 		registerBeanDefinitionParser("batch-item-reader", new BatchItemReaderParser());
 		registerBeanDefinitionParser("transform-item-processor", new TransformItemProcessorParser());
-		registerBeanDefinitionParser("item-writer", new ItemWriterParser());
+		registerBeanDefinitionParser("item-writer", new ItemWriterParser());		
 	}
 }
