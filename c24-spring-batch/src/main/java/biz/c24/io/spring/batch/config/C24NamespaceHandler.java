@@ -35,7 +35,9 @@ class C24NamespaceHandler extends NamespaceHandlerSupport {
 	public void init() {
         registerBeanDefinitionParser("file-source", new FileSourceParser());
         registerBeanDefinitionParser("zip-file-source", new ZipFileSourceParser());
-		registerBeanDefinitionParser("item-reader", new ItemReaderParser());
+        registerBeanDefinitionParser("file-writer", new FileWriterSourceParser());
+        registerBeanDefinitionParser("zip-file-writer", new ZipFileWriterSourceParser());
+        registerBeanDefinitionParser("item-reader", new ItemReaderParser());
 		registerBeanDefinitionParser("batch-item-reader", new BatchItemReaderParser());
 		registerBeanDefinitionParser("transform-item-processor", new TransformItemProcessorParser());
 		registerBeanDefinitionParser("item-writer", new ItemWriterParser());		

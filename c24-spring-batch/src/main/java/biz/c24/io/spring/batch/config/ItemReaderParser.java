@@ -59,10 +59,13 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
     		bean.setScope("step");
     	}
     	
+    	int numSourceDefns = 0;
+    	
     	// Optional
     	String sourceRef = element.getAttribute("source-ref");
     	if(StringUtils.hasText(sourceRef)) {
     	    bean.addPropertyReference("source", sourceRef);
+    	    numSourceDefns++;
     	}
     	
     	// Mandatory
@@ -107,6 +110,7 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
                     bean.getBeanDefinition());
             beanDefinition.setBeanClassName(FileSource.class.getName());
             bean.addPropertyValue("source", beanDefinition);
+            numSourceDefns++;
     	}
     	
         Element zipFileSourceElement = DomUtils.getChildElementByTagName(element, "zip-file-source");
@@ -115,6 +119,14 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
                     bean.getBeanDefinition());
             beanDefinition.setBeanClassName(ZipFileSource.class.getName());
             bean.addPropertyValue("source", beanDefinition);
+            numSourceDefns++;
         }
+       
+        if(numSourceDefns > 1) {
+            parserContext.getReaderContext().error("Only one of source-ref, file-source and zip-file-source can be used", element);
+        } else if(numSourceDefns == 0) {
+            parserContext.getReaderContext().error("One of source-ref, file-source and zip-file-source must be specified", element);            
+        }
+        
     }    
 }

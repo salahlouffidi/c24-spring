@@ -177,6 +177,28 @@
     		</xsd:annotation>
     		<xsd:complexContent>
     			<xsd:extension base="beans:identifiedType">
+                    <xsd:choice>
+                        <xsd:element name="file-writer" maxOccurs="1" minOccurs="0">
+                            <xsd:complexType>
+                                <xsd:annotation>
+                                    <xsd:documentation>
+                                        Defines a C24 IO FileWriterSource.
+                                    </xsd:documentation>
+                                </xsd:annotation>
+                                <xsd:attribute name="resource" type="xsd:string"/>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <xsd:element name="zip-file-writer" maxOccurs="1" minOccurs="0">
+                            <xsd:complexType>
+                                <xsd:annotation>
+                                    <xsd:documentation>
+                                        Defines a C24 IO ZipFileWriterSource.
+                                    </xsd:documentation>
+                                </xsd:annotation>
+                                <xsd:attribute name="resource" type="xsd:string"/>
+                            </xsd:complexType>
+                        </xsd:element> 
+                    </xsd:choice>
     				<xsd:attribute name="sink-ref" type="xsd:string" use="required">
     					<xsd:annotation>
     						<xsd:appinfo>
@@ -186,7 +208,7 @@
     						</xsd:appinfo>
     					</xsd:annotation>
     				</xsd:attribute>
-    				<xsd:attribute name="writer-source-ref" type="xsd:string" use="required">
+    				<xsd:attribute name="writer-source-ref" type="xsd:string">
     					<xsd:annotation>
     						<xsd:appinfo>
     							<tool:annotation kind="ref">

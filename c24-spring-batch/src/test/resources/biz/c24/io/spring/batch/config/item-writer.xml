@@ -22,4 +22,15 @@
 	   <property name="resource" value="/tmp/data.csv"/>
 	</bean>
 	
+    <!-- Declare a C24ItemWriter with a file-writer and default setup -->    
+    <bat-c24:item-writer id="ioDefaultItemWriter" sink-ref="textualSink" scope="singleton">
+        <bat-c24:file-writer/>
+    </bat-c24:item-writer>
+    
+    <!-- Declare a C24ItemWriter with a zip-file-writer and explicit resource -->    
+    <bat-c24:item-writer id="ioCustomItemWriter" sink-ref="textualSink" scope="singleton">
+        <bat-c24:zip-file-writer resource="/tmp/test.zip"/>
+    </bat-c24:item-writer>   
+    
+    
 </beans>

@@ -18,7 +18,6 @@ package biz.c24.io.spring.batch.writer;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,12 +26,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-
-import org.apache.poi.hssf.record.formula.functions.Ipmt;
 import org.junit.Test;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.core.io.FileSystemResource;
+
 import biz.c24.io.api.presentation.TextualSink;
 import biz.c24.io.examples.models.basic.Employee;
 import biz.c24.io.spring.batch.writer.source.FileWriterSource;
@@ -138,7 +136,83 @@ public class C24ItemWriterTests {
 		}	
 	}
 	
-	/**
+    @Test
+    public void testResourceFileWrite() throws Exception {
+    
+        // Get somewhere temporary to write out to    
+        File outputFile = File.createTempFile("ItemWriterTest-", ".csv");
+        outputFile.deleteOnExit();
+        String outputFileName = outputFile.getAbsolutePath();
+    
+        FileWriterSource source = new FileWriterSource();
+        source.setResource(new FileSystemResource(outputFileName));
+        
+        // Configure the ItemWriter
+        C24ItemWriter itemWriter = new C24ItemWriter();     
+        itemWriter.setSink(new TextualSink());
+        itemWriter.setWriterSource(source);     
+        itemWriter.setup(getStepExecution(null));
+        // Write the employees out
+        itemWriter.write(employees);
+        // Close the file
+        itemWriter.cleanup();
+
+        // Check that we wrote out what was expected
+        FileInputStream inputStream = new FileInputStream(outputFileName);
+        try {
+            compareCsv(inputStream, employees);
+        } finally {
+            if(inputStream != null) {
+                inputStream.close();
+            }
+        }
+    }
+	
+    @Test
+    public void testResourceZipFileWrite() throws Exception {
+
+        // Get somewhere temporary to write out to
+        File outputFile = File.createTempFile("ItemWriterTest-", ".csv.zip");
+        outputFile.deleteOnExit();
+        String outputFileName = outputFile.getAbsolutePath();
+        
+        ZipFileWriterSource source = new ZipFileWriterSource();
+        source.setResource(new FileSystemResource(outputFileName));
+    
+        // Configure the ItemWriter
+        C24ItemWriter itemWriter = new C24ItemWriter();     
+        itemWriter.setSink(new TextualSink());
+        itemWriter.setWriterSource(source);
+        itemWriter.setup(getStepExecution(null));
+        // Write the employees out
+        itemWriter.write(employees);
+        // Close the file
+        itemWriter.cleanup();
+
+        // Check that we wrote out what was expected
+        ZipFile zipFile = new ZipFile(outputFileName);
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        assertNotNull(entries);
+        // Make sure there's at least one entry
+        assertTrue(entries.hasMoreElements());
+        ZipEntry entry = entries.nextElement();
+        // Make sure that the trailing .zip has been removed and the leading path has been removed
+        assertFalse(entry.getName().contains(System.getProperty("file.separator")));
+        assertFalse(entry.getName().endsWith(".zip"));
+        // Make sure that there aren't any other entries
+        assertFalse(entries.hasMoreElements());
+        
+        try {
+            compareCsv(zipFile.getInputStream(entry), employees);
+        } finally {
+            if(zipFile != null) {
+                zipFile.close();
+            }
+        }   
+    }
+    
+    
+    /**
 	 * Utility method to check that the contents of a CSV employee file match the list of employees we used to generate it
 	 * 
 	 * @param fileName The file to read

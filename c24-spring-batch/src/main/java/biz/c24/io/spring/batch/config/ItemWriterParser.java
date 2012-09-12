@@ -15,12 +15,17 @@
  */
 package biz.c24.io.spring.batch.config;
 
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
+import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 import biz.c24.io.spring.batch.writer.C24ItemWriter;
+import biz.c24.io.spring.batch.writer.source.FileWriterSource;
+import biz.c24.io.spring.batch.writer.source.ZipFileWriterSource;
 
 /**
  * Parser for the 'C24ItemWriter' element.
@@ -43,7 +48,7 @@ public class ItemWriterParser extends AbstractSingleBeanDefinitionParser {
 	 * @see org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser#doParse(org.w3c.dom.Element, org.springframework.beans.factory.support.BeanDefinitionBuilder)
 	 */
     @Override
-    protected void doParse(Element element, BeanDefinitionBuilder bean) {
+    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder bean) {
     
     	// Optional
     	String scope = element.getAttribute("scope");
@@ -58,9 +63,37 @@ public class ItemWriterParser extends AbstractSingleBeanDefinitionParser {
     	String sinkRef = element.getAttribute("sink-ref");
     	bean.addPropertyReference("sink", sinkRef);
     	
-    	// Mandatory
+    	int numSourceDefns = 0;
+    	
+    	// Optional
     	String writerSourceRef = element.getAttribute("writer-source-ref");
-    	bean.addPropertyReference("writerSource", writerSourceRef);
+    	if(StringUtils.hasText(writerSourceRef)) {
+    	    bean.addPropertyReference("writerSource", writerSourceRef);
+    	    numSourceDefns++;
+    	}
 
+        Element fileSourceElement = DomUtils.getChildElementByTagName(element, "file-writer");
+        if(fileSourceElement != null) {
+            BeanDefinition beanDefinition = parserContext.getDelegate().parseCustomElement(fileSourceElement,
+                    bean.getBeanDefinition());
+            beanDefinition.setBeanClassName(FileWriterSource.class.getName());
+            bean.addPropertyValue("writerSource", beanDefinition);
+            numSourceDefns++;
+        }
+        
+        Element zipFileSourceElement = DomUtils.getChildElementByTagName(element, "zip-file-writer");
+        if(zipFileSourceElement != null) {
+            BeanDefinition beanDefinition = parserContext.getDelegate().parseCustomElement(zipFileSourceElement,
+                    bean.getBeanDefinition());
+            beanDefinition.setBeanClassName(ZipFileWriterSource.class.getName());
+            bean.addPropertyValue("writerSource", beanDefinition);
+            numSourceDefns++;
+        }
+       
+        if(numSourceDefns > 1) {
+            parserContext.getReaderContext().error("Only one of writer-source-ref, file-writer and zip-file-writer can be used", element);
+        } else if(numSourceDefns == 0) {
+            parserContext.getReaderContext().error("One of writer-source-ref, file-writer and zip-file-writer must be specified", element);            
+        }
     }    
 }
