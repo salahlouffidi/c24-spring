@@ -56,7 +56,7 @@ public class FileSource implements BufferedReaderSource {
 	/* (non-Javadoc)
 	 * @see biz.c24.spring.batch.BufferedReaderSource#initialise(org.springframework.batch.core.StepExecution)
 	 */
-	public void initialise(StepExecution stepExecution) {
+	public synchronized void initialise(StepExecution stepExecution) {
 	    
         try {
     	    // Get an InputStream and a name for where we're reading from
