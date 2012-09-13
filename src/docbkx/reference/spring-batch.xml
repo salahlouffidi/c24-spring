@@ -55,95 +55,6 @@
       files (e.g. CSV) than it is for hierarchical files (e.g. XML) although the splitting
       capability (see below) may be able to take care of these concerns.</para>
     <section>
-      <title>Sources</title>
-      <para>The C24 ItemReader needs a source from which to read its data. Currently there are 2
-        supported sources:<itemizedlist>
-          <listitem>
-            <para><classname>biz.c24.io.spring.batch.reader.source.FileSource</classname></para>
-          </listitem>
-          <listitem>
-            <para><classname>biz.c24.io.spring.batch.reader.source.ZipFileSource</classname></para>
-          </listitem>
-        </itemizedlist>The first of these reads from a single, uncompressed file<footnoteref
-          linkend="FileSource" xreflabel="FileSource"/><footnote id="FileSource">
-          <para>Although the <classname>FileSource</classname> is explicitly intended to work with
-            files, internally it only requires an <interfacename>InputStream</interfacename> from
-            its <interfacename>Resource</interfacename>. In theory therefore other types of resource
-            can be used with this source so long as they return a valid input stream from
-              <methodname>getInputStream</methodname> and a valid value from their
-              <methodname>getFilename</methodname> method (which the
-              <classname>FileSource</classname> uses to provide contextual information).</para>
-          <para>In contrast, the <classname>ZipFileSource</classname> invokes the
-              <methodname>getFile</methodname> method on the supplied
-            <classname>Resouce</classname>.</para>
-        </footnote> while the latter accepts a zip file as input and will process the contents of
-        all contained entries.</para>
-      <para>Both sources derive their input from a Spring Resource. The resource can be set directly
-        on the <interfacename>Source</interfacename>, for example:</para>
-      <para>
-        <programlisting language="xml">&lt;beans:bean id="fileSource"    
-            class="biz.c24.io.spring.batch.reader.source.FileSource" 
-            scope="step">
-    &lt;beans:property name="resource" value="/tmp/data.csv"/>
-&lt;/beans:bean></programlisting>
-      </para>
-      <para>In many cases, the filename we need to process will be different on each invocation of
-        the job. Spring's late binding capability allows far greater flexibility on how the
-        parameter is set. For example, the Spring Batch Admin
-          <classname>org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter</classname>
-        creates a Job with a  <classname>JobParameter</classname> called
-          '<emphasis>input.file</emphasis>'. We can create a <classname>ZipFileSource</classname>
-        that will use the contents of this parameter as follows:</para>
-      <para>
-        <programlisting language="xml">&lt;beans:bean id="zipFileSource" 
-            class="biz.c24.io.spring.batch.reader.source.ZipFileSource" 
-            scope="step">
-    &lt;beans:property name="resource" value="#{jobParameters['input.file']}" />
-&lt;/beans:bean></programlisting>
-      </para>
-      <para>In fact, both the <classname>FileSource</classname> and the
-          <classname>ZipFileSource</classname> fall back to looking for a
-          <classname>JobParameter</classname> call <emphasis>input.file</emphasis> if you don't
-        supply them with a <classname>Resource</classname>, however we recommend using the explicit
-        declaration above to aid future maintainers of your configuration.</para>
-      <para>Note that the source is declared with a scope of step. This is because it holds data
-        relevant to the current step execution, hence a separate instance is required for each.
-        While other scopes might be applicable for individual use cases, if you wish to use late
-        binding from the jobParameters the Source must be declared with a scope of step.</para>
-      <para>Both the <classname>FileSource</classname> and the <classname>ZipFileSource</classname>
-        allow the first n lines of each file they encounter to be skipped (in the case of the
-          <classname>ZipFileSource</classname>, the first n lines of each file within the Zip file).
-        For example to skip a one line header at the start of each file, the
-          <classname>FileSource</classname> would be configured as:</para>
-      <programlisting language="xml">&lt;beans:bean id="fileSource" 
-            class="biz.c24.io.spring.batch.reader.source.FileSource"
-            scope="step">
-    &lt;beans:property name="skipLines" value="1"/>
-    &lt;beans:property name="resource" value="..."/>
-&lt;/beans:bean></programlisting>
-      <para>The <interface>Sources</interface> provide guidance to the
-          <classname>C24ItemReader</classname> on how it should process the Source in the event that
-        multiple threads are concurrently invoking <methodname>read</methodname> on it. By default
-        each file will be processed serially, however in the case of a zip file containing multiple
-        entries:</para>
-      <para>
-        <itemizedlist>
-          <listitem>
-            <para>If the zip file contains more than 20 entries and the first entry is less than
-              10,000 bytes (or of indeterminate size) use 1 thread per entry</para>
-          </listitem>
-          <listitem>
-            <para>Otherwise all threads process the same entry until it is exhausted, at which point
-              they move on to the next one</para>
-          </listitem>
-        </itemizedlist>
-      </para>
-      <para>The former has the advantage of less synchronisation between threads during the read
-        phase (as only one thread can be reading from a zip entry at any time) at the potential cost
-        of increased seeking as data is requested from different parts of the zip file by multiple
-        threads.</para>
-    </section>
-    <section>
       <title>C24ItemReader</title>
       <para>The C24ItemReader can be used as a standard ItemReader in any Spring Batch flow.
         Assuming the namespace declarations above, it is instantiated as:</para>
@@ -156,7 +67,9 @@
                      validate="true" 
                      source-factory-ref="..."
                      parse-listener-ref="..." 
-                     scope="step"/> </programlisting>
+                     scope="step">
+    &lt;bat-c24:file-source skip-lines="..." resource="..."/>
+&lt;/bat-c24:item-reader></programlisting>
       </para>
       <para>In order, these attributes are:</para>
       <para>
@@ -170,8 +83,8 @@
               [Mandatory]</para>
           </listitem>
           <listitem>
-            <para><emphasis>source-ref</emphasis> - the id of the source we declared earlier
-              [Mandatory]</para>
+            <para><emphasis>source-ref</emphasis> - the id of the source from which we'll read data
+              [Exclusive with the nested file-source element]</para>
           </listitem>
           <listitem>
             <para><emphasis>elementStartPattern</emphasis> - a regular expression used to speed up
@@ -219,13 +132,130 @@
         can determine) and rethrown.</para>
     </section>
     <section>
+      <title>Sources</title>
+      <para>The C24 ItemReader needs a source from which to read its data. Currently there are 2
+        supported sources:<itemizedlist>
+          <listitem>
+            <para><classname>biz.c24.io.spring.batch.reader.source.FileSource</classname></para>
+          </listitem>
+          <listitem>
+            <para><classname>biz.c24.io.spring.batch.reader.source.ZipFileSource</classname></para>
+          </listitem>
+        </itemizedlist>The first of these reads from a single, uncompressed file<footnoteref
+          linkend="FileSource" xreflabel="FileSource"/><footnote id="FileSource">
+          <para>Although the <classname>FileSource</classname> is explicitly intended to work with
+            files, internally it only requires an <interfacename>InputStream</interfacename> from
+            its <interfacename>Resource</interfacename>. In theory therefore other types of resource
+            can be used with this source so long as they return a valid input stream from
+              <methodname>getInputStream</methodname> and a valid value from their
+              <methodname>getFilename</methodname> method (which the
+              <classname>FileSource</classname> uses to provide contextual information).</para>
+          <para>In contrast, the <classname>ZipFileSource</classname> invokes the
+              <methodname>getFile</methodname> method on the supplied
+            <classname>Resouce</classname>.</para>
+        </footnote> while the latter accepts a zip file as input and will process the contents of
+        all contained entries.</para>
+      <para>Although the sources can be explicitly constructed<footnoteref linkend="ExplicitSource"
+        /> and associated with the C24ItemReader via the <emphasis>source-ref</emphasis> attribute,
+        it is more common to declare sources as child elements of the ItemReader:</para>
+      <para>
+        <footnote id="ExplicitSource">
+          <para>If you do choose to explicitly construct the source, be sure to set the scope of the
+            bean correctly. For most cases, you will want to set the scope to "step" as the sources
+            hold state relevant to the current step execution. Indeed this is required if you wish
+            to use late binding to any <interfacename>Job</interfacename> or
+              <interfacename>Step</interfacename>-specfic objects in your resource definition.
+          </para>
+        </footnote>
+      </para>
+      <para>
+        <programlisting language="xml">&lt;bat-c24:item-reader ...>
+<emphasis role="bold">    &lt;bat-c24:file-source skip-lines="..." resource="..."/></emphasis>
+&lt;/bat-c24:item-reader></programlisting>
+      </para>
+      <para>or for a ZipFileSource:</para>
+      <para>
+        <programlisting language="xml">&lt;bat-c24:item-reader ...>
+<emphasis role="bold">    &lt;bat-c24:zip-file-source skip-lines="..." resource="..."/></emphasis>
+&lt;/bat-c24:item-reader></programlisting>
+      </para>
+      <para>The attributes are the same for both sources:</para>
+      <para>
+        <itemizedlist>
+          <listitem>
+            <para><emphasis>skip-lines</emphasis> - the number of lines to skip over at the start of
+              the file (start of each file within the zip in the case of the
+                <classname>ZipFileSource</classname>). [Optional - default zero]</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>resource</emphasis> - a Spring <interfacename>Resource</interfacename>
+              to use to determine the file to read from. [Optional - defaults to reading file path
+              from a JobParameter called <emphasis>input.file</emphasis>]</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>Both sources derive their input from a Spring Resource. The resource can be set directly
+        on the <interfacename>Source</interfacename>, for example:</para>
+      <para>
+        <programlisting language="xml">&lt;bat-c24:item-reader ... >
+    &lt;bat-c24:file-source resource="/tmp/data.csv"/>
+&lt;/bat-c24:item-reader></programlisting>
+      </para>
+      <para>In many cases, the filename we need to process will be different on each invocation of
+        the job. Spring's late binding capability allows far greater flexibility on how the
+        parameter is set. For example, the Spring Batch Admin
+          <classname>org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter</classname>
+        creates a Job with a <classname>JobParameter</classname> called
+          '<emphasis>input.file</emphasis>'. We can create a <classname>ZipFileSource</classname>
+        that will use the contents of this parameter as follows:</para>
+      <para>
+        <programlisting language="xml">&lt;bat-c24:item-reader ... >
+    &lt;bat-c24:zip-file-source resource="#{jobParameters['input.file']}"/>
+&lt;/bat-c24:item-reader></programlisting>
+      </para>
+      <para>In fact, both the <classname>FileSource</classname> and the
+          <classname>ZipFileSource</classname> fall back to looking for a
+          <classname>JobParameter</classname> call <emphasis>input.file</emphasis> if you don't
+        supply them with a <classname>Resource</classname>, however we recommend using the explicit
+        declaration above to aid future maintainers of your configuration.</para>
+      <para>Both the <classname>FileSource</classname> and the <classname>ZipFileSource</classname>
+        allow the first n lines of each file they encounter to be skipped (in the case of the
+          <classname>ZipFileSource</classname>, the first n lines of each file within the Zip file).
+        For example to skip a one line header at the start of each file, the
+          <classname>FileSource</classname> would be configured as:</para>
+      <programlisting language="xml">&lt;bat-c24:item-reader ... >
+    &lt;bat-c24:file-source skip-lines="1" resource="..."/>
+&lt;/bat-c24:item-reader></programlisting>
+      <para>The <interface>Sources</interface> provide guidance to the
+          <classname>C24ItemReader</classname> on how it should process the Source in the event that
+        multiple threads are concurrently invoking <methodname>read</methodname> on it. By default
+        each file will be processed serially, however in the case of a zip file containing multiple
+        entries:</para>
+      <para>
+        <itemizedlist>
+          <listitem>
+            <para>If the zip file contains more than 20 entries and the first entry is less than
+              10,000 bytes (or of indeterminate size) use 1 thread per entry</para>
+          </listitem>
+          <listitem>
+            <para>Otherwise all threads process the same entry until it is exhausted, at which point
+              they move on to the next one</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>The former has the advantage of less synchronisation between threads during the read
+        phase (as only one thread can be reading from a zip entry at any time) at the potential cost
+        of increased seeking as data is requested from different parts of the zip file by multiple
+        threads.</para>
+    </section>
+    <section>
       <title>Splitting</title>
       <para>For complex models, parsing can be a relatively expensive operation. The
           <classname>C24ItemReader</classname> allows multiple threads to be consuming data from it
         concurrently, however as by default an element needs to be fully parsed before the start
         point of the next element in the file can be determined, this part of the process
         effectively becomes single-threaded as each thread blocks waiting to be able to read from
-        the input source (validation will always be performed in parallel however).</para>
+        the input source (validation can always be performed in parallel however).</para>
       <para>The <classname>C24ItemReader</classname> supports an optional
           '<emphasis>elementStartPattern</emphasis>' regular expression (as defined by Java's
         Pattern class) to allow individual elements to be rapidly 'split' out of the inbound data
@@ -398,55 +428,17 @@ public C24TransformItemProcessor getIoItemProcessor() {
         <classname>C24ItemWriter</classname> also decouples the external container to allow multiple
       potential (types of) destination to be supported.</para>
     <section>
-      <title>WriterSources</title>
-      <para>The C24 ItemWrtier needs to know where to write the output from the
-          <interfacename>Sink</interfacename>. The following implementations are available in the distribution:<itemizedlist>
-          <listitem>
-            <para><classname>biz.c24.io.spring.batch.writer.source.FileWriterSource</classname></para>
-          </listitem>
-          <listitem>
-            <para><classname>biz.c24.io.spring.batch.writer.source.ZipFileWriterSource</classname></para>
-          </listitem>
-        </itemizedlist></para>
-      <para>The <classname>FileWriterSource</classname> writes all data to a single file, without
-        any limits on the file size. It determines the file to write from a supplied
-          <classname>FileSystemResource</classname> or, if not specified, a
-          <classname>JobParameter</classname> called '<emphasis>output.file</emphasis>'.</para>
-      <para>Constructing the source requires creating an appropriate bean, for example:</para>
-      <para>
-        <programlisting language="xml">&lt;beans:bean id="fileWriterSource" 
-            class="biz.c24.io.spring.batch.writer.source.FileWriterSource" 
-            scope="step">
-    &lt;beans:property name="resource" value="/tmp/data.csv"/>
-&lt;/beans:bean></programlisting>
-      </para>
-      <para>Or to use the <emphasis>output.file</emphasis>
-        <classname>JobParameter</classname>:</para>
-      <para>
-        <programlisting language="xml">&lt;beans:bean id="fileWriterSource" 
-            class="biz.c24.io.spring.batch.writer.source.FileWriterSource" 
-            scope="step"/></programlisting>
-      </para>
-      <para>See the <classname>FileSource</classname> documentation under Reading for other examples
-        on how the <classname>Resource</classname> can be set.</para>
-      <para>Note that the source is declared with a <emphasis>scope</emphasis> of step. This is
-        because it holds data relevant to the current step execution, hence a separate instance is
-        required for each.</para>
-      <para>The <classname>ZipFileWriterSource</classname> behaves identically except that it will
-        create a zip file (thus the filename supplied in the <classname>Resource</classname> or
-          <emphasis>output.file</emphasis> should end with .zip) with a single entry, named after
-        the filename with any leading path and the file suffix stripped off.</para>
-    </section>
-    <section>
       <title>C24ItemWriter</title>
       <para>The <classname>C24ItemWriter</classname> wraps a <interfacename>Sink</interfacename>
         &amp; a <interfacename>WriterSource</interfacename>. It is declared as:</para>
       <para>
         <programlisting language="xml">&lt;beans:bean id="textualSink" class="biz.c24.io.api.presentation.TextualSink"/>
 
-&lt;bat-c24:item-writer id="ioItemWriter" 
+&lt;bat-c24:item-writer id="..." 
                      sink-ref="textualSink" 
-                     writer-source-ref="fileWriterSource"/>   </programlisting>
+                     writer-source-ref="...">
+    &lt;bat-c24:file-writer resource="..."/>
+&lt;/bat-c24:item-writer>   </programlisting>
       </para>
       <para>The available attributes are:<itemizedlist>
           <listitem>
@@ -459,7 +451,8 @@ public C24TransformItemProcessor getIoItemProcessor() {
           </listitem>
           <listitem>
             <para><emphasis>writer-source-ref</emphasis> - The id of the
-                <interface>WriterSource</interface> to use [Mandatory]</para>
+                <interface>WriterSource</interface> to use [Exclusive with
+                <emphasis>file-writer</emphasis> child element]</para>
           </listitem>
           <listitem>
             <para><emphasis>scope</emphasis> - The bean scope [Optional - default Step]</para>
@@ -477,6 +470,68 @@ public C24TransformItemProcessor getIoItemProcessor() {
         parallel (e.g. the parent Tasklet has a <emphasis>task-executor</emphasis>) there is no
         guarantee that the chunks themselves will be written in order. If absolute ordering is
         imperative, the entire step must be run single-threaded.</para>
+    </section>
+    <section>
+      <title>WriterSources</title>
+      <para>The C24 ItemWrtier needs to know where to write the output from the
+          <interfacename>Sink</interfacename>. The following implementations are available in the distribution:<itemizedlist>
+          <listitem>
+            <para><classname>biz.c24.io.spring.batch.writer.source.FileWriterSource</classname></para>
+          </listitem>
+          <listitem>
+            <para><classname>biz.c24.io.spring.batch.writer.source.ZipFileWriterSource</classname></para>
+          </listitem>
+        </itemizedlist></para>
+      <para>As with the <classname>C24ItemReader</classname> sources, while
+          <interfacename>WriterSource</interfacename>s can be declared explicitly<footnoteref
+          linkend="ExplicitWriterSource"/> and wired into the <classname>C24ItemWriter</classname>
+        via the <emphasis>writer-source-ref</emphasis> attribute, it is more common to declare them
+        as child elements:</para>
+      <para>
+        <footnote>
+          <para id="ExplicitWriterSource">As with the <classname>C24ItemReader</classname>
+            <interfacename>Source</interfacename>s, you will almost certainly want to set the scope
+            of any explicitly declared beans to "<emphasis>step</emphasis>".</para>
+        </footnote>
+      </para>
+      <para>
+        <programlisting language="xml">&lt;bat-c24:item-writer ... >
+<emphasis role="bold">    &lt;bat-c24:file-writer resource="..."/></emphasis>
+&lt;/bat-c24:item-writer></programlisting>
+      </para>
+      <para>for a <classname>FileWriterSource</classname> or:</para>
+      <para>
+        <programlisting language="xml">&lt;bat-c24:item-writer ... >
+<emphasis role="bold">    &lt;bat-c24:zip-file-writer resource="..."/></emphasis>
+&lt;/bat-c24:item-writer></programlisting>
+      </para>
+      <para>for a <classname>ZipFileWriterSource</classname>.</para>
+      <para>The <classname>FileWriterSource</classname> writes all data to a single file, without
+        any limits on the file size. It determines the file to write from a supplied
+          <classname>FileSystemResource</classname> or, if not specified, a
+          <classname>JobParameter</classname> called '<emphasis>output.file</emphasis>'. Definition
+        of the resource is exactly as described above for the <classname>C24ItemReader</classname>
+        <interfacename>Source</interfacename>s with the exception that the
+          <interfacename>Resource</interfacename> type must be a
+          <classname>FileSystemResource</classname>. For example:</para>
+      <para>
+        <programlisting language="xml">&lt;bat-c24:item-writer ...>
+<emphasis role="bold">    &lt;bat-c24:file-writer resource="/tmp/data.csv"/></emphasis>
+&lt;/bat-c24:item-writer></programlisting>
+      </para>
+      <para>Or to use the <emphasis>output.file</emphasis>
+        <classname>JobParameter</classname>:</para>
+      <para>
+        <programlisting language="xml">&lt;bat-c24:item-writer ... >
+<emphasis role="bold">    &lt;bat-c24:zip-file-writer resource="#{jobParameters[output.file']}"/></emphasis>
+&lt;/bat-c24:item-writer></programlisting>
+      </para>
+      <para>See the <classname>FileSource</classname> documentation under Reading for other examples
+        on how the <classname>Resource</classname> can be set.</para>
+      <para>The <classname>ZipFileWriterSource</classname> behaves identically except that it will
+        create a zip file (thus the filename supplied in the <classname>Resource</classname> or
+          <emphasis>output.file</emphasis> should end with .zip) with a single entry, named after
+        the filename with any leading path and the file suffix stripped off.</para>
     </section>
   </section>
   <section>
@@ -530,21 +585,16 @@ public C24TransformItemProcessor getIoItemProcessor() {
         <interface>ItemReader</interface>:<programlisting language="xml">    &lt;c24:model id="employeeModel" 
                base-element="biz.c24.io.examples.models.basic.EmployeeElement"/>
 
-    &lt;beans:bean id="fileSource" 
-                class="biz.c24.io.spring.batch.reader.source.FileSource" 
-                scope="step">
-        &lt;beans:property name="resource" value="#{jobParameters['input.file']}" />
-    &lt;/beans:bean>
-
     &lt;bat-c24:item-reader id="ioItemReader" 
                          model-ref="employeeModel" 
-                         source-ref="fileSource" 
                          elementStartPattern=".*" 
-                         validate="true"/></programlisting></para>
+                         validate="true">
+        &lt;bat-c24:file-source resource="#{jobParameters['input.file']}" />
+    &lt;/bat-c24:item-reader></programlisting></para>
       <para>replacing <code>biz.c24.io.examples.models.basic.EmployeeElement</code> with the fully
         qualified path to your generated model Element. The <emphasis>elementStartPattern</emphasis>
         shown above assumes that each element that we're going to read from the source file is
-        contained on a single line and that there are no header or comment lines (ie every line is
+        contained on a single line and that there are no header or comment lines (i.e. every line is
         an element).</para>
       <para>Now we define a simple job to read (and implicitly validate)
           <classname>ComplexDataObject</classname>s from our source:</para>
@@ -606,8 +656,8 @@ public C24TransformItemProcessor getIoItemProcessor() {
         // Create the job parameters and supply the name of the file to parse
         Map&lt;String, JobParameter> params = new HashMap&lt;String, JobParameter>();
 
-        // The C24 Spring Batch source is configured to get the filename from 
-        // a job property called input.file
+        // The C24ItemReader is configured to get the filename from a job parameter called input.file
+        // (see src/main/resources/spring-config.xml)
         // In this case, the file is in the classpath and is called employees-3-valid.csv
         params.put("input.file", new JobParameter("classpath:/employees-3-valid.csv"));
 
@@ -674,20 +724,16 @@ G.Gatsby@company.com</programlisting>
           (<interfacename>Writer</interfacename>). To finish off the final stage of our example
         application, we'll use iO's <classname>TextualSink</classname> to generate a valid
         representation of our object and write the result to a file.</para>
-      <para>First we need to declare the <interfacename>Sink</interfacename> &amp; a
-          <interfacename>WriterSource</interfacename>:</para>
+      <para>First we need to declare the <interfacename>Sink</interfacename>:</para>
       <para><programlisting language="xml">  &lt;beans:bean id="textualSink" 
-              class="biz.c24.io.api.presentation.TextualSink"/>
-
-  &lt;beans:bean id="fileWriterSource" 
-              class="biz.c24.io.spring.batch.writer.source.FileWriterSource">
-      &lt;beans:property name="resource" value="#{jobParameters['output.file']}" />
-  &lt;/beans:bean></programlisting>
+              class="biz.c24.io.api.presentation.TextualSink"/></programlisting>
         Next we need to declare the <classname>C24ItemWriter</classname>:</para>
       <para>
-        <programlisting language="xml">  &lt;bat-c24:item-writer id="ioItemWriter" 
-                       sink-ref="textualSink" 
-                       writer-source-ref="fileWriterSource"/>   </programlisting>
+        <programlisting language="xml">    &lt;bat-c24:item-writer id="ioItemWriter" 
+                         sink-ref="textualSink" 
+                         writer-source-ref="fileWriterSource">
+        &lt;bat-c24:file-writer resource=#{jobParameters['output.file']}" />
+    &lt;/bat-c24:item-writer></programlisting>
       </para>
       <para>Finally we update our Step's Chunk to use the new ItemWriter:</para>
       <para>
@@ -708,14 +754,16 @@ G.Gatsby@company.com</programlisting>
       <para>
         <programlisting language="java">        ...
 
-        // The C24 Spring Batch sources expect to get the filename from 
-        // a job property called input.file
+        // The C24ItemReader is configured to get the filename from a job parameter called input.file
+        // (see src/main/resources/spring-config.xml)
         // In this case, the file is in the classpath and is called employees-3-valid.csv
         params.put("input.file", new JobParameter(
                                     new ClassPathResource("employees-3-valid.csv")
                                     .getFile().getAbsolutePath()
                                  ));
-        
+
+		// Our C24ItemWriter is configured to expect its output filename in a job parameter called output.file
+		// (see src/main/resources/spring-config.xml)        
 <emphasis role="bold">        File outputFile = File.createTempFile("RunJob-", ".csv");
         System.out.println("Transforming to " + outputFile.getAbsolutePath());        
         params.put("output.file", new JobParameter(outputFile.getAbsolutePath()));</emphasis>
@@ -763,11 +811,12 @@ G.Gatsby@company.com</programlisting>
       <para>As the chunks are processed in parallel there is no longer any guarantee that the order
         of records output will match the input order. Internally there are 2 main points of
         synchronisation - where character data is read from the source file and where it is written
-        to the destination file. The <classname>C24ItemReader</classname> &amp; Writer attempt to do
-        as much work as possible outside of these boundaries (so for example where an
-          <emphasis>elementStartPattern</emphasis> is specificied the only logic inside the reading
-        synchronisation point is to read data until a matching line is encountered; all
-        interpretation of that data takes place outside of the synchronised block).</para>
+        to the destination file. The <classname>C24ItemReader</classname> &amp;
+          <classname>C24ItemWriter</classname> attempt to do as much work as possible outside of
+        these boundaries (so for example where an <emphasis>elementStartPattern</emphasis> is
+        specificied the only logic inside the reading synchronisation point is to read data until a
+        matching line is encountered; all interpretation of that data takes place outside of the
+        synchronised block).</para>
     </section>
     <section>
       <title>Integration with Spring Integration</title>
