@@ -18,6 +18,7 @@ import org.springframework.batch.item.UnexpectedInputException;
 import biz.c24.io.api.ParserException;
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.ComplexDataType;
+import biz.c24.io.api.data.DataType;
 import biz.c24.io.api.data.Element;
 import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.api.data.ValidationManager;
@@ -48,7 +49,10 @@ public class C24BatchItemReader implements ItemReader<ComplexDataObject> {
 	
 	public void setModel(C24Model model) {
 		element = model.getRootElement();
-		((ComplexDataType) element.getType()).setProcessAsBatch(true);
+		DataType type = element.getType();
+		if(type instanceof ComplexDataType) {
+		    ((ComplexDataType) type).setProcessAsBatch(true);
+		}
 	}
 
 	/**
@@ -238,9 +242,16 @@ public class C24BatchItemReader implements ItemReader<ComplexDataObject> {
 				queueObject(failure);
 				// We can't read anything further from this reader
 				source.discard(source.getReader());
-			} catch(Exception ex) {
+			} catch(RuntimeException ex) {
+			    // Rewrap any thrown exceptions so our caller can behave appropriately
 				throw new ParserException(ex, ((ComplexDataObject)object).getName());
-			}
+			} catch (TimeoutException ex) {
+                throw new ParserException(ex, ((ComplexDataObject)object).getName());
+            } catch (InterruptedException ex) {
+                throw new ParserException(ex, ((ComplexDataObject)object).getName());
+            } catch (IOException ex) {
+                throw new ParserException(ex, ((ComplexDataObject)object).getName());
+            }
 			
 		}
 
