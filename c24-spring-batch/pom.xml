@@ -143,60 +143,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.5.10.201208310627</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-<!--                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
--->                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <reportPlugins>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>findbugs-maven-plugin</artifactId>
-                            <version>2.5.2</version>
-                            <configuration>
- <!--                           <xmlOutput>true</xmlOutput>
-                                <xmlOutputDirectory>target/site</xmlOutputDirectory>
--->                             <threshold>Low</threshold><!-- High|Normal|Low|Exp|Ignore -->
-                                <effort>Default</effort><!-- Min|Default|Max -->
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-jxr-plugin</artifactId>
-                            <version>2.3</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-javadoc-plugin</artifactId>
-                            <version>2.8.1</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.jacoco</groupId>
-                            <artifactId>jacoco-maven-plugin</artifactId>
-                            <version>0.5.10.201208310627</version>
-                        </plugin>
-                    </reportPlugins>
-                </configuration>
-            </plugin>          
         </plugins>
     </build>
 
