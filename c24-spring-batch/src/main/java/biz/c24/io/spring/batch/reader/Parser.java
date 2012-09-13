@@ -88,7 +88,8 @@ class Parser {
 					while(ex.getCause() != null) {
 						ex = ex.getCause();
 					}
-					if(ex instanceof IOException && ex.getMessage() == "Stream closed") {
+					// Unfortunately we can only detect it via a string match. This is fragile.
+					if(ex instanceof IOException && "Stream closed".compareToIgnoreCase(ex.getMessage()) == 0) {
 						// Sigh. That looks like that's what's happened.
 						obj = null;
 					} else {

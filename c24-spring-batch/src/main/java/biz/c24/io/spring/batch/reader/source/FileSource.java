@@ -27,7 +27,8 @@ import org.springframework.core.io.Resource;
 
 /**
  * An implementation of BufferedReaderSource which extracts its data from uncompressed files.
- * Expects to get the file name from a property called input.file in the job parameters
+ * Expects to be told the path of the file to write to by the supplied Resource or, 
+ * if not specified, a property called input.file in the job parameters
  * (as populated by Spring Batch's org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter)
  * 
  * @author Andrew Elmore
@@ -56,7 +57,7 @@ public class FileSource implements BufferedReaderSource {
 	/* (non-Javadoc)
 	 * @see biz.c24.spring.batch.BufferedReaderSource#initialise(org.springframework.batch.core.StepExecution)
 	 */
-	public synchronized void initialise(StepExecution stepExecution) {
+	public void initialise(StepExecution stepExecution) {
 	    
         try {
     	    // Get an InputStream and a name for where we're reading from

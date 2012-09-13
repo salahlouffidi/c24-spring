@@ -17,9 +17,7 @@ package biz.c24.io.spring.batch.reader.source;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Enumeration;
@@ -31,7 +29,8 @@ import org.springframework.core.io.Resource;
 
 /**
  * An implementation of BufferedReaderSource which extracts its data from Zip files.
- * Expects to get the file name from a property called input.file in the job parameters
+ * Expects to be told the path of the file to write to by the supplied Resource or, 
+ * if not specified, from a property called input.file in the job parameters
  * (as populated by Spring Batch's org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter)
  * 
  * @author Andrew Elmore
@@ -85,7 +84,7 @@ public class ZipFileSource implements BufferedReaderSource {
 	/* (non-Javadoc)
 	 * @see biz.c24.spring.batch.BufferedReaderSource#initialise(org.springframework.batch.core.StepExecution)
 	 */
-	public synchronized void initialise(StepExecution stepExecution) {
+	public void initialise(StepExecution stepExecution) {
         
         try {
             // Get an File and a name for where we're reading from

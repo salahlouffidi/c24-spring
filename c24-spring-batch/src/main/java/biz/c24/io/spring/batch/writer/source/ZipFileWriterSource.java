@@ -27,7 +27,8 @@ import org.springframework.core.io.FileSystemResource;
 
 /**
  * WriterSource that writes all output to a single zip file. All data is written to a single entry in the zip file.
- * Expects to be told the path of the file to write to by the parameter output.file in the job parameters.
+ * Expects to be told the path of the file to write to by the supplied Resource or, 
+ * if not specified, by the parameter output.file in the job parameters.
  * 
  * @author Andrew Elmore
  */
