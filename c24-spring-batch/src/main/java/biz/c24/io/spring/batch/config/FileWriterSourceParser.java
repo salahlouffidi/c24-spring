@@ -51,5 +51,11 @@ public class FileWriterSourceParser extends AbstractSingleBeanDefinitionParser {
         if(StringUtils.hasText(resource)) {
             bean.addPropertyValue("resource", resource);            
         }
+        
+        // Optional
+        String encoding = element.getAttribute("encoding");
+        if(StringUtils.hasText(resource)) {
+            bean.addPropertyValue("encoding", encoding);  
+        }
     }
 }

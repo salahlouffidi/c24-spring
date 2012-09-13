@@ -28,6 +28,7 @@ import biz.c24.io.spring.batch.writer.C24ItemWriter;
 import biz.c24.io.spring.batch.writer.source.FileWriterSource;
 import biz.c24.io.spring.batch.writer.source.WriterSource;
 import biz.c24.io.spring.batch.writer.source.ZipFileWriterSource;
+import biz.c24.io.spring.util.C24Utils;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -73,7 +74,8 @@ public class C24ItemWriterParserTests {
 	    assertThat(source, is(FileWriterSource.class));
 	    
 	    FileWriterSource fileSource = (FileWriterSource) source;
-	    assertThat(fileSource.getResource(), nullValue());	    
+	    assertThat(fileSource.getResource(), nullValue());	 
+	    assertThat(fileSource.getEncoding(), is(C24Utils.DEFAULT_FILE_ENCODING));
 	}
 	
    @Test
@@ -84,6 +86,7 @@ public class C24ItemWriterParserTests {
         ZipFileWriterSource fileSource = (ZipFileWriterSource) source;
         assertThat(fileSource.getResource(), is(FileSystemResource.class));
         assertThat(fileSource.getResource().getPath(), is("/tmp/test.zip"));
+        assertThat(fileSource.getEncoding(), is("TestEncoding"));
     }
 	
 

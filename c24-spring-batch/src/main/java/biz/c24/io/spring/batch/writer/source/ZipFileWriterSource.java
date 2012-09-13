@@ -25,6 +25,8 @@ import java.util.zip.ZipOutputStream;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.core.io.FileSystemResource;
 
+import biz.c24.io.spring.util.C24Utils;
+
 /**
  * WriterSource that writes all output to a single zip file. All data is written to a single entry in the zip file.
  * Expects to be told the path of the file to write to by the supplied Resource or, 
@@ -38,6 +40,7 @@ public class ZipFileWriterSource implements WriterSource {
 	private FileSystemResource resource = null;
 	private ZipOutputStream zipStream = null;
 	private static String pathSepString = System.getProperty("file.separator");
+	private String encoding = C24Utils.DEFAULT_FILE_ENCODING;
 
 	@Override
 	public void initialise(StepExecution stepExecution) {
@@ -67,7 +70,7 @@ public class ZipFileWriterSource implements WriterSource {
 	    	FileOutputStream fileStream = new FileOutputStream(fileName);
 	    	zipStream = new ZipOutputStream(fileStream);
 	    	zipStream.putNextEntry(new ZipEntry(tailName));
-	    	outputWriter = new OutputStreamWriter(zipStream);
+	    	outputWriter = new OutputStreamWriter(zipStream, getEncoding());
 	    } catch(IOException ioEx) {
 	    	throw new RuntimeException(ioEx);
 	    }
@@ -115,4 +118,21 @@ public class ZipFileWriterSource implements WriterSource {
     public void setResource(FileSystemResource resource) {
         this.resource = resource;
     }  
+    
+    /**
+     * Returns the encoding we are using when reading the file.
+     * Defaults to UTF-8
+     * @return the encoding being used to read the file
+     */
+    public String getEncoding() {
+        return encoding;
+    }
+
+    /**
+     * Sets the encoding to use to read the file
+     * @param encoding the encoding the use
+     */
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }   
 }

@@ -58,5 +58,11 @@ public class FileSourceParser extends AbstractSingleBeanDefinitionParser {
             int numLines = Integer.parseInt(skipLines);
             bean.addPropertyValue("skipLines", numLines);
         }
+        
+        // Optional
+        String encoding = element.getAttribute("encoding");
+        if(StringUtils.hasText(resource)) {
+            bean.addPropertyValue("encoding", encoding);            
+        }
     }
 }

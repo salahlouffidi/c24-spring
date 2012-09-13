@@ -31,6 +31,12 @@ import biz.c24.io.api.data.Element;
  */
 public abstract class C24Utils {
 
+    /**
+     * The default encoding C24 Spring classes will use when reading and writing files unless
+     * otherwise specified
+     */
+    public static final String DEFAULT_FILE_ENCODING = "UTF-8";
+    
 	private C24Utils() {
 
 	}

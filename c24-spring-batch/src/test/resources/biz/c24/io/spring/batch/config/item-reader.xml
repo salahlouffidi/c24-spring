@@ -38,10 +38,14 @@
     </bat-c24:item-reader>
 
     <bat-c24:item-reader id="fileSourceResourceReader" model-ref="employeeModel" scope="singleton">
-        <bat-c24:file-source resource="file://tmp/test.txt" skip-lines="5"/>
+        <bat-c24:file-source resource="file://tmp/test.txt" skip-lines="5" encoding="TestEncoding"/>
+    </bat-c24:item-reader>
+    
+    <bat-c24:item-reader id="zipFileSourceReader" model-ref="employeeModel" scope="singleton">
+        <bat-c24:zip-file-source/>
     </bat-c24:item-reader>
 
     <bat-c24:item-reader id="zipFileSourceResourceReader" model-ref="employeeModel" scope="singleton">
-        <bat-c24:zip-file-source resource="file://tmp/test.txt"/>
+        <bat-c24:zip-file-source resource="file://tmp/test.txt" skip-lines="4" encoding="TestEncoding"/>
     </bat-c24:item-reader>
 </beans>

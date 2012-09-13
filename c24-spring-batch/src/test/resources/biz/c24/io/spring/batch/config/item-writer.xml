@@ -27,9 +27,9 @@
         <bat-c24:file-writer/>
     </bat-c24:item-writer>
     
-    <!-- Declare a C24ItemWriter with a zip-file-writer and explicit resource -->    
+    <!-- Declare a C24ItemWriter with a zip-file-writer, explicit resource and encoding -->    
     <bat-c24:item-writer id="ioCustomItemWriter" sink-ref="textualSink" scope="singleton">
-        <bat-c24:zip-file-writer resource="/tmp/test.zip"/>
+        <bat-c24:zip-file-writer resource="/tmp/test.zip" encoding="TestEncoding"/>
     </bat-c24:item-writer>   
     
     

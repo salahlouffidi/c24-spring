@@ -68,7 +68,7 @@
                      source-factory-ref="..."
                      parse-listener-ref="..." 
                      scope="step">
-    &lt;bat-c24:file-source skip-lines="..." resource="..."/>
+    &lt;bat-c24:file-source skip-lines="..." resource="..." encoding="..."/>
 &lt;/bat-c24:item-reader></programlisting>
       </para>
       <para>In order, these attributes are:</para>
@@ -170,13 +170,13 @@
       </para>
       <para>
         <programlisting language="xml">&lt;bat-c24:item-reader ...>
-<emphasis role="bold">    &lt;bat-c24:file-source skip-lines="..." resource="..."/></emphasis>
+<emphasis role="bold">    &lt;bat-c24:file-source skip-lines="..." resource="..." encoding="..."/></emphasis>
 &lt;/bat-c24:item-reader></programlisting>
       </para>
       <para>or for a ZipFileSource:</para>
       <para>
         <programlisting language="xml">&lt;bat-c24:item-reader ...>
-<emphasis role="bold">    &lt;bat-c24:zip-file-source skip-lines="..." resource="..."/></emphasis>
+<emphasis role="bold">    &lt;bat-c24:zip-file-source skip-lines="..." resource="..." encoding="..."/></emphasis>
 &lt;/bat-c24:item-reader></programlisting>
       </para>
       <para>The attributes are the same for both sources:</para>
@@ -190,7 +190,12 @@
           <listitem>
             <para><emphasis>resource</emphasis> - a Spring <interfacename>Resource</interfacename>
               to use to determine the file to read from. [Optional - defaults to reading file path
-              from a JobParameter called <emphasis>input.file</emphasis>]</para>
+              from a <classname>JobParameter</classname> called
+              <emphasis>input.file</emphasis>]</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>encoding</emphasis> - the character set encoding to use when reading
+              from the file. [Optional - defaults to UTF-8]</para>
           </listitem>
         </itemizedlist>
       </para>
@@ -437,7 +442,7 @@ public C24TransformItemProcessor getIoItemProcessor() {
 &lt;bat-c24:item-writer id="..." 
                      sink-ref="textualSink" 
                      writer-source-ref="...">
-    &lt;bat-c24:file-writer resource="..."/>
+    &lt;bat-c24:file-writer resource="..." encoding="..."/>
 &lt;/bat-c24:item-writer>   </programlisting>
       </para>
       <para>The available attributes are:<itemizedlist>
@@ -496,16 +501,32 @@ public C24TransformItemProcessor getIoItemProcessor() {
       </para>
       <para>
         <programlisting language="xml">&lt;bat-c24:item-writer ... >
-<emphasis role="bold">    &lt;bat-c24:file-writer resource="..."/></emphasis>
+<emphasis role="bold">    &lt;bat-c24:file-writer resource="..." encoding="..."/></emphasis>
 &lt;/bat-c24:item-writer></programlisting>
       </para>
       <para>for a <classname>FileWriterSource</classname> or:</para>
       <para>
         <programlisting language="xml">&lt;bat-c24:item-writer ... >
-<emphasis role="bold">    &lt;bat-c24:zip-file-writer resource="..."/></emphasis>
+<emphasis role="bold">    &lt;bat-c24:zip-file-writer resource="..." encoding="..."/></emphasis>
 &lt;/bat-c24:item-writer></programlisting>
       </para>
       <para>for a <classname>ZipFileWriterSource</classname>.</para>
+      <para>The supported attributes for both the <classname>FileWriterSource</classname> and
+          <classname>ZipFileWriterSource</classname> are:</para>
+      <para>
+        <itemizedlist>
+          <listitem>
+            <para><emphasis>resource</emphasis> - a Spring <interfacename>Resource</interfacename>
+              to use to determine the file to write to. [Optional - defaults to reading file path
+              from a <classname>JobParameter</classname> called
+              <emphasis>output.file</emphasis>]</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>encoding</emphasis> - the character set encoding to use when writing to
+              the file. [Optional - defaults to UTF-8]</para>
+          </listitem>
+        </itemizedlist>
+      </para>
       <para>The <classname>FileWriterSource</classname> writes all data to a single file, without
         any limits on the file size. It determines the file to write from a supplied
           <classname>FileSystemResource</classname> or, if not specified, a

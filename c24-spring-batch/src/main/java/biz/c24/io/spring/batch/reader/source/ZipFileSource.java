@@ -27,6 +27,8 @@ import java.util.zip.ZipFile;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.core.io.Resource;
 
+import biz.c24.io.spring.util.C24Utils;
+
 /**
  * An implementation of BufferedReaderSource which extracts its data from Zip files.
  * Expects to be told the path of the file to write to by the supplied Resource or, 
@@ -72,6 +74,8 @@ public class ZipFileSource implements BufferedReaderSource {
 	 * The Resource we acquire InputStreams from
 	 */
 	private Resource resource = null;
+	
+	private String encoding = C24Utils.DEFAULT_FILE_ENCODING;
 	
 	/*
 	 * (non-Javadoc)
@@ -141,7 +145,7 @@ public class ZipFileSource implements BufferedReaderSource {
 	}
 	
 	private BufferedReader getReader(ZipEntry entry) throws IOException {
-		BufferedReader newReader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+		BufferedReader newReader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry), getEncoding()));
 		if(skipLines > 0) {
 			for(int i = 0; i < skipLines && newReader.ready(); i++) {
 				// Skip the line
@@ -248,6 +252,22 @@ public class ZipFileSource implements BufferedReaderSource {
 	public void setResource(Resource resource) {
 		this.resource = resource;
 	}	
+	
+	/**
+     * Returns the encoding we are using when reading the file.
+     * @return the encoding being used to read the file
+     */
+    public String getEncoding() {
+        return encoding;
+    }
+
+    /**
+     * Sets the encoding to use to read the file
+     * @param encoding the encoding the use
+     */
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }   
 	
 	
 }

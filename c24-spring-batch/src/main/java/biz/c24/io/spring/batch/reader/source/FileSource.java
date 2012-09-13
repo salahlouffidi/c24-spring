@@ -22,8 +22,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.core.io.Resource;
+
+import biz.c24.io.spring.util.C24Utils;
 
 /**
  * An implementation of BufferedReaderSource which extracts its data from uncompressed files.
@@ -34,12 +38,16 @@ import org.springframework.core.io.Resource;
  * @author Andrew Elmore
  */
 public class FileSource implements BufferedReaderSource {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(FileSource.class);
 	
 	private BufferedReader reader = null;
 	
 	private String name;
 	
 	private Resource resource = null;
+	
+	private String encoding = C24Utils.DEFAULT_FILE_ENCODING;
 	
 	/**
 	 * How many lines at the start of the file should we skip?
@@ -81,7 +89,8 @@ public class FileSource implements BufferedReaderSource {
     	    }
     
 			// Prime the reader
-			reader = new BufferedReader(new InputStreamReader(source));
+    	    LOG.debug("Opening {} with encoding {}", name, getEncoding());
+			reader = new BufferedReader(new InputStreamReader(source, getEncoding()));
 			if(skipLines > 0) {
 				for(int i = 0; i < skipLines && reader.ready(); i++) {
 					// Skip the line
@@ -175,7 +184,23 @@ public class FileSource implements BufferedReaderSource {
 	 */
 	public void setResource(Resource resource) {
 		this.resource = resource;
-	}	
+	}
+
+	/**
+	 * Returns the encoding we are using when reading the file.
+	 * @return the encoding being used to read the file
+	 */
+    public String getEncoding() {
+        return encoding;
+    }
+
+    /**
+     * Sets the encoding to use to read the file
+     * @param encoding the encoding the use
+     */
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }	
 	
 }
 
