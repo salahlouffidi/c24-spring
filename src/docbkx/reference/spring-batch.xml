@@ -142,7 +142,10 @@
             <para><classname>biz.c24.io.spring.batch.reader.source.ZipFileSource</classname></para>
           </listitem>
         </itemizedlist>The first of these reads from a single, uncompressed file<footnoteref
-          linkend="FileSource" xreflabel="FileSource"/><footnote id="FileSource">
+          linkend="FileSource" xreflabel="FileSource"/> while the latter accepts a zip file as input
+        and will process the contents of all contained entries.</para>
+      <para>
+        <footnote id="FileSource">
           <para>Although the <classname>FileSource</classname> is explicitly intended to work with
             files, internally it only requires an <interfacename>InputStream</interfacename> from
             its <interfacename>Resource</interfacename>. In theory therefore other types of resource
@@ -153,8 +156,8 @@
           <para>In contrast, the <classname>ZipFileSource</classname> invokes the
               <methodname>getFile</methodname> method on the supplied
             <classname>Resouce</classname>.</para>
-        </footnote> while the latter accepts a zip file as input and will process the contents of
-        all contained entries.</para>
+        </footnote>
+      </para>
       <para>Although the sources can be explicitly constructed<footnoteref linkend="ExplicitSource"
         /> and associated with the C24ItemReader via the <emphasis>source-ref</emphasis> attribute,
         it is more common to declare sources as child elements of the ItemReader:</para>
@@ -164,18 +167,17 @@
             bean correctly. For most cases, you will want to set the scope to "step" as the sources
             hold state relevant to the current step execution. Indeed this is required if you wish
             to use late binding to any <interfacename>Job</interfacename> or
-              <interfacename>Step</interfacename>-specfic objects in your resource definition.
-          </para>
+              <interfacename>Step</interfacename>-specific objects in your resource definition. </para>
         </footnote>
       </para>
       <para>
-        <programlisting language="xml">&lt;bat-c24:item-reader ...>
+        <programlisting language="xml">&lt;bat-c24:item-reader ... >
 <emphasis role="bold">    &lt;bat-c24:file-source skip-lines="..." resource="..." encoding="..."/></emphasis>
 &lt;/bat-c24:item-reader></programlisting>
       </para>
       <para>or for a ZipFileSource:</para>
       <para>
-        <programlisting language="xml">&lt;bat-c24:item-reader ...>
+        <programlisting language="xml">&lt;bat-c24:item-reader ... >
 <emphasis role="bold">    &lt;bat-c24:zip-file-source skip-lines="..." resource="..." encoding="..."/></emphasis>
 &lt;/bat-c24:item-reader></programlisting>
       </para>
@@ -370,6 +372,13 @@
           </listitem>
         </itemizedlist>
       </para>
+      <para>Please note that while it is safe for a step-scoped ParserListener to use information
+        cached from the processLine callback in the getContext call in most circumstances, there are
+        cases where these methods will not see a purely linear view of a file (for example where
+        processing zip files, it is possible for multiple entries to be processed concurrently).
+        While the current listener interface does not allow listeners to determine explicitly which
+        ZipEntry (or Reader) the current line or element was parsed from, in these circumstances it
+        might be possible to use ThreadLocal storage to achieve the same goals.</para>
     </section>
   </section>
   <section>
@@ -536,7 +545,7 @@ public C24TransformItemProcessor getIoItemProcessor() {
           <interfacename>Resource</interfacename> type must be a
           <classname>FileSystemResource</classname>. For example:</para>
       <para>
-        <programlisting language="xml">&lt;bat-c24:item-writer ...>
+        <programlisting language="xml">&lt;bat-c24:item-writer ... >
 <emphasis role="bold">    &lt;bat-c24:file-writer resource="/tmp/data.csv"/></emphasis>
 &lt;/bat-c24:item-writer></programlisting>
       </para>
