@@ -12,7 +12,7 @@
     <xsd:import namespace="http://www.springframework.org/schema/beans"/>
     <xsd:import namespace="http://www.springframework.org/schema/tool"/>
     <xsd:import namespace="http://www.springframework.org/schema/batch"
-                schemaLocation="http://www.springframework.org/schema/integration/spring-batch.xsd"/>
+                schemaLocation="http://www.springframework.org/schema/batch/spring-batch.xsd"/>
     <xsd:import namespace="http://schema.c24.biz/spring-core"
                 schemaLocation="http://schema.c24.biz/spring-core.xsd"/>
 
