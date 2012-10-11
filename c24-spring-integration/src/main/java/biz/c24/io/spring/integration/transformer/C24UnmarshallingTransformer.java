@@ -57,6 +57,10 @@ AbstractPayloadTransformer<Object, Object> {
 	private final C24Model model;
 	private SourceFactory sourceFactory;
 	private boolean unwrapDocumentRoot = true;
+    // Cache Sources per-thread for performance
+    private ThreadLocal<Source> source = new ThreadLocal<Source>();
+	    
+
 
 	public void setUnwrapDocumentRoot(boolean unwrapDocumentRoot) {
 		this.unwrapDocumentRoot = unwrapDocumentRoot;
@@ -103,6 +107,7 @@ AbstractPayloadTransformer<Object, Object> {
 
 	}
 
+	
 	@Override
 	protected Object transformPayload(Object payload) throws Exception {
 
@@ -118,27 +123,32 @@ AbstractPayloadTransformer<Object, Object> {
 
 	}
 
+
+	
 	Source getSourceFor(Object payload) throws Exception {
-		Source source;
+		Source source = this.source.get();
+		if(source == null) {
+		    source = sourceFactory.getSource(new StringReader(""));
+		    this.source.set(source);
+		}
 
 		// Things that can be turned into a Reader
 		if (payload instanceof Reader) {
-			source = sourceFactory.getSource((Reader) payload);
+			source.setReader((Reader) payload);
 		} else if (payload instanceof String) {
-			source = sourceFactory
-					.getSource(new StringReader((String) payload));
+			source.setReader(new StringReader((String) payload));
 		}
 		// Things that can be turned into an input stream
 		else if (payload instanceof InputStream) {
-			source = sourceFactory.getSource((InputStream) payload);
+			source.setInputStream((InputStream) payload);
 		} else if (payload instanceof byte[]) {
-			source = sourceFactory.getSource(new ByteArrayInputStream(
+			source.setInputStream(new ByteArrayInputStream(
 					(byte[]) payload));
         } else if (payload instanceof MultipartFile) {
-            source = sourceFactory.getSource(((MultipartFile) payload).getInputStream());
+            source.setInputStream(((MultipartFile) payload).getInputStream());
 		} else if (payload instanceof File) {
 			File file = (File) payload;
-			source = sourceFactory.getSource(new FileInputStream(file));
+			source.setInputStream(new FileInputStream(file));
 		} else {
 			throw new MessagingException(
 					"failed to transform message, payload not assignable from java.io.InputStream/Reader and no conversion possible");

@@ -48,6 +48,9 @@ InitializingBean {
 	public Class<? extends Transform> getTransformClass() {
 		return transformClass;
 	}
+	
+    // Cache Transforms per-thread for performance
+    private ThreadLocal<Transform> transform = new ThreadLocal<Transform>();
 
 	public void setTransformClass(Class<? extends Transform> transformClass) {
 
@@ -149,12 +152,17 @@ InitializingBean {
 	 * @throws Exception
 	 */
 	protected Transform buildTransform(Message<?> message) throws Exception {
-		return createTransform();
+	    Transform xform = this.transform.get();
+        if(xform == null) {
+            xform = createTransform();
+            this.transform.set(xform);
+        }
+        return xform;	    
 	}
 
 	protected Transform createTransform() throws Exception {
 		try {
-			return transformClass.newInstance();
+            return transformClass.newInstance();
 		} catch (Exception e) {
 			logger.error("Could not instantiate Transformer of class ["
 					+ transformClass.getName() + "]", e);
