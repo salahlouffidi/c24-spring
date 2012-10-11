@@ -4,8 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>biz.c24.io.spring</groupId>
-    <artifactId>c24-spring</artifactId>
-	<version>2.1.1</version>
+	<artifactId>c24-spring</artifactId>
+	<version>2.1.2-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
