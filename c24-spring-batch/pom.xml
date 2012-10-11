@@ -11,9 +11,13 @@
     <parent>
         <artifactId>c24-spring</artifactId>
         <groupId>biz.c24.io.spring</groupId>
-        <version>2.1.1</version>
+        <version>2.1.2-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>
+    
+    <properties>
+        <spring.batch.version>2.1.8.RELEASE</spring.batch.version>
+    </properties>
 
     <dependencies>
         <!--  Logging -->
@@ -49,7 +53,7 @@
         <dependency>
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-core</artifactId>
-            <version>2.1.8.RELEASE</version>
+            <version>${spring.batch.version}</version>
             <exclusions>
                 <!-- Spring Batch still resolves some dependencies to older versions of Spring -->
                 <exclusion>
