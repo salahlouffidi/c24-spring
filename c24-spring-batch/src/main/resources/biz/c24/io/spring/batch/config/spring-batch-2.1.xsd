@@ -23,85 +23,87 @@
         </xsd:documentation>
     </xsd:annotation>
     
-    <xsd:element name="item-reader">
-    	<xsd:complexType>
-    		<xsd:annotation>
-    			<xsd:documentation>
-    				Defines a C24 IO ItemReader.
-    			</xsd:documentation>
-    		</xsd:annotation>
-    		<xsd:complexContent>
-    			<xsd:extension base="beans:identifiedType">
-                    <xsd:choice>
-                        <xsd:element name="file-source" maxOccurs="1" minOccurs="0">
-                            <xsd:complexType>
-                                <xsd:annotation>
-                                    <xsd:documentation>
-                                        Defines a C24 IO FileSource.
-                                    </xsd:documentation>
-                                </xsd:annotation>
-                                <xsd:attribute name="resource" type="xsd:string"/>
-                                <xsd:attribute name="skip-lines" type="xsd:integer"/>
-                                <xsd:attribute name="encoding" type="xsd:string"/>
-                            </xsd:complexType>
-                        </xsd:element>
-                        <xsd:element name="zip-file-source" maxOccurs="1" minOccurs="0">
-                            <xsd:complexType>
-                                <xsd:annotation>
-                                    <xsd:documentation>
-                                        Defines a C24 IO ZipFileSource.
-                                    </xsd:documentation>
-                                </xsd:annotation>
-                                <xsd:attribute name="resource" type="xsd:string"/>
-                                <xsd:attribute name="skip-lines" type="xsd:integer"/>
-                                <xsd:attribute name="encoding" type="xsd:string"/>
-                            </xsd:complexType>
-                        </xsd:element> 
-                    </xsd:choice>
-    				<xsd:attribute name="source-ref" type="xsd:string">
-    					<xsd:annotation>
-    						<xsd:appinfo>
-    							<tool:annotation kind="ref">
-    								<tool:expected-type type="biz.c24.io.spring.batch.reader.source.BufferedReaderSource"/>
-    							</tool:annotation>
-    						</xsd:appinfo>
-    					</xsd:annotation>
-    				</xsd:attribute>
-    				<xsd:attribute name="source-factory-ref" type="xsd:string">
-    					<xsd:annotation>
-    						<xsd:appinfo>
-    							<tool:annotation kind="ref">
-    								<tool:expected-type type="biz.c24.io.spring.source.SourceFactory"/>
-    							</tool:annotation>
-    						</xsd:appinfo>
-    					</xsd:annotation>
-    				</xsd:attribute>
-    				<xsd:attribute name="elementStartPattern" type="xsd:string"/>
-                    <xsd:attribute name="elementStopPattern" type="xsd:string"/>
-    		   		<xsd:attribute name="model-ref" type="xsd:string" use="required">
-    					<xsd:annotation>
-    						<xsd:appinfo>
-    							<tool:annotation kind="ref">
-    								<tool:expected-type type="biz.c24.io.spring.core.C24Model"/>
-    							</tool:annotation>
-    						</xsd:appinfo>
-    					</xsd:annotation>
-  			  		</xsd:attribute>
-  			  		<xsd:attribute name="validate" type="xsd:boolean"/>
-  			  		<xsd:attribute name="scope" type="xsd:string"/>
-  			  		<xsd:attribute name="parse-listener-ref" type="xsd:string">
-    					<xsd:annotation>
-    						<xsd:appinfo>
-    							<tool:annotation kind="ref">
-    								<tool:expected-type type="biz.c24.io.spring.batch.reader.ParseListener"/>
-    							</tool:annotation>
-    						</xsd:appinfo>
-    					</xsd:annotation>
-    				</xsd:attribute>					  		
-  			  	</xsd:extension>
-  			  </xsd:complexContent>
-		</xsd:complexType>
-	</xsd:element>
+    <xsd:complexType name="ItemReader">
+        <xsd:annotation>
+            <xsd:documentation>
+                Defines a C24 IO ItemReader.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="beans:identifiedType">
+                <xsd:choice>
+                    <xsd:element name="file-source" maxOccurs="1" minOccurs="0">
+                        <xsd:complexType>
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Defines a C24 IO FileSource.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:attribute name="resource" type="xsd:string"/>
+                            <xsd:attribute name="skip-lines" type="xsd:integer"/>
+                            <xsd:attribute name="encoding" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="zip-file-source" maxOccurs="1" minOccurs="0">
+                        <xsd:complexType>
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Defines a C24 IO ZipFileSource.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:attribute name="resource" type="xsd:string"/>
+                            <xsd:attribute name="skip-lines" type="xsd:integer"/>
+                            <xsd:attribute name="encoding" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element> 
+                </xsd:choice>
+                <xsd:attribute name="source-ref" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo>
+                            <tool:annotation kind="ref">
+                                <tool:expected-type type="biz.c24.io.spring.batch.reader.source.BufferedReaderSource"/>
+                            </tool:annotation>
+                        </xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="source-factory-ref" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo>
+                            <tool:annotation kind="ref">
+                                <tool:expected-type type="biz.c24.io.spring.source.SourceFactory"/>
+                            </tool:annotation>
+                        </xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="elementStartPattern" type="xsd:string"/>
+                <xsd:attribute name="elementStopPattern" type="xsd:string"/>
+                <xsd:attribute name="model-ref" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:appinfo>
+                            <tool:annotation kind="ref">
+                                <tool:expected-type type="biz.c24.io.spring.core.C24Model"/>
+                            </tool:annotation>
+                        </xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="validate" type="xsd:boolean"/>
+                <xsd:attribute name="scope" type="xsd:string"/>
+                <xsd:attribute name="parse-listener-ref" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:appinfo>
+                            <tool:annotation kind="ref">
+                                <tool:expected-type type="biz.c24.io.spring.batch.reader.ParseListener"/>
+                            </tool:annotation>
+                        </xsd:appinfo>
+                    </xsd:annotation>
+                </xsd:attribute>                            
+            </xsd:extension>
+          </xsd:complexContent>
+    </xsd:complexType>
+    
+    <xsd:element name="item-reader" type="ItemReader"/>
+    
+    <xsd:element name="xml-item-reader" type="ItemReader"/>
 	
     <xsd:element name="batch-item-reader">
         <xsd:complexType>

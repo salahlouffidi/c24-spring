@@ -289,6 +289,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	 * 
 	 */
 	private static final int MAX_MESSAGE_SIZE = 1000000;
+
 	
 	/**
 	 * Structure to associate a to-be-parsed element with externally supplied context.
@@ -297,7 +298,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	 * 
 	 * @author Andrew Elmore
 	 */
-	private static class ElementContext {
+	protected static class ElementContext {
 		public ElementContext(String element, Object context) {
 			this.element = element;
 			this.context = context;
@@ -306,6 +307,57 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 		public String element;
 	}
 	
+	
+	/**
+	 * Reads a line of text from the BufferedReader. The definition of line is implementation dependent.
+	 * This implementation breaks lines around carriage returns and line feeds.
+	 * 
+	 * @param reader The BufferedReader to consume characters from
+	 * @return A line of text
+	 * @throws IOException
+	 */
+	protected String readLine(BufferedReader reader) throws IOException {
+	    
+	    String line = null;
+	    
+        if(lineTerminator != null) {
+            line = reader.readLine();
+        } else {
+            // We need to parse the file to determine the line terminator
+            // We support \n, \r and \r\n
+            StringBuffer buffer = new StringBuffer();
+            int curr;
+            while(lineTerminator == null) {
+                curr = reader.read();
+                if(curr == -1) {
+                    // EOF - we don't know if this is the terminator or not. Assume not
+                    break;
+                } else if(curr == '\n') {
+                    lineTerminator = "\n";
+                    LOG.debug("Determined line terminator is \\n");
+                } else if(curr == '\r') {
+                    // Need to see if we're \r or \r\n
+                    // We can safely mark; we're the first line hence no danger of being asked to reset later on
+                    reader.mark(1);
+                    curr = reader.read();
+                    if(curr == '\n') {
+                        lineTerminator = "\r\n";
+                        LOG.debug("Determined line terminator is \\r\\n");
+                    } else {
+                        lineTerminator = "\r";
+                        LOG.debug("Determined line terminator is \\r");
+                        reader.reset();
+                    }
+                } else {
+                    buffer.append((char)curr);
+                }
+            }
+            
+            line = buffer.toString();
+        }
+        
+        return line;
+	}
 	
 	/**
 	 * Extracts the textual data for an element from the BufferedReader using the elementStartPattern to split
@@ -323,7 +375,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	 * 
 	 * @param reader The BufferedReader to extract the element from
 	 */
-	private ElementContext readElement(BufferedReader reader) {
+	protected ElementContext readElement(BufferedReader reader) {
 
 		StringBuffer elementCache = new StringBuffer();
 		boolean inElement = false;		
@@ -333,42 +385,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 				while(reader.ready()) {
 					// Mark the stream in case we need to rewind (ie if we read the start line for the next element)
 					reader.mark(MAX_MESSAGE_SIZE);
-					String line = null;
-					if(lineTerminator != null) {
-						line = reader.readLine();
-					} else {
-						// We need to parse the file to determine the line terminator
-						// We support \n, \r and \r\n
-						StringBuffer buffer = new StringBuffer();
-						int curr;
-						while(lineTerminator == null) {
-							curr = reader.read();
-							if(curr == -1) {
-								// EOF - we don't know if this is the terminator or not. Assume not
-								break;
-							} else if(curr == '\n') {
-								lineTerminator = "\n";
-								LOG.debug("Determined line terminator is \\n");
-							} else if(curr == '\r') {
-								// Need to see if we're \r or \r\n
-								// We can safely mark; we're the first line hence no danger of being asked to reset later on
-								reader.mark(1);
-								curr = reader.read();
-								if(curr == '\n') {
-									lineTerminator = "\r\n";
-									LOG.debug("Determined line terminator is \\r\\n");
-								} else {
-									lineTerminator = "\r";
-									LOG.debug("Determined line terminator is \\r");
-									reader.reset();
-								}
-							} else {
-								buffer.append((char)curr);
-							}
-						}
-						
-						line = buffer.toString();
-					}
+					String line = readLine(reader);
 
 					if(line != null) {
 						if(parseListener != null) {
