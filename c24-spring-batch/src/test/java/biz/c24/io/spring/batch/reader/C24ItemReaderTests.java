@@ -74,7 +74,7 @@ public class C24ItemReaderTests {
 		source.setResource(new ClassPathResource("employees-3-valid.xml"));
 		
 		// Validation & splitting
-		Collection<ComplexDataObject> objs = readFile(employeeXmlModel, "^[ \t]*<employee .*", "^[ \t]*<employee .*", true, source);
+		Collection<ComplexDataObject> objs = readFile(employeeXmlModel, "^[ \t]*<employee .*", ".*/>.*", true, source);
 		assertThat(objs.size(), is(3));		
 	}
 	
