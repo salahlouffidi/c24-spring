@@ -15,13 +15,10 @@
  */
 package biz.c24.io.spring.batch.reader.source;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
@@ -30,18 +27,18 @@ import org.springframework.core.io.Resource;
 import biz.c24.io.spring.util.C24Utils;
 
 /**
- * An implementation of BufferedReaderSource which extracts its data from uncompressed files.
+ * An implementation of SplittingReaderSource which extracts its data from uncompressed files.
  * Expects to be told the path of the file to write to by the supplied Resource or, 
  * if not specified, a property called input.file in the job parameters
  * (as populated by Spring Batch's org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter)
  * 
  * @author Andrew Elmore
  */
-public class FileSource implements BufferedReaderSource {
+public class FileSource implements SplittingReaderSource {
     
     private static final Logger LOG = LoggerFactory.getLogger(FileSource.class);
 	
-	private BufferedReader reader = null;
+	private SplittingReader reader = null;
 	
 	private String name;
 	
@@ -56,7 +53,7 @@ public class FileSource implements BufferedReaderSource {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see biz.c24.io.spring.batch.reader.source.BufferedReaderSource#getName()
+	 * @see biz.c24.io.spring.batch.reader.source.SplittingReaderSource#getName()
 	 */
 	public String getName() {
 		return name;
@@ -90,7 +87,7 @@ public class FileSource implements BufferedReaderSource {
     
 			// Prime the reader
     	    LOG.debug("Opening {} with encoding {}", name, getEncoding());
-			reader = new BufferedReader(new InputStreamReader(source, getEncoding()));
+			reader = new SplittingReader(new InputStreamReader(source, getEncoding()), true);
 			if(skipLines > 0) {
 				for(int i = 0; i < skipLines && reader.ready(); i++) {
 					// Skip the line
@@ -121,7 +118,7 @@ public class FileSource implements BufferedReaderSource {
 	/* (non-Javadoc)
 	 * @see biz.c24.spring.batch.BufferedReaderSource#getReader()
 	 */
-	public BufferedReader getReader() {
+	public SplittingReader getReader() {
 		try {
 			if(reader != null && reader.ready()) {
 				return reader;
@@ -135,8 +132,8 @@ public class FileSource implements BufferedReaderSource {
 	}
 
 	@Override
-	public BufferedReader getNextReader() {
-		BufferedReader retVal = reader;
+	public SplittingReader getNextReader() {
+	    SplittingReader retVal = reader;
 		reader = null;
 		return retVal;
 	}
@@ -147,7 +144,7 @@ public class FileSource implements BufferedReaderSource {
 	}
 
 	@Override
-	public void discard(Reader reader) throws IOException {
+	public void discard(SplittingReader reader) throws IOException {
 		if(this.reader == reader) {
 			reader.close();
 			this.reader = null;

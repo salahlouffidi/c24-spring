@@ -21,7 +21,8 @@ import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.api.data.ValidationManager;
 import biz.c24.io.api.presentation.Source;
 import biz.c24.io.api.presentation.TextualSource;
-import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
+import biz.c24.io.spring.batch.reader.source.SplittingReaderSource;
+import biz.c24.io.spring.batch.reader.source.SplittingReader;
 import biz.c24.io.spring.core.C24Model;
 import biz.c24.io.spring.source.SourceFactory;
 import org.slf4j.Logger;
@@ -36,14 +37,13 @@ import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.regex.Pattern;
 
 /**
- * ItemReader that reads ComplexDataObjects from a BufferedReaderSource.
+ * ItemReader that reads ComplexDataObjects from a SplittingReaderSource.
  * Optionally supports the ability to split the incoming data stream into entities by use of a
  * regular expression to detect the start of a new entity; this allows the more expensive parsing 
  * to be performed in parallel.
@@ -95,13 +95,8 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	/**
 	 * The source from which we'll read the data
 	 */
-	private BufferedReaderSource source;
+	private SplittingReaderSource source;
 
-	/**
-	 * The lineTerminator we use to join lines from a message back together.
-	 * Determined once when we start processing files.
-	 */
-	private String lineTerminator = null;
 
 	/**
 	 * Control whether or not we validate the parsed CDOs
@@ -185,7 +180,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	 * @param elementStartRegEx The regular expression to identify the start of a new entity in the source
 	 */
 	public void setElementStartPattern(String elementStartRegEx) {
-		this.elementStartPattern = Pattern.compile(elementStartRegEx);
+		this.elementStartPattern = Pattern.compile(elementStartRegEx, Pattern.DOTALL);
 	}
 	
 	/**
@@ -204,7 +199,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	 * @param elementStopRegEx The regular expression to identify the end of an entity in the source
 	 */
 	public void setElementStopPattern(String elementStopRegEx) {
-		this.elementStopPattern = Pattern.compile(elementStopRegEx);
+		this.elementStopPattern = Pattern.compile(elementStopRegEx, Pattern.DOTALL);
 	}
 
 	/**
@@ -220,27 +215,27 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	/**
 	 * Query whether or not this ItemReader will validate parsed CDOs
 	 * 
-	 * @return True iff this ItemReader will automtically validate read CDOs
+	 * @return True iff this ItemReader will automatically validate read CDOs
 	 */
 	public boolean isValidating() {
 		return validator != null;
 	}
 	
 	/**
-	 * Gets the BufferedReaderSource from which CDOs are being parsed
+	 * Gets the SplittingReaderSource from which CDOs are being parsed
 	 * 
-	 * @return This reader's BufferedReaderSource
+	 * @return This reader's SplittingReaderSource
 	 */
-	public BufferedReaderSource getSource() {
+	public SplittingReaderSource getSource() {
 		return source;
 	}
 
 	/**
 	 * Sets the source that this reader will read from
 	 * 
-	 * @param source The BufferedReaderSource to read data from
+	 * @param source The SplittingReaderSource to read data from
 	 */
-	public void setSource(BufferedReaderSource source) {
+	public void setSource(SplittingReaderSource source) {
 		this.source = source;
 	}
 	
@@ -278,38 +273,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 		source.close();
 	}
 	
-	/**
-	 * In the parallel/splitting case, when we detect the start of the next message we will effectively
-	 * consume the first line of the next entity's data. For now we simplistically rewind the buffer to the
-	 * start of the line.
-	 * This requires us to mark the buffer pre-read and to tell it what are the maximum number of bytes we might 
-	 * read and still rewind.
-	 * 
-	 * TODO Currently hardcoded, this value should either be made configurable or the read data cached (by reader) 
-	 * rather than rewinding the BufferedReader
-	 * 
-	 */
-	private static final int MAX_MESSAGE_SIZE = 1000000;
-	
-/*	private char[] buffer = new char[MAX_MESSAGE_SIZE];
-	private int markIndex = 0;
-	private int readIndex = 0;
-	private int endIndex = 0;
-	
-	private boolean fillBuffer(BufferedReader reader) throws IOException {
-	    int charsRead = reader.read(buffer, endIndex, endIndex > markIndex? MAX_MESSAGE_SIZE - endIndex : markIndex - endIndex);
-	    if(charsRead > 0) {
-	        endIndex = (endIndex + charsRead) % MAX_MESSAGE_SIZE;
-	        return true;
-	    } else {
-	        return false;
-	    }
-	}
-	
-	protected String readUntil(BufferedReader reader, char c) {
-	    
-	}
-	*/
+
 	/**
 	 * Structure to associate a to-be-parsed element with externally supplied context.
 	 * The ParseListener callback enables an external object to associate context with an element. This structure 
@@ -328,174 +292,75 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	
 	
 	/**
-	 * Reads a line of text from the BufferedReader. The definition of line is implementation dependent.
+	 * Reads a line of text from the SplittingReader. The definition of line is implementation dependent.
 	 * This implementation breaks lines around carriage returns and line feeds.
 	 * 
-	 * @param reader The BufferedReader to consume characters from
+	 * @param reader The SplittingReader to consume characters from
 	 * @return A line of text
 	 * @throws IOException
 	 */
-	protected String readLine(BufferedReader reader) throws IOException {
-	    
-	    String line = null;
-	    
-        if(lineTerminator != null) {
-            line = reader.readLine();
-        } else {
-            // We need to parse the file to determine the line terminator
-            // We support \n, \r and \r\n
-            StringBuffer buffer = new StringBuffer();
-            int curr;
-            while(lineTerminator == null) {
-                curr = reader.read();
-                if(curr == -1) {
-                    // EOF - we don't know if this is the terminator or not. Assume not
-                    break;
-                } else if(curr == '\n') {
-                    lineTerminator = "\n";
-                    LOG.debug("Determined line terminator is \\n");
-                } else if(curr == '\r') {
-                    // Need to see if we're \r or \r\n
-                    // We can safely mark; we're the first line hence no danger of being asked to reset later on
-                    reader.mark(1);
-                    curr = reader.read();
-                    if(curr == '\n') {
-                        lineTerminator = "\r\n";
-                        LOG.debug("Determined line terminator is \\r\\n");
-                    } else {
-                        lineTerminator = "\r";
-                        LOG.debug("Determined line terminator is \\r");
-                        reader.reset();
-                    }
-                } else {
-                    buffer.append((char)curr);
-                }
-            }
-            
-            line = buffer.toString();
-        }
-        
-        return line;
+	protected String readLine(SplittingReader reader) throws IOException {	    
+	    return reader.readLine();
 	}
 	
 	/**
-	 * Small utility class to hold 'over-parsed' data (ie data we've read that needs to be held back for the next call to readElement)
-	 * @author Andrew Elmore
-	 *
-	 */
-	private static class LineCache {
-	    /**
-	     * The cached data
-	     */
-	    public volatile String line;
-	    /**
-	     * Should we give this line to anyone or just 
-	     */
-	    public Reader reader;
-	}
-	
-	private volatile LineCache lineCache = new LineCache();
-
-	
-	/**
-	 * Extracts the textual data for an element from the BufferedReader using the elementStartPattern to split
-	 * up the data. If this instance has not yet determined the lineTerminator being used, it will read the reader
-	 * character by character until it finds one of the following line terminators:
-	 * \r\n
-	 * \r
-	 * \n
-	 * 
-	 * Once the line terminator has been determined, it will be used for all subsequent calls to readElement; 
-	 * even if the BufferedReaderSource is changed.
+	 * Extracts the textual data for an element from the SplittingReader using the elementStartPattern to split
+	 * up the data. 
 	 * 
 	 * If a ParseListener is registered, it will receive a callback when a line is read from the reader and when 
 	 * an element has been extracted.
 	 * 
-	 * @param reader The BufferedReader to extract the element from
+	 * @param reader The SplittingReader to extract the element from
 	 */
-	protected ElementContext readElement(BufferedReader reader) {
+	protected ElementContext readElement(SplittingReader reader) {
 
 		StringBuffer elementCache = new StringBuffer();
 		boolean inElement = false;	
 		
-		synchronized(reader != null? reader : lineCache) {
-    		// If there's a cached line then that line must match the elementStartPattern, hence we know that we won't return null
-    	    if(lineCache.line != null) {
-    	        if(lineCache.reader == null) {
-    	            // The line was the last line of the file. Process it and stop.
-    	            elementCache.append(lineCache.line);
-                    if(lineTerminator != null) {
-                        elementCache.append(lineTerminator);
-                    }
-    	            inElement = true;
-    	            reader = null;
-    	            lineCache.line = null;
-    	            lineCache.reader = null;
-    	        } else if(lineCache.reader == reader) {
-    	            // The cached line was read from our reader.
-    	            // Add it to our elementCache and continue
-                    elementCache.append(lineCache.line);
-                    if(lineTerminator != null) {
-                        elementCache.append(lineTerminator);
-                    }
-                    inElement = true;
-                    lineCache.line = null;
-                    lineCache.reader = null;
-    	        }
-    	    }
-		
-    	    if(reader != null) {
-    			try {
-    				while(reader.ready()) {
-    				    String line = readLine(reader);
+		synchronized(reader) {
+    		try {
+    			while(reader.ready()) {
+    			    String line = readLine(reader);
     
-    					if(line != null) {
-    						if(parseListener != null) {
-    							// Invoke callback
-    							line = parseListener.processLine(line);
+    				if(line != null) {
+    					if(parseListener != null) {
+    						// Invoke callback
+    						line = parseListener.processLine(line);
+    					}
+    					// We look for the start of a new element if either:
+    					// a) We're not in an element or
+    					// b) We don't have an elementStopPattern set (if we do and we're in a element, the presence of a line
+    					// that matches the element start pattern is deemed to still be part of the same element)
+    					if((!inElement || elementStopPattern == null) && elementStartPattern.matcher(line).matches()) {
+    						// We've encountered the start of a new element
+    						String message = elementCache.toString();
+    						if(message.trim().length() > 0) {
+    							// We were already parsing an element; thus we've finished extracting our element
+    							// Cache the line
+    						    reader.pushback(line);
+    							// ...and return what we have already extracted
+    							ElementContext context = new ElementContext(message, parseListener == null? null : parseListener.getContext(message));
+    							return context;
+    						} else {
+    							// This is the start of our element. Add it to our elementCache.
+    							inElement = true;
     						}
-    						// We look for the start of a new element if either:
-    						// a) We're not in an element or
-    						// b) We don't have an elementStopPattern set (if we do and we're in a element, the presence of a line
-    						// that matches the element start pattern is deemed to still be part of the same element)
-    						if((!inElement || elementStopPattern == null) && elementStartPattern.matcher(line).matches()) {
-    							// We've encountered the start of a new element
-    							String message = elementCache.toString();
-    							if(message.trim().length() > 0) {
-    								// We were already parsing an element; thus we've finished extracting our element
-    								// Cache the line
-    							    synchronized(lineCache) {
-    							        lineCache.line = line;
-    							        // See if there's more data still to read
-    							        lineCache.reader = reader.ready()? reader : null;
-    							    }
-    								// ...and return what we have already extracted
-    								ElementContext context = new ElementContext(message, parseListener == null? null : parseListener.getContext(message));
-    								return context;
-    							} else {
-    								// This is the start of our element. Add it to our elementCache.
-    								inElement = true;
-    							}
-    						} 
+    					} 
+    					
+    					if(inElement) {
+    						// More data for our current element
+    						elementCache.append(line);
     						
-    						if(inElement) {
-    							// More data for our current element
-    							elementCache.append(line);
-    							if(lineTerminator != null) {
-    								elementCache.append(lineTerminator);
-    							}
-    							
-    							// If we have an elementStopPattern, see if the line matched
-    							if(elementStopPattern != null && elementStopPattern.matcher(line).matches()) {
-    								// We've encountered the end of the element
-    								break;
-    							}
+    						// If we have an elementStopPattern, see if the line matched
+    						if(elementStopPattern != null && elementStopPattern.matcher(line).matches()) {
+    							// We've encountered the end of the element
+    							break;
     						}
     					}
     				}
-    			} catch(IOException ioEx) {
-    				throw new NonTransientResourceException("Failed to extract entity", ioEx);
     			}
+    		} catch(IOException ioEx) {
+    			throw new NonTransientResourceException("Failed to extract entity", ioEx);
     		}
 		}
 
@@ -515,7 +380,7 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 		// If there's no splitting pattern, we have to ensure that we discard the underlying reader too
 		if(elementStartPattern == null) {
 			try {
-				source.discard(parser.getReader());
+				source.discard(parser.getSplitter());
 			} catch(IOException ioEx) {
 				// We'll carry on; worst case scenario a failure will be logged multiple times
 				LOG.warn("Failed to close reader on source {}", source.getName());
@@ -536,11 +401,11 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	 * Gets the appropriate iO Source to use to read the message.
 	 * If ioSourceFactory is not set, it defaults to the model's default source.
 	 * 
-	 * @param An optional BufferedReader to pass to the source's setReader method
+	 * @param An optional Reader to pass to the source's setReader method
 	 * 
 	 * @return A configured iO source
 	 */
-	private Source getIoSource(BufferedReader reader) {
+	private Source getIoSource(Reader reader) {
 		Source source = null;
 		
 		if(ioSourceFactory == null) {
@@ -579,9 +444,9 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 			if(returnParser == null) {
 				synchronized(this) {
 					if(parser == null) {
-						BufferedReader reader = source.getReader();
-						if(reader != null) {
-							returnParser = new SyncParser(getIoSource(reader), elementType);
+						SplittingReader splitter = source.getReader();
+						if(splitter != null) {
+							returnParser = new SyncParser(splitter, getIoSource(splitter), elementType);
 							parser = returnParser;							
 						}
 					}
@@ -606,9 +471,9 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 			}
 			
 			if(needNewReader) {
-				BufferedReader reader = source.getNextReader();
-				if(reader != null) {
-					returnParser = new Parser(getIoSource(reader), elementType);					
+				SplittingReader splitter = source.getNextReader();
+				if(splitter != null) {
+					returnParser = new Parser(splitter, getIoSource(splitter), elementType);					
 					threadedParser.set(returnParser);
 				}
 			}
@@ -620,9 +485,9 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 		else {
 			returnParser = threadedParser.get();
 			if(returnParser == null) {
-				BufferedReader reader = source.getReader();
-				if(reader != null) {
-					returnParser = new Parser(getIoSource(null), elementType);					
+			    SplittingReader splitter = source.getReader();
+				if(splitter != null) {
+					returnParser = new Parser(splitter, getIoSource(null), elementType);					
 					threadedParser.set(returnParser);
 				}
 			}			
@@ -653,7 +518,11 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 				
 				// We're sharing a BufferedReader with other threads. Get our data out of it as quickly as we can to reduce
 				// the amount of time we spend blocking others
-			    BufferedReader reader = source.getReader();
+			    SplittingReader reader = source.getReader();
+                if(reader == null) {
+                    // There's nothing left to read
+                    break;
+                }
 				
 				// Get the textual source for an element from the reader
 				ElementContext elementContext = readElement(reader);

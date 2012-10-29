@@ -30,7 +30,7 @@ import biz.c24.io.api.data.Element;
 import biz.c24.io.examples.models.basic.Employee;
 import biz.c24.io.examples.models.basic.EmployeeElement;
 import biz.c24.io.spring.batch.reader.C24ItemReader;
-import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
+import biz.c24.io.spring.batch.reader.source.SplittingReaderSource;
 import biz.c24.io.spring.batch.reader.source.FileSource;
 import biz.c24.io.spring.batch.reader.source.ZipFileSource;
 import biz.c24.io.spring.source.SourceFactory;
@@ -96,12 +96,12 @@ public class C24ItemReaderParserTests {
  	
 	
 	private void validateReader(C24ItemReader<? extends ComplexDataObject> reader, String expectedStartPattern, String expectedStopPattern, boolean expectedValidate, 
-								Class<? extends BufferedReaderSource> expectedSource) {
+								Class<? extends SplittingReaderSource> expectedSource) {
 		validateReader(reader, expectedStartPattern, expectedStopPattern, expectedValidate, expectedSource, null);
 	}
 		
 	private void validateReader(C24ItemReader<? extends ComplexDataObject> reader, String expectedStartPattern, String expectedStopPattern, boolean expectedValidate, 
-				Class<? extends BufferedReaderSource> expectedSource, Class<? extends SourceFactory> expectedSourceFactory) {
+				Class<? extends SplittingReaderSource> expectedSource, Class<? extends SourceFactory> expectedSourceFactory) {
 		
 		assertThat(reader.getElementStartPattern(), is(expectedStartPattern));
 		assertThat(reader.getElementStopPattern(), is(expectedStopPattern));
@@ -113,11 +113,11 @@ public class C24ItemReaderParserTests {
 		
 	}
 	
-    private void validateSource(BufferedReaderSource source, Class<? extends BufferedReaderSource> expectedClass, int expectedSkipLines, Class<? extends Resource> expectedResource) {
+    private void validateSource(SplittingReaderSource source, Class<? extends SplittingReaderSource> expectedClass, int expectedSkipLines, Class<? extends Resource> expectedResource) {
         validateSource(source, expectedClass, expectedSkipLines, expectedResource, C24Utils.DEFAULT_FILE_ENCODING);
     }
 	
-	private void validateSource(BufferedReaderSource source, Class<? extends BufferedReaderSource> expectedClass, int expectedSkipLines, Class<? extends Resource> expectedResource, String expectedEncoding) {
+	private void validateSource(SplittingReaderSource source, Class<? extends SplittingReaderSource> expectedClass, int expectedSkipLines, Class<? extends Resource> expectedResource, String expectedEncoding) {
 	    assertThat(source, is(expectedClass));
 	    if(source instanceof FileSource) {
 	        FileSource fileSource = (FileSource)source;

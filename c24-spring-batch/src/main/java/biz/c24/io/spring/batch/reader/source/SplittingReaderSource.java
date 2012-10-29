@@ -15,26 +15,24 @@
  */
 package biz.c24.io.spring.batch.reader.source;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
 
 import org.springframework.batch.core.StepExecution;
 
 /**
- * Interface to abstract away details of the actual source of BufferedReaders.
+ * Interface to abstract away details of the actual source of SplittingReader.
  * 
  * @author Andrew Elmore
  */
-public interface BufferedReaderSource {
+public interface SplittingReaderSource {
 	
 	/**
-	 * Get an identifier for the underlying source of BufferedReaders
+	 * Get an identifier for the underlying source of SplittingReader
 	 */
 	public abstract String getName();
 
 	/**
-	 * Initialise the BufferedReaderSource
+	 * Initialise the SplittingReaderSource
 	 * 
 	 * @param stepExecution
 	 */
@@ -46,20 +44,20 @@ public interface BufferedReaderSource {
 	public abstract void close();
 
 	/**
-	 * Return a BufferedReader to provide access to the data in the BufferedReaderSource.
-	 * The BufferedReader returned can change between calls.
+	 * Return a SplittingReader to provide access to the data in the SplittingReaderSource.
+	 * The SplittingReader returned can change between calls.
 	 * 
-	 * @return A BufferedReader
+	 * @return A SplittingReader
 	 */
-	public abstract BufferedReader getReader();
+	public abstract SplittingReader getReader();
 	
 	/**
 	 * Returns the next available reader if any.
 	 * Allows multiple threads to process multiple readers before the prior one is exhausted
 	 * 
-	 * @return A BufferedReader
+	 * @return A SplittingReader
 	 */
-	public abstract BufferedReader getNextReader();
+	public abstract SplittingReader getNextReader();
 	
 	/**
 	 * Indicates to a reader whether or not it should use multiple threads per reader
@@ -71,7 +69,7 @@ public interface BufferedReaderSource {
 	/**
 	 * Discard the supplied reader and ensure that it is not returned in any future calls
 	 * 
-	 * @param reader The Reader to be discarded
+	 * @param reader The SplittingReader to be discarded
 	 */
-	public abstract void discard(Reader reader) throws IOException;
+	public abstract void discard(SplittingReader reader) throws IOException;
 }

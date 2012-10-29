@@ -29,7 +29,7 @@ import org.springframework.core.io.ClassPathResource;
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.examples.models.basic.EmployeeElement;
-import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
+import biz.c24.io.spring.batch.reader.source.SplittingReaderSource;
 import biz.c24.io.spring.batch.reader.source.FileSource;
 import biz.c24.io.spring.batch.reader.source.ZipFileSource;
 import biz.c24.io.spring.core.C24Model;
@@ -59,11 +59,11 @@ public class C24XmlItemReaderTests {
 		assertThat(objs.size(), is(3));		
 	}
 	
-	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
+	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, SplittingReaderSource source) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
 		return readFile(model, optionalElementStartRegEx, optionalElementStopRegEx, validate, source, null);
 	}
 
-	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
+	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, SplittingReaderSource source, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
 		C24XmlItemReader<ComplexDataObject> reader = new C24XmlItemReader<ComplexDataObject>();
 		reader.setModel(model);
 		if(optionalElementStartRegEx != null) {

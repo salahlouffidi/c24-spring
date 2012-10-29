@@ -1,6 +1,5 @@
 package biz.c24.io.spring.batch.reader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -24,7 +23,8 @@ import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.api.data.ValidationManager;
 import biz.c24.io.api.presentation.ParseListener;
 import biz.c24.io.api.presentation.Source;
-import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
+import biz.c24.io.spring.batch.reader.source.SplittingReaderSource;
+import biz.c24.io.spring.batch.reader.source.SplittingReader;
 import biz.c24.io.spring.core.C24Model;
 
 public class C24BatchItemReader implements ItemReader<ComplexDataObject> {
@@ -33,7 +33,7 @@ public class C24BatchItemReader implements ItemReader<ComplexDataObject> {
 	/**
 	 * The source from which we'll read the data
 	 */
-	private BufferedReaderSource source;
+	private SplittingReaderSource source;
 
 	private boolean validate = false;
 	
@@ -105,11 +105,11 @@ public class C24BatchItemReader implements ItemReader<ComplexDataObject> {
 		return element;
 	}
 	
-	public BufferedReaderSource getSource() {
+	public SplittingReaderSource getSource() {
 		return source;
 	}
 
-	public void setSource(BufferedReaderSource source) {
+	public void setSource(SplittingReaderSource source) {
 		this.source = source;
 	}
 	
@@ -180,13 +180,13 @@ public class C24BatchItemReader implements ItemReader<ComplexDataObject> {
 				Source iOSource = getElement().getModel().source();
 				iOSource.setParseListener(this);
 				
-				BufferedReader reader = null;
+				SplittingReader splitter = null;
 				
 				while(abortJobException == null) {
 					
 					try {
-						reader = source.getReader();
-						if(reader != null && !reader.ready()) {
+						splitter = source.getReader();
+						if(splitter != null && !splitter.ready()) {
 							continue;
 						}
 					} catch (IOException ex) {
@@ -194,11 +194,11 @@ public class C24BatchItemReader implements ItemReader<ComplexDataObject> {
 						// Even more unhelpfully, it appears as though the SAXParser does exactly that when it's finished parsing
 						break;
 					}
-					if(reader == null) {
+					if(splitter == null) {
 						break;
 					}
 					
-					iOSource.setReader(reader);
+					iOSource.setReader(splitter.getReader());
 					iOSource.readObject(getElement());
 				}
 				

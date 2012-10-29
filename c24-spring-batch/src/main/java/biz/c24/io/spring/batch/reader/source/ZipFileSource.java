@@ -15,11 +15,9 @@
  */
 package biz.c24.io.spring.batch.reader.source;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -30,14 +28,14 @@ import org.springframework.core.io.Resource;
 import biz.c24.io.spring.util.C24Utils;
 
 /**
- * An implementation of BufferedReaderSource which extracts its data from Zip files.
+ * An implementation of SplittingReaderSource which extracts its data from Zip files.
  * Expects to be told the path of the file to write to by the supplied Resource or, 
  * if not specified, from a property called input.file in the job parameters
  * (as populated by Spring Batch's org.springframework.batch.admin.integration.FileToJobLaunchRequestAdapter)
  * 
  * @author Andrew Elmore
  */
-public class ZipFileSource implements BufferedReaderSource {
+public class ZipFileSource implements SplittingReaderSource {
 	
 	/**
 	 * The name of the zip file we're reading from
@@ -47,7 +45,7 @@ public class ZipFileSource implements BufferedReaderSource {
 	/**
 	 * The current BufferedReader to be returned in calls to getReader if not exhausted
 	 */
-	private volatile BufferedReader reader = null;
+	private volatile SplittingReader reader = null;
 	
 	/**
 	 * The underlying zipFile
@@ -79,7 +77,7 @@ public class ZipFileSource implements BufferedReaderSource {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see biz.c24.io.spring.batch.reader.source.BufferedReaderSource#getName()
+	 * @see biz.c24.io.spring.batch.reader.source.SplittingReaderSource#getName()
 	 */
 	public String getName() {
 		return name;
@@ -144,8 +142,8 @@ public class ZipFileSource implements BufferedReaderSource {
 		}
 	}
 	
-	private BufferedReader getReader(ZipEntry entry) throws IOException {
-		BufferedReader newReader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry), getEncoding()));
+	private SplittingReader getReader(ZipEntry entry) throws IOException {
+	    SplittingReader newReader = new SplittingReader(new InputStreamReader(zipFile.getInputStream(entry), getEncoding()), true);
 		if(skipLines > 0) {
 			for(int i = 0; i < skipLines && newReader.ready(); i++) {
 				// Skip the line
@@ -158,7 +156,7 @@ public class ZipFileSource implements BufferedReaderSource {
 	/* (non-Javadoc)
 	 * @see biz.c24.spring.batch.BufferedReaderSource#getReader()
 	 */
-	public BufferedReader getReader() {
+	public SplittingReader getReader() {
 		try {
 
 			if(reader != null && !reader.ready()) {
@@ -189,8 +187,8 @@ public class ZipFileSource implements BufferedReaderSource {
 	}
 
 	@Override
-	public synchronized BufferedReader getNextReader() {
-		BufferedReader retVal = reader;
+	public synchronized SplittingReader getNextReader() {
+	    SplittingReader retVal = reader;
 		
 		if(retVal != null) {
 			// Set up the next reader to return
@@ -215,7 +213,7 @@ public class ZipFileSource implements BufferedReaderSource {
 	}
 
 	@Override
-	public synchronized void discard(Reader reader) throws IOException {
+	public synchronized void discard(SplittingReader reader) throws IOException {
 		if(this.reader == reader) {
 			getNextReader();
 		}	

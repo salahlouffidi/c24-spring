@@ -29,7 +29,7 @@ import org.springframework.core.io.ClassPathResource;
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.examples.models.basic.EmployeeElement;
-import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
+import biz.c24.io.spring.batch.reader.source.SplittingReaderSource;
 import biz.c24.io.spring.batch.reader.source.FileSource;
 import biz.c24.io.spring.batch.reader.source.ZipFileSource;
 import biz.c24.io.spring.core.C24Model;
@@ -67,9 +67,21 @@ public class C24ItemReaderTests {
 		objs = readFile(employeeModel, ".*", null, true, source);
 		assertThat(objs.size(), is(3));
 	}
+   
+
+    @Test
+    public void testValidXmlRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
+        FileSource source = new FileSource();
+        source.setResource(new ClassPathResource("employee-valid-noparent.xml"));
+        
+        // No validation, no splitting
+        Collection<ComplexDataObject> objs = readFile(employeeXmlModel, null, null, false, source);
+        assertThat(objs.size(), is(1));  
+    }
+    
 	
 	@Test
-	public void testValidXmlRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
+	public void testValidSplittingXmlRead() throws UnexpectedInputException, ParseException, NonTransientResourceException, IOException, ValidationException {
 		FileSource source = new FileSource();
 		source.setResource(new ClassPathResource("employees-3-valid.xml"));
 		
@@ -229,11 +241,11 @@ public class C24ItemReaderTests {
 		assertThat(source.useMultipleThreadsPerReader(), is(true));
 	}
 	
-	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
+	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, SplittingReaderSource source) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
 		return readFile(model, optionalElementStartRegEx, optionalElementStopRegEx, validate, source, null);
 	}
 
-	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
+	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, SplittingReaderSource source, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
 		C24ItemReader<ComplexDataObject> reader = new C24ItemReader<ComplexDataObject>();
 		reader.setModel(model);
 		if(optionalElementStartRegEx != null) {

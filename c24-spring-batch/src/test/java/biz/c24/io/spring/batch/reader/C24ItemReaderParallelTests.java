@@ -1,3 +1,18 @@
+/*
+ * Copyright 2012 C24 Technologies
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package biz.c24.io.spring.batch.reader;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -22,7 +37,7 @@ import org.springframework.core.io.ClassPathResource;
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.examples.models.basic.EmployeeElement;
-import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
+import biz.c24.io.spring.batch.reader.source.SplittingReaderSource;
 import biz.c24.io.spring.batch.reader.source.ZipFileSource;
 import biz.c24.io.spring.core.C24Model;
 import biz.c24.io.spring.source.SourceFactory;
@@ -45,6 +60,9 @@ public class C24ItemReaderParallelTests {
         source.setResource(new ClassPathResource("employees-100-valid-individual-noparent.xml.zip"));
         
         // No validation, no splitting
+        // Unsupported due to XMLSource not detecting it has no data before it starts parsing
+        // As it caches data internally we can't make the decision for it
+        
         Collection<ComplexDataObject> objs = readFile(employeeXmlModel, null, null, false, source);
         assertThat(objs.size(), is(100));
         
@@ -52,6 +70,7 @@ public class C24ItemReaderParallelTests {
         objs = readFile(employeeXmlModel, null, null, true, source);
         assertThat(objs.size(), is(100));
         assertThat(source.useMultipleThreadsPerReader(), is(false));
+        
         
         // Validation & splitting - start pattern only
         objs = readFile(employeeXmlModel, ".*<employee.*", null, true, source);
@@ -94,11 +113,11 @@ public class C24ItemReaderParallelTests {
     }
     
     
-    private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
+    private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, SplittingReaderSource source) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException {
         return readFile(model, optionalElementStartRegEx, optionalElementStopRegEx, validate, source, null);
     }
 
-    private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, BufferedReaderSource source, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
+    private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, SplittingReaderSource source, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
         C24ItemReader<ComplexDataObject> reader = new C24ItemReader<ComplexDataObject>();
         reader.setModel(model);
         if(optionalElementStartRegEx != null) {

@@ -27,16 +27,11 @@ import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
 import org.springframework.core.io.ClassPathResource;
 
-import biz.c24.io.api.ParserException;
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.ValidationException;
-import biz.c24.io.examples.models.basic.EmployeeElement;
-import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
+import biz.c24.io.spring.batch.reader.source.SplittingReaderSource;
 import biz.c24.io.spring.batch.reader.source.FileSource;
-import biz.c24.io.spring.batch.reader.source.ZipFileSource;
 import biz.c24.io.spring.core.C24Model;
-import biz.c24.io.spring.source.SourceFactory;
-import biz.c24.io.spring.source.TextualSourceFactory;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -87,7 +82,7 @@ public class C24BatchItemReaderTests {
 	}
 	
 
-	private Collection<ComplexDataObject> readFile(C24Model batchModel, C24Model batchEntryModel, boolean validate, BufferedReaderSource source) throws Exception, IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
+	private Collection<ComplexDataObject> readFile(C24Model batchModel, C24Model batchEntryModel, boolean validate, SplittingReaderSource source) throws Exception, IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
 		C24BatchItemReader reader = new C24BatchItemReader();
 		reader.setModel(batchModel);		
 		reader.setSource(source);

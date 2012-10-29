@@ -15,34 +15,13 @@
  */
 package biz.c24.io.spring.batch.reader;
 
-import biz.c24.io.api.data.ComplexDataObject;
-import biz.c24.io.api.data.Element;
-import biz.c24.io.api.data.ValidationException;
-import biz.c24.io.api.data.ValidationManager;
-import biz.c24.io.api.presentation.Source;
-import biz.c24.io.api.presentation.TextualSource;
-import biz.c24.io.spring.batch.reader.source.BufferedReaderSource;
-import biz.c24.io.spring.core.C24Model;
-import biz.c24.io.spring.source.SourceFactory;
+import biz.c24.io.spring.batch.reader.source.SplittingReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.annotation.AfterStep;
-import org.springframework.batch.core.annotation.BeforeStep;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.NonTransientResourceException;
-import org.springframework.batch.item.ParseException;
-import org.springframework.batch.item.UnexpectedInputException;
-import org.springframework.util.Assert;
-
-import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.regex.Pattern;
 
 /**
- * ItemReader that reads ComplexDataObjects from an XML-based BufferedReaderSource.
+ * ItemReader that reads ComplexDataObjects from an XML-based SplittingReaderSource.
  * Optionally supports the ability to split the incoming data stream into entities by use of a
  * regular expression to detect the start of a new entity; this allows the more expensive parsing 
  * to be performed in parallel.
@@ -65,20 +44,10 @@ public class C24XmlItemReader<Result> extends C24ItemReader<Result> {
 	 * NB does not yet support '<' being used outside of an element declaration (e.g. within a CDATA section)
 	 */
 	@Override
-    protected String readLine(BufferedReader reader) throws IOException {
+    protected String readLine(SplittingReader reader) throws IOException {
 
-        StringBuffer line = new StringBuffer();
-        char c = 0;
-        while(reader.ready() && ((c = (char) reader.read()) != '<' || line.length() == 0)  ) {
-            if(line.length() == 0 && c != '<') {
-                // Our previous read over-read by a character. Unfortunately we can't rewind as our parent
-                // maintains a mark for its own purposes
-                line.append('<');
-            }
-            line.append(c);
-        }
-        
-        return line.toString();
+	    return reader.readUntil('<');
+
     }	
 
 }

@@ -7,6 +7,7 @@ import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.Element;
 import biz.c24.io.api.presentation.Source;
 import biz.c24.io.api.presentation.XMLSource;
+import biz.c24.io.spring.batch.reader.source.SplittingReader;
 
 /**
  * Parser
@@ -28,8 +29,14 @@ import biz.c24.io.api.presentation.XMLSource;
  *
  */
 class Parser {
+    
+    /**
+     * Our data source
+     */
+    private SplittingReader splitter;
+    
 	/**
-	 * The underying iO source to read from
+	 * The underlying iO source to read from
 	 */
 	private Source ioSource;
 	
@@ -49,8 +56,9 @@ class Parser {
 	 * @param ioSource
 	 * @param element
 	 */
-	public Parser(Source ioSource, Element element) {
-		this.ioSource = ioSource;
+	public Parser(SplittingReader splitter, Source ioSource, Element element) {
+	    this.splitter = splitter;
+	    this.ioSource = ioSource;
 		this.element = element;
 	}
 	
@@ -66,6 +74,10 @@ class Parser {
 		return ioSource.getReader();
 	}
 	
+	public SplittingReader getSplitter() {
+	    return splitter;
+	}
+	
 	/**
 	 * Attempts to read a ComplexDataObject from the Reader
 	 * @return A parsed ComplexDataObject
@@ -76,7 +88,7 @@ class Parser {
 		
 		if(!finished) {
 			try {
-				obj = ioSource.readObject(element);
+			    obj = ioSource.readObject(element);
 			} catch(IOException ioEx) {
 				
 				// If we're using the XML source, the underlying SAXParser can helpfully close the stream
