@@ -34,7 +34,7 @@
 	
     <!-- ItemReaders with nested BufferedReaderSources -->
     <bat-c24:item-reader id="fileSourceReader" model-ref="employeeModel" scope="singleton">
-        <bat-c24:file-source/>
+        <bat-c24:file-source consistent-line-terminators="false" />
     </bat-c24:item-reader>
 
     <bat-c24:item-reader id="fileSourceResourceReader" model-ref="employeeModel" scope="singleton">
@@ -42,7 +42,7 @@
     </bat-c24:item-reader>
     
     <bat-c24:item-reader id="zipFileSourceReader" model-ref="employeeModel" scope="singleton">
-        <bat-c24:zip-file-source/>
+        <bat-c24:zip-file-source consistent-line-terminators="false" />
     </bat-c24:item-reader>
 
     <bat-c24:item-reader id="zipFileSourceResourceReader" model-ref="employeeModel" scope="singleton">

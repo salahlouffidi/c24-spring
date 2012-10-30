@@ -64,5 +64,11 @@ public class FileSourceParser extends AbstractSingleBeanDefinitionParser {
         if(StringUtils.hasText(resource)) {
             bean.addPropertyValue("encoding", encoding);            
         }
+        
+        // Optional
+        String consistentLineTerminators = element.getAttribute("consistent-line-terminators");
+        if(StringUtils.hasText(consistentLineTerminators)) {
+            bean.addPropertyValue("consistentLineTerminators", Boolean.valueOf(consistentLineTerminators));
+        }
     }
 }

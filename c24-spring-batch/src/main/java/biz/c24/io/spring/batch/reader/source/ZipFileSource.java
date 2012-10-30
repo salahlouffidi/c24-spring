@@ -75,6 +75,8 @@ public class ZipFileSource implements SplittingReaderSource {
 	
 	private String encoding = C24Utils.DEFAULT_FILE_ENCODING;
 	
+	private boolean consistentLineTerminators = true;
+	
 	/*
 	 * (non-Javadoc)
 	 * @see biz.c24.io.spring.batch.reader.source.SplittingReaderSource#getName()
@@ -143,7 +145,7 @@ public class ZipFileSource implements SplittingReaderSource {
 	}
 	
 	private SplittingReader getReader(ZipEntry entry) throws IOException {
-	    SplittingReader newReader = new SplittingReader(new InputStreamReader(zipFile.getInputStream(entry), getEncoding()), true);
+	    SplittingReader newReader = new SplittingReader(new InputStreamReader(zipFile.getInputStream(entry), getEncoding()), consistentLineTerminators);
 		if(skipLines > 0) {
 			for(int i = 0; i < skipLines && newReader.ready(); i++) {
 				// Skip the line
@@ -265,6 +267,25 @@ public class ZipFileSource implements SplittingReaderSource {
      */
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }  
+    
+    
+    /**
+     * Do we expect all lines in our input to use the same line terminator?
+     * @return
+     */
+    public boolean isConsistentLineTerminators() {
+        return consistentLineTerminators;
+    }
+    
+    /**
+     * If we know that all lines within the file use the same line terminator, we can provide a hint to the 
+     * SplittingReader to optimise its data extraction
+     * 
+     * @param consistentLineTerminators Set to true if all lines use the same line terminator for a speed boost during splitting
+     */
+    public void setConsistentLineTerminators(boolean consistentLineTerminators) {
+        this.consistentLineTerminators = consistentLineTerminators;
     }   
 	
 	

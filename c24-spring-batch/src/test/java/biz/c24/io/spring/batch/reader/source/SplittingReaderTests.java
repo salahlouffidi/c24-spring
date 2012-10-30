@@ -75,6 +75,23 @@ public class SplittingReaderTests {
     }
     
     @Test
+    public void readUntilPushback() throws IOException {
+        String testString = "String 1\nString 2\r\nString 3\rString 4";
+        SplittingReader reader = new SplittingReader(new StringReader(testString));
+        
+        assertThat(reader.readUntil('i'), is("Str"));
+        String line = reader.readUntil('i');
+        assertThat(line, is("ing 1\nStr"));
+        reader.pushback(line);
+        // Note we expect this to return line no matter what value is passed in
+        assertThat(reader.readUntil('X'), is("ing 1\nStr"));        
+        assertThat(reader.readUntil('i'), is("ing 2\r\nStr"));
+        assertThat(reader.readUntil('i'), is("ing 3\rStr"));
+        assertThat(reader.readUntil('i'), is("ing 4"));
+        assertThat(reader.readUntil('i'), is(nullValue()));        
+    }
+    
+    @Test
     public void testArrayRead() throws IOException {
         String testString = "String 1\nString 2\r\nString 3\rString 4";
         SplittingReader reader = new SplittingReader(new StringReader(testString));
@@ -96,6 +113,36 @@ public class SplittingReaderTests {
         charsRead = reader.read(cbuf, 36, 100);
         assertThat(charsRead, is(-1));
         assertThat(new String(cbuf, 0, 36), is("String 1\nString 2\r\nString 3\rString 4"));         
+        
+    }
+    
+    @Test
+    public void testArrayPushbackRead() throws IOException {
+        String testString = "String 1\nString 2\r\nString 3\rString 4";
+        SplittingReader reader = new SplittingReader(new StringReader(testString));
+        
+        char[] cbuf = new char[100];
+        
+        int charsRead = reader.read(cbuf, 0, 10);
+        assertThat(charsRead, is(10));
+        assertThat(new String(cbuf,0, 10), is("String 1\nS"));
+        
+        reader.pushback("EXTRA");
+        charsRead = reader.read(cbuf, 10, 3);
+        assertThat(charsRead, is(3));
+        assertThat(new String(cbuf, 0, 13), is("String 1\nSEXT"));
+        
+        charsRead = reader.read(cbuf, 13, 22);
+        assertThat(charsRead, is(22));
+        assertThat(new String(cbuf, 0, 35), is("String 1\nSEXTRAtring 2\r\nString 3\rSt"));
+        
+        charsRead = reader.read(cbuf, 35, 100);
+        assertThat(charsRead, is(6));
+        assertThat(new String(cbuf, 0, 41), is("String 1\nSEXTRAtring 2\r\nString 3\rString 4"));   
+        
+        charsRead = reader.read(cbuf, 36, 100);
+        assertThat(charsRead, is(-1));
+        assertThat(new String(cbuf, 0, 41), is("String 1\nSEXTRAtring 2\r\nString 3\rString 4"));         
         
     }
  

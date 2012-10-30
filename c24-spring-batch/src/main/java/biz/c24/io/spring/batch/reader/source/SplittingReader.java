@@ -47,9 +47,9 @@ public class SplittingReader extends Reader {
     private String cached = null;
     
     /**
-     * If we detect a single-character line terminator, should we assume that all lines use that terminator?
+     * If we detect a single-character line terminator, can we assume that all lines use that terminator?
      */
-    private final boolean optimise;
+    private final boolean consistentLineTerminators;
     
     /**
      * Single character line terminator if detected
@@ -58,12 +58,17 @@ public class SplittingReader extends Reader {
     
     public SplittingReader(Reader reader) {
         this.sourceReader = reader;
-        this.optimise = false;
+        this.consistentLineTerminators = false;
     }
     
-    public SplittingReader(Reader reader, boolean optimiseLineParsing) {
+    /**
+     * 
+     * @param reader The underlying Reader to extract data from
+     * @param consistentLineTerminators Set to true if all lines use the same line terminator for an approx 15% speed boost
+     */
+    public SplittingReader(Reader reader, boolean consistentLineTerminators) {
         this.sourceReader = reader;
-        this.optimise = optimiseLineParsing;
+        this.consistentLineTerminators = consistentLineTerminators;
     }
     
     public Reader getReader() {
@@ -206,7 +211,7 @@ public class SplittingReader extends Reader {
     public String readLine() throws IOException {
         String result = null;
         
-        if(optimise && terminator != null) {
+        if(consistentLineTerminators && terminator != null) {
             return readUntilInclusive(terminator);
         } else if(cached != null) {
             result = cached;
@@ -227,13 +232,13 @@ public class SplittingReader extends Reader {
                     if(c == '\n') {
                         i++;
                         parsing = false;
-                        if(optimise && last != '\r') {
+                        if(consistentLineTerminators && last != '\r') {
                             terminator = '\n';
                         }
                         break;
                     } else if(last == '\r') {
                         parsing = false;
-                        if(optimise && c != '\n') {
+                        if(consistentLineTerminators && c != '\n') {
                             terminator = '\r';
                         }
                         break;

@@ -46,6 +46,8 @@ public class FileSource implements SplittingReaderSource {
 	
 	private String encoding = C24Utils.DEFAULT_FILE_ENCODING;
 	
+	private boolean consistentLineTerminators = true;
+	
 	/**
 	 * How many lines at the start of the file should we skip?
 	 */
@@ -87,7 +89,7 @@ public class FileSource implements SplittingReaderSource {
     
 			// Prime the reader
     	    LOG.debug("Opening {} with encoding {}", name, getEncoding());
-			reader = new SplittingReader(new InputStreamReader(source, getEncoding()), true);
+			reader = new SplittingReader(new InputStreamReader(source, getEncoding()), consistentLineTerminators);
 			if(skipLines > 0) {
 				for(int i = 0; i < skipLines && reader.ready(); i++) {
 					// Skip the line
@@ -197,6 +199,24 @@ public class FileSource implements SplittingReaderSource {
      */
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }
+
+    /**
+     * Do we expect all lines in our input to use the same line terminator?
+     * @return
+     */
+    public boolean isConsistentLineTerminators() {
+        return consistentLineTerminators;
+    }
+
+    /**
+     * If we know that all lines within the file use the same line terminator, we can provide a hint to the 
+     * SplittingReader to optimise its data extraction
+     * 
+     * @param consistentLineTerminators Set to true if all lines use the same line terminator for a speed boost during splitting
+     */
+    public void setConsistentLineTerminators(boolean consistentLineTerminators) {
+        this.consistentLineTerminators = consistentLineTerminators;
     }	
 	
 }

@@ -42,6 +42,7 @@
                             <xsd:attribute name="resource" type="xsd:string"/>
                             <xsd:attribute name="skip-lines" type="xsd:integer"/>
                             <xsd:attribute name="encoding" type="xsd:string"/>
+                            <xsd:attribute name="consistent-line-terminators" type="xsd:boolean"/>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="zip-file-source" maxOccurs="1" minOccurs="0">
@@ -54,6 +55,7 @@
                             <xsd:attribute name="resource" type="xsd:string"/>
                             <xsd:attribute name="skip-lines" type="xsd:integer"/>
                             <xsd:attribute name="encoding" type="xsd:string"/>
+                            <xsd:attribute name="consistent-line-terminators" type="xsd:boolean"/>
                         </xsd:complexType>
                     </xsd:element> 
                 </xsd:choice>

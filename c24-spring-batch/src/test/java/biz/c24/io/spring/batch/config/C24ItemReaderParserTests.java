@@ -114,22 +114,25 @@ public class C24ItemReaderParserTests {
 	}
 	
     private void validateSource(SplittingReaderSource source, Class<? extends SplittingReaderSource> expectedClass, int expectedSkipLines, Class<? extends Resource> expectedResource) {
-        validateSource(source, expectedClass, expectedSkipLines, expectedResource, C24Utils.DEFAULT_FILE_ENCODING);
+        validateSource(source, expectedClass, expectedSkipLines, expectedResource, C24Utils.DEFAULT_FILE_ENCODING, true);
     }
 	
-	private void validateSource(SplittingReaderSource source, Class<? extends SplittingReaderSource> expectedClass, int expectedSkipLines, Class<? extends Resource> expectedResource, String expectedEncoding) {
+	private void validateSource(SplittingReaderSource source, Class<? extends SplittingReaderSource> expectedClass, int expectedSkipLines, Class<? extends Resource> expectedResource, 
+	        String expectedEncoding, boolean expectedConsistentLineTerminators) {
 	    assertThat(source, is(expectedClass));
 	    if(source instanceof FileSource) {
 	        FileSource fileSource = (FileSource)source;
 	        assertThat(fileSource.getSkipLines(), is(expectedSkipLines));
 	        assertThat(fileSource.getResource(), expectedResource != null? is(expectedResource) : nullValue());
 	        assertThat(fileSource.getEncoding(), is(expectedEncoding));
+	        assertThat(fileSource.isConsistentLineTerminators(), is(expectedConsistentLineTerminators));
 	    } else if(source instanceof ZipFileSource) {
             ZipFileSource fileSource = (ZipFileSource)source;
             assertThat(fileSource.getSkipLines(), is(expectedSkipLines));
             assertThat(fileSource.getResource(), expectedResource != null? is(expectedResource) : nullValue());
             assertThat(fileSource.getEncoding(), is(expectedEncoding));
-	    }
+            assertThat(fileSource.isConsistentLineTerminators(), is(expectedConsistentLineTerminators));
+        }
 	}
 	
 	@Test
@@ -150,10 +153,10 @@ public class C24ItemReaderParserTests {
 	
 	@Test
 	public void validateSourceParser() {
-        validateSource(fileSourceReader.getSource(), FileSource.class, 0, null);
-        validateSource(fileSourceResourceReader.getSource(), FileSource.class, 5, UrlResource.class, "TestEncoding");
-        validateSource(zipFileSourceReader.getSource(), ZipFileSource.class, 0, null);
-        validateSource(zipFileSourceResourceReader.getSource(), ZipFileSource.class, 4, UrlResource.class, "TestEncoding");	    
+        validateSource(fileSourceReader.getSource(), FileSource.class, 0, null, "UTF-8", false);
+        validateSource(fileSourceResourceReader.getSource(), FileSource.class, 5, UrlResource.class, "TestEncoding", true);
+        validateSource(zipFileSourceReader.getSource(), ZipFileSource.class, 0, null, "UTF-8", false);
+        validateSource(zipFileSourceResourceReader.getSource(), ZipFileSource.class, 4, UrlResource.class, "TestEncoding", true);	    
 	}
 	
 
