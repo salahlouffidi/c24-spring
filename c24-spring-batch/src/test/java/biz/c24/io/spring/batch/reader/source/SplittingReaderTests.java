@@ -147,7 +147,7 @@ public class SplittingReaderTests {
     }
  
 
-    /* Simple tests used to validate performance of the SplittingReader
+    /* Simple tests used to validate performance of the SplittingReader */
 
     @Test
     public void testPerfBufferedReader() throws IOException {
@@ -191,7 +191,7 @@ public class SplittingReaderTests {
         
     }
     
-    */
+    
     
 
     

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dataModel targetPackage="biz.c24.retaildemo.model.xml" targetNamespace="http://www.incept5.com/retaildemo/Receipt" outputMask="XML" inputMask="XML" hibernateIDGeneratorMethodDefault="native" encrypted="false" encoding="UTF-8" elementFormDefault="Qualified" attributeFormDefault="Unqualified" IOversion="3.1.0" version="0.0.15" name="ReceiptXML.dod">
+    <element identifier="false" min="1" max="1" name="receipt">
+        <type>
+            <complexType specifyStructure="true" specialisation="Generic complex" processAsBatch="false" excludeFromDatabase="false" contentModel="Sequence" abstract="false" name="receipt">
+                <element identifier="false" min="1" max="-1" name="item">
+                    <type>
+                        <complexType specifyStructure="true" specialisation="Generic complex" processAsBatch="false" excludeFromDatabase="false" contentModel="Sequence" abstract="false" name="item">
+                            <attribute typeRef="#number_int" min="1" max="1" name="productId">
+<annotation>
+    <documentation>Customer loyalty id if scanned</documentation>
+</annotation>
+                            </attribute>
+                            <attribute typeRef="#number_int" min="1" max="1" name="quantity">
+<annotation>
+    <documentation>Quantity of this item purchased</documentation>
+</annotation>
+                            </attribute>
+                            <attribute typeRef="#number_decimal" min="1" max="1" name="price">
+<annotation>
+    <documentation>Price paid</documentation>
+</annotation>
+                            </attribute>
+                        </complexType>
+                    </type>
+                </element>
+                <attribute typeRef="#string" min="1" max="1" name="receiptId">
+                    <annotation>
+                        <documentation>UUID for this receipt.</documentation>
+                    </annotation>
+                </attribute>
+                <attribute typeRef="#date_datetime" min="1" max="1" name="timestamp">
+                    <annotation>
+                        <documentation>Checkout time</documentation>
+                    </annotation>
+                </attribute>
+                <attribute typeRef="#string" min="0" max="1" name="customerId">
+                    <annotation>
+                        <documentation>Customer loyalty id if scanned</documentation>
+                    </annotation>
+                </attribute>
+            </complexType>
+        </type>
+    </element>
+    <namespace uri="http://www.incept5.com/retaildemo/Receipt/v1" prefix=""/>
+    <namespace uri="http://www.w3.org/2001/XMLSchema" prefix="xsd"/>
+</dataModel>
