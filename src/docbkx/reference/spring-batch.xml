@@ -130,6 +130,28 @@
         as Spring Batch <classname>ParseException</classname> or
           <classname>NonTransientResourceExceptions</classname> (at least, as best as the ItemReader
         can determine) and rethrown.</para>
+      <section>
+        <title>C24XmlItemReader</title>
+        <para>For XML messages a variant of the <classname>C24ItemReader</classname> is available
+          which changes how the splitting process works. Its attributes are identical to those of
+          the <classname>C24ItemReader</classname> and its behaviour will only differ in the event
+          that an <emphasis>elementStartPattern</emphasis> is specified. Please see the Splitting
+          section below for more details on how the <classname>C24XmlItemReader</classname> splits
+          input data. The ItemReader is instantiated as:</para>
+        <para>
+          <programlisting language="xml">&lt;bat-c24:xml-item-reader id="ioXmlItemReader" 
+                     model-ref="demoModel" 
+                     source-ref="fileSource" 
+                     elementStartPattern="..." 
+                     elementStopPattern="..." 
+                     validate="true" 
+                     source-factory-ref="..."
+                     parse-listener-ref="..." 
+                     scope="step">
+    &lt;bat-c24:file-source skip-lines="..." resource="..." encoding="..."/>
+&lt;/bat-c24:xml-item-reader></programlisting>
+        </para>
+      </section>
     </section>
     <section>
       <title>Sources</title>
@@ -155,7 +177,7 @@
               <classname>FileSource</classname> uses to provide contextual information).</para>
           <para>In contrast, the <classname>ZipFileSource</classname> invokes the
               <methodname>getFile</methodname> method on the supplied
-            <classname>Resouce</classname>.</para>
+              <classname>Resource</classname>.</para>
         </footnote>
       </para>
       <para>Although the sources can be explicitly constructed<footnoteref linkend="ExplicitSource"
@@ -198,6 +220,11 @@
           <listitem>
             <para><emphasis>encoding</emphasis> - the character set encoding to use when reading
               from the file. [Optional - defaults to UTF-8]</para>
+          </listitem>
+          <listitem>
+            <para><emphasis>consistent-line-terminators</emphasis> - if we know that every line in a
+              file uses the same line terminator, we may be able to optimise the splitting process
+              slightly (see below) [Optional - defaults to true]</para>
           </listitem>
         </itemizedlist>
       </para>
@@ -293,14 +320,8 @@
         the start and stop patterns match the initiator ("&lt;child ...") and terminator
         ("&lt;/child>") of the elements, they can be extracted without having to also process their
         containing element.</para>
-      <para>The <classname>C24ItemReader</classname> attempts to determine the line terminator used
-        within the message so that it can reconstruct the message as precisely as possible when
-        using the <emphasis>elementStartPattern</emphasis>. The line terminator will be determined
-        once for each <classname>C24ItemReader</classname> instance; given the default scope of
-        ItemReader is 'step' this will be suitable for most usages, however if a single file
-        contains multiple different line terminators, the reconstructed message will not exactly
-        match the original. The <classname>C24ItemReader</classname> detects and supports the
-        following line terminators:</para>
+      <para>The <classname>C24ItemReader</classname> splits input data into lines by detecting line
+        terminators. The current implementation supports the following line terminators:</para>
       <para>
         <itemizedlist>
           <listitem>
@@ -314,6 +335,32 @@
           </listitem>
         </itemizedlist>
       </para>
+      <para>Note that the line will include any line terminators hence the regular expressions used
+        in <emphasis>elementStartPattern</emphasis> and <emphasis>elementStopPattern</emphasis> will
+        need to match those too. To make this process slightly easier, the
+          <emphasis>DOTALL</emphasis> flag is set during pattern compilation (i.e. the '.' regular
+        expression character will also match line terminators).</para>
+      <section>
+        <title>XML and Splitting</title>
+        <para>The process of splitting data on line terminators may be problematic for XML files
+          which are not traditionally formatted. Consequently the C24XmlItemReader instead splits
+          input data up into lines around the '&lt;' character. For example:</para>
+        <para>
+          <programlisting language="xml">&lt;receipt id="1">&lt;item product="1" value="10">Carrots&lt;/item>&lt;/receipt></programlisting>
+        </para>
+        <para>would be split into the following 'lines':</para>
+        <para>
+          <programlisting language="xml">&lt;receipt id="1">
+&lt;item product="1" value="10">Carrots
+&lt;/item>
+&lt;/receipt></programlisting>
+        </para>
+        <para>In order to keep the splitting process fast (to minimise contention between threads)
+          the splitting process does not examine the structure of the XML and will therefore match
+          and split on <emphasis>any</emphasis> '&lt;' character, including for example those in
+          CDATA sections. As per with the regular splitter, any line terminators in the input will
+          be preserved in the output.</para>
+      </section>
     </section>
     <section>
       <title>Validation</title>

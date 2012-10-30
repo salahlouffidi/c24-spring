@@ -1,3 +1,51 @@
+C24 iO Components for Spring 2.1.2 Release Notes
+================================================
+
+Enhancements to C24 iO Components for Spring Batch
+==================================================
+
+SplittingReader
+----------------
+
+The C24ItemReader now uses a custom component to buffer and read input streams. The major
+consequences of this are:
+
+* Perfect reproduction of line terminators (previously all line terminators were assumed to be
+the same within a file for performance purposes)
+
+* A performance increase on the splitting process where a single character line terminator is
+used consistently (see consistent-line-terminators on the file-source and zip-file-source)
+
+* The ability to split into lines by a token other than \n, \r or \r\n (see XML splitting)
+
+One consequence of this change is that lines passed to elementStartPattern and elementStopPattern
+for matching as well as the ParseListener.processLine callback will now see the line feed and carriage
+return characters. To help minimise the consequences of this change, the C24ItemReader now uses the 
+DOTALL flag when it compiles the pattern so that the '.' regular expression character will now also
+match carriage returns and line feeds.
+
+
+XML Splitting
+-------------
+
+The new C24XmlItemSplitter splits lines around '<' characters as opposed to \n, \r or \r\n.
+This only affects parsing where an elementStartPattern is being used.
+
+
+Enhancements to C24 iO Components for Spring Integration
+========================================================
+
+Source & Transform Caching
+-------------------------- 
+
+Sources (in C24UnmarshallingTransformer) and Transforms (in C24Transformer) are now cached per-thread. 
+In tests with small messages this has shown up to a 5x reduction in latency.
+
+These objects will be cached for the lifetime of the thread.
+
+
+
+
 C24 iO Components for Spring 2.1.1 Release Notes
 ================================================
 
