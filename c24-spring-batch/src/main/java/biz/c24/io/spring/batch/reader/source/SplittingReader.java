@@ -308,43 +308,52 @@ public class SplittingReader extends Reader {
             throw new IOException("Stream closed");
         }
 
-        int readChars = 0;
+        int startOffset = off;
         
-        while(readChars < len) {
+        while(len > 0) {
             if(cached != null) {
                 // Use this up first
                 char[] str = cached.toCharArray();
-                while(readChars < len && readChars < str.length) {
-                    cbuf[off] = str[readChars];
-                    off++;
-                    readChars++;
+                
+                int charsToCopy = str.length;
+                if(len < charsToCopy) {
+                    charsToCopy = len;
                 }
-                if(readChars < str.length) {
-                    cached = new String(str, readChars, str.length - readChars);
+                System.arraycopy(str, 0, cbuf, off, charsToCopy);
+                
+                off += charsToCopy;
+                len -= charsToCopy;
+                
+                if(charsToCopy < str.length) {
+                    cached = new String(str, charsToCopy, str.length - charsToCopy);
                 } else {
                     cached = null;
                 }
             }
             
-            int i = this.index;
-            
-            for(; readChars < len && i < endIndex; i++, readChars++, off++) {
-                cbuf[off] = buffer[i];
+            int charsToCopy = endIndex - index;
+            if(charsToCopy > 0) {
+                if(len < charsToCopy) {
+                    charsToCopy = len;
+                }
+                System.arraycopy(buffer, index, cbuf, off, charsToCopy);
+                
+                index += charsToCopy;
+                off += charsToCopy;
+                len -= charsToCopy;
             }
             
-            if(readChars < len) {
+            if(len > 0) {
                 // We've exhausted our buffered data - get more
                 if(fillBuffer()) {
                     index = 0;
                 } else {
                     break;
                 }
-            } else {
-                index = i;
             }
             
         }
 
-        return readChars == 0? -1 : readChars;
-    }
+        return startOffset == off? -1 : off - startOffset;
+    } 
 }
