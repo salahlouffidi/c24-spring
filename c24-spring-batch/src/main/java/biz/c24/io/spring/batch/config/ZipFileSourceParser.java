@@ -61,7 +61,7 @@ public class ZipFileSourceParser extends AbstractSingleBeanDefinitionParser {
         
         // Optional
         String encoding = element.getAttribute("encoding");
-        if(StringUtils.hasText(resource)) {
+        if(StringUtils.hasText(encoding)) {
             bean.addPropertyValue("encoding", encoding);            
         }
         
