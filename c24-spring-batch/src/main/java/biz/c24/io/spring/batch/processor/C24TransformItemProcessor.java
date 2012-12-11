@@ -20,9 +20,11 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Required;
 
 import biz.c24.io.api.data.ComplexDataObject;
+import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.api.data.ValidationManager;
 import biz.c24.io.api.presentation.JavaClassSink;
 import biz.c24.io.api.transform.Transform;
+import biz.c24.io.spring.batch.reader.C24ValidationException;
 
 /**
  * A Spring Batch ItemProcesor which invokes a C24 IO Transform to convert a CDO from one model to another.
@@ -87,7 +89,11 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 				mgr = new ValidationManager();
 				validator.set(mgr);
 			}
-			mgr.validateByException(result);
+			try {
+				mgr.validateByException(result);
+			} catch(ValidationException vEx) {
+				throw new C24ValidationException("Failed to validate message: " + vEx.getLocalizedMessage(), result, vEx);
+			}
 		}
 		
 		if(javaSink != null) {
