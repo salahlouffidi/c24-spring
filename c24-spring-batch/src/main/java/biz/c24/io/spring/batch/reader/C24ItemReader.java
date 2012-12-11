@@ -473,7 +473,9 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 			if(needNewReader) {
 				SplittingReader splitter = source.getNextReader();
 				if(splitter != null) {
-					returnParser = new Parser(splitter, getIoSource(splitter), elementType);					
+					// If we don't have a splitting pattern, pass the splitter directly to the iO source
+					// If we do, pass null as we'll create a new Reader for it below
+					returnParser = new Parser(splitter, getIoSource(this.elementStartPattern == null? splitter : null), elementType);					
 					threadedParser.set(returnParser);
 				}
 			}
@@ -514,11 +516,11 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 		// will return another one
 		while(result == null && (parser = getParser()) != null) {
 			
-			if(elementStartPattern != null && source.useMultipleThreadsPerReader()) {
+			if(elementStartPattern != null) {
 				
-				// We're sharing a BufferedReader with other threads. Get our data out of it as quickly as we can to reduce
+				// We're possibly sharing a BufferedReader with other threads. Get our data out of it as quickly as we can to reduce
 				// the amount of time we spend blocking others
-			    SplittingReader reader = source.getReader();
+			    SplittingReader reader = parser.getSplitter();
                 if(reader == null) {
                     // There's nothing left to read
                     break;

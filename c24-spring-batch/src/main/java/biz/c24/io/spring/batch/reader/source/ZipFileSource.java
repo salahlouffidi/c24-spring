@@ -113,16 +113,15 @@ public class ZipFileSource implements SplittingReaderSource {
 
 			zipFile = new ZipFile(source);
 			zipEntries = zipFile.entries();
-			ZipEntry entry = null;
-			if(zipEntries.hasMoreElements()) {
-				entry = zipEntries.nextElement();
+			ZipEntry entry = getNextZipEntry();
+			if(entry != null) {
 				// Prime the reader
 				reader = getReader(entry);
 			}
 			
 			// If we have a large number of ZipEntries and the first one looks relatively small, advise 
 			// callers to use a thread per reader
-			if(entry != null && zipFile.size() > 20 && (entry.getSize() == -1 || entry.getSize() < 10000)) {
+			if(entry != null && zipFile.size() > 20 && (entry.getSize() == -1 || entry.getSize() < 100000)) {
 				useMultipleThreadsPerReader = false;
 			}
 			
@@ -155,28 +154,33 @@ public class ZipFileSource implements SplittingReaderSource {
 		return newReader;
 	}
 	
+	/**
+	 * Gets the next ZipEntry that isn't a directory
+	 * @return The next file-type ZipEntry, null if there isn't one 
+	 */
+	private synchronized ZipEntry getNextZipEntry() {
+		ZipEntry next = null;
+		while(next == null && zipEntries.hasMoreElements()) {
+			next = zipEntries.nextElement();
+			if(next.isDirectory()) {
+				next = null;
+			}
+		}
+		
+		return next;
+	}
+	
 	/* (non-Javadoc)
 	 * @see biz.c24.spring.batch.BufferedReaderSource#getReader()
 	 */
 	public SplittingReader getReader() {
 		try {
-
 			if(reader != null && !reader.ready()) {
 				synchronized(this) {
 					// Multiple threads could be calling this in parallel; check the work hasn't already been performed for us
 					if(reader != null && !reader.ready()) {
 						// Our current reader is exhausted...
-						if(zipEntries.hasMoreElements()) {
-							// ... but there are more files to process in the zip file
-							try {
-								reader = getReader(zipEntries.nextElement());
-							} catch (IOException e) {
-								throw new RuntimeException(e);
-							}		
-						} else {
-							// We've processed all the files in the zip file
-							reader = null;
-						}
+						getNextReader();
 					}
 				}
 			}
@@ -194,9 +198,10 @@ public class ZipFileSource implements SplittingReaderSource {
 		
 		if(retVal != null) {
 			// Set up the next reader to return
-			if(zipEntries.hasMoreElements()) {
+			ZipEntry next = getNextZipEntry();
+			if(next != null) {
 				try {
-					reader = getReader(zipEntries.nextElement());
+					reader = getReader(next);
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}

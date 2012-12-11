@@ -16,11 +16,11 @@
 package biz.c24.io.spring.batch.processor;
 
 import org.junit.Test;
+import org.springframework.batch.item.validator.ValidationException;
+
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-import biz.c24.io.api.data.ComplexDataObject;
-import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.api.transform.Transform;
 import biz.c24.io.examples.models.basic.Email;
 import biz.c24.io.examples.models.basic.Employee;

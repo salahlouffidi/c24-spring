@@ -149,7 +149,7 @@ public class SplittingReaderTests {
 
     /* Simple tests used to validate performance of the SplittingReader */
 
-    @Test
+    //@Test
     public void testPerfBufferedReader() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("/tmp/large.xml"));
         long startTime = System.currentTimeMillis();
@@ -163,7 +163,7 @@ public class SplittingReaderTests {
         
     } 
     
-    @Test
+    //@Test
     public void testPerfLineSplittingReader() throws IOException {
         SplittingReader reader = new SplittingReader(new FileReader("/tmp/large.xml"), true);
         long startTime = System.currentTimeMillis();
@@ -177,7 +177,7 @@ public class SplittingReaderTests {
         
     }     
     
-    @Test
+    //@Test
     public void testPerfSplittingReader() throws IOException {
         SplittingReader reader = new SplittingReader(new FileReader("/tmp/large.xml"), true);
         long startTime = System.currentTimeMillis();
