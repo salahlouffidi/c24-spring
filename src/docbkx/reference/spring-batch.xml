@@ -269,7 +269,7 @@
         <itemizedlist>
           <listitem>
             <para>If the zip file contains more than 20 entries and the first entry is less than
-              10,000 bytes (or of indeterminate size) use 1 thread per entry</para>
+              100,000 bytes (or of indeterminate size) use 1 thread per entry</para>
           </listitem>
           <listitem>
             <para>Otherwise all threads process the same entry until it is exhausted, at which point

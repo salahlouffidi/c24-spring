@@ -4,8 +4,20 @@ C24 iO Components for Spring 2.1.2 Release Notes
 Enhancements to C24 iO Components for Spring Batch
 ==================================================
 
+Zip File Processing
+-------------------
+
+* Zip file processing now correctly detects ZipEntries that are directories and skips over them.
+
+* If Splitting is being used, one of the factors that the ZipFileSource uses to determine
+whether or not to advise multiple threads to consume from the same ZipEntry concurrently
+or whether each thread should read from their own ZipEntry is the size of the first ZipEntry
+encountered. The size at which multiple threads will be used is raised from 10,000 bytes to
+100,000 bytes. All other factors remain unchanged.
+
+
 SplittingReader
-----------------
+---------------
 
 The C24ItemReader now uses a custom component to buffer and read input streams. The major
 consequences of this are:
@@ -18,11 +30,11 @@ used consistently (see consistent-line-terminators on the file-source and zip-fi
 
 * The ability to split into lines by a token other than \n, \r or \r\n (see XML splitting)
 
-One consequence of this change is that lines passed to elementStartPattern and elementStopPattern
+An additional consequence of this change is that lines passed to elementStartPattern and elementStopPattern
 for matching as well as the ParseListener.processLine callback will now see the line feed and carriage
-return characters. To help minimise the consequences of this change, the C24ItemReader now uses the 
+return characters. To help minimise the impact of this change, the C24ItemReader now uses the 
 DOTALL flag when it compiles the pattern so that the '.' regular expression character will now also
-match carriage returns and line feeds.
+match carriage returns and line feeds characters.
 
 
 XML Splitting
