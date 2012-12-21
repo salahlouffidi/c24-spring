@@ -1,4 +1,4 @@
-C24 iO Components for Spring 2.1.2 Release Notes
+C24 iO Components for Spring 2.2.0 Release Notes
 ================================================
 
 Enhancements to C24 iO Components for Spring Batch
