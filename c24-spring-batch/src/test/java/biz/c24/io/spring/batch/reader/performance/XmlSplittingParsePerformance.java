@@ -41,7 +41,7 @@ public class XmlSplittingParsePerformance {
     public static void main(String[] args) {        
         
         // Setup
-        ItemReaderJobRunner jobRunner = new ItemReaderJobRunner(4) {
+        ItemReaderJobRunner jobRunner = new ItemReaderJobRunner(8) {
 
             @Override
             protected C24ItemReader<ComplexDataObject> createReader() {
