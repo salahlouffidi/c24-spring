@@ -1,3 +1,16 @@
+C24 iO Components for Spring 2.2.1 Release Notes
+================================================
+
+This is a maintenance release which resolves a bug in the C24 Spring Batch project and
+updates the default iO version to 4.2.0
+
+Bugfixes to C24 iO Components for Spring Batch
+==================================================
+
+Encoding attribute was being set incorrectly on some Sources when a resource was specified.
+
+
+
 C24 iO Components for Spring 2.2.0 Release Notes
 ================================================
 

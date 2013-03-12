@@ -15,7 +15,7 @@
  */
 package biz.c24.io.spring.integration.config;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.util.Collection;
@@ -25,20 +25,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.MessageHeaders;
 import org.springframework.integration.core.MessagingTemplate;
 import org.springframework.integration.core.PollableChannel;
-import org.springframework.integration.support.MessageBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.FileCopyUtils;
-
 import biz.c24.io.examples.models.basic.Employee;
 import biz.c24.io.spring.integration.C24Headers;
-import biz.c24.io.spring.integration.transformer.C24ValidatingHeaderEnricher;
 
 /**
  * @author Andrew Elmore
@@ -98,7 +93,7 @@ public class ValidatingHeaderEnricherTests extends BaseIntegrationTest {
 		assertThat(headers.get(C24Headers.FAIL_EVENTS, Collection.class).size(), is(0));
 		
 		assertThat(headers.containsKey(C24Headers.PASS_EVENTS), is(true));
-		assertThat(headers.get(C24Headers.PASS_EVENTS, Collection.class).size(), is(1));
+		assertThat(headers.get(C24Headers.PASS_EVENTS, Collection.class).size(), is(greaterThan(0)));
 
 	}
 
@@ -127,7 +122,7 @@ public class ValidatingHeaderEnricherTests extends BaseIntegrationTest {
 		assertThat(headers.get(C24Headers.FAIL_EVENTS, Collection.class).size(), is(2));
 		
 		assertThat(headers.containsKey(C24Headers.PASS_EVENTS), is(true));
-		assertThat(headers.get(C24Headers.PASS_EVENTS, Collection.class).size(), is(0));
+		assertThat(headers.get(C24Headers.PASS_EVENTS, Collection.class).size(), is(greaterThan(0)));
 
 	}
 	
