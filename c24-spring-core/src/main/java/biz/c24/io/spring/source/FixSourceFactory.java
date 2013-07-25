@@ -23,6 +23,7 @@ import biz.c24.io.api.presentation.Source;
 
 /**
  * @author askogman
+ * @author Andrew Elmore
  * 
  */
 public class FixSourceFactory implements SourceFactory {
@@ -135,6 +136,16 @@ public class FixSourceFactory implements SourceFactory {
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
+	}
+
+	@Override
+	public Source getSource() {
+		FIXSource source = new FIXSource();
+
+		configure(source);
+
+		return source;
+
 	}
 
 }

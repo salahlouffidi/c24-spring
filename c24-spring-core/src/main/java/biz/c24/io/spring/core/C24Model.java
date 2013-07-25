@@ -35,6 +35,7 @@ import biz.c24.io.spring.source.SourceFactory;
  * {@link C24Model}.
  * 
  * @author Oliver Gierke
+ * @author Andrew Elmore
  */
 public class C24Model implements SourceFactory {
 
@@ -121,6 +122,12 @@ public class C24Model implements SourceFactory {
 	public Source getSource(InputStream stream) {
 		Source source = getRootElementSource();
 		source.setInputStream(stream);
+		return source;
+	}
+
+	@Override
+	public Source getSource() {
+		Source source = getRootElementSource();
 		return source;
 	}
 

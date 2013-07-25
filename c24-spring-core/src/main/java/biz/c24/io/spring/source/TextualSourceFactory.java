@@ -23,6 +23,7 @@ import biz.c24.io.api.presentation.TextualSource;
 
 /**
  * @author askogman
+ * @author Andrew Elmore
  * 
  */
 public class TextualSourceFactory implements SourceFactory {
@@ -134,6 +135,15 @@ public class TextualSourceFactory implements SourceFactory {
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
+	}
+
+	@Override
+	public Source getSource() {
+		TextualSource textualSource = new TextualSource();
+
+		configure(textualSource);
+
+		return textualSource;
 	}
 
 }

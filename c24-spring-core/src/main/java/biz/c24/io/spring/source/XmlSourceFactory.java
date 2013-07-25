@@ -23,6 +23,7 @@ import biz.c24.io.api.presentation.XMLSource;
 
 /**
  * @author askogman
+ * @author Andrew Elmore
  * 
  */
 public class XmlSourceFactory implements SourceFactory {
@@ -243,6 +244,16 @@ public class XmlSourceFactory implements SourceFactory {
 
 	public void setLoadExternalDTD(Boolean loadExternalDTD) {
 		this.loadExternalDTD = loadExternalDTD;
+	}
+
+	@Override
+	public Source getSource() {
+
+		XMLSource source = new XMLSource();
+
+		configureSource(source);
+
+		return source;
 	}
 
 }

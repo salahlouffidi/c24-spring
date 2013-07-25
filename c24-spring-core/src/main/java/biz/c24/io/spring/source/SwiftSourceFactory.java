@@ -136,4 +136,13 @@ public class SwiftSourceFactory implements SourceFactory {
 		this.encoding = encoding;
 	}
 
+	@Override
+	public Source getSource() {
+		SwiftSource source = new SwiftSource();
+
+		configure(source);
+
+		return source;
+	}
+
 }

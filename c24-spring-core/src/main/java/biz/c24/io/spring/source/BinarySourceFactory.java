@@ -23,6 +23,7 @@ import biz.c24.io.api.presentation.Source;
 
 /**
  * @author askogman
+ * @author Andrew Elmore
  * 
  */
 public class BinarySourceFactory implements SourceFactory {
@@ -135,6 +136,15 @@ public class BinarySourceFactory implements SourceFactory {
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
+	}
+
+	@Override
+	public Source getSource() {
+		BinarySource binarySource = new BinarySource();
+
+		configure(binarySource);
+
+		return binarySource;
 	}
 
 }
