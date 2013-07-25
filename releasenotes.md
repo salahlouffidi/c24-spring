@@ -1,3 +1,15 @@
+C24 iO Components for Spring 2.2.2 Release Notes
+================================================
+
+This is a maintenance release which resolves a bug in the C24 Spring Integration project
+
+Bugfixes to C24 iO Components for Spring Integration
+====================================================
+
+The C24UnmarshallingTransformer would generate an exception when trying to instantiate a BinarySource.
+SourceFactories now provide a mechanism to get a Source without requiring a Reader or InputStream.
+
+
 C24 iO Components for Spring 2.2.1 Release Notes
 ================================================
 
