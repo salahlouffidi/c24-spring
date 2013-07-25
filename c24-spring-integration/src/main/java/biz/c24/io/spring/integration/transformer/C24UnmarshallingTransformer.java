@@ -128,7 +128,7 @@ AbstractPayloadTransformer<Object, Object> {
 	Source getSourceFor(Object payload) throws Exception {
 		Source source = this.source.get();
 		if(source == null) {
-		    source = sourceFactory.getSource(new StringReader(""));
+		    source = sourceFactory.getSource();
 		    this.source.set(source);
 		}
 
