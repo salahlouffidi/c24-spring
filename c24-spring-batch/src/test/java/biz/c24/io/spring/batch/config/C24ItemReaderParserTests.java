@@ -63,6 +63,10 @@ public class C24ItemReaderParserTests {
 	private C24ItemReader<Employee> splittingValidatingCsvReader;
 	
 	@Autowired
+	@Qualifier("splittingFullyValidatingCsvReader")
+	private C24ItemReader<Employee> splittingFullyValidatingCsvReader;
+	
+	@Autowired
 	@Qualifier("splittingNonValidatingCsvReader")
 	private C24ItemReader<Employee> splittingNonValidatingCsvReader;
 	
@@ -97,15 +101,16 @@ public class C24ItemReaderParserTests {
 	
 	private void validateReader(C24ItemReader<? extends ComplexDataObject> reader, String expectedStartPattern, String expectedStopPattern, boolean expectedValidate, 
 								Class<? extends SplittingReaderSource> expectedSource) {
-		validateReader(reader, expectedStartPattern, expectedStopPattern, expectedValidate, expectedSource, null);
+		validateReader(reader, expectedStartPattern, expectedStopPattern, expectedValidate, true, expectedSource, null);
 	}
 		
 	private void validateReader(C24ItemReader<? extends ComplexDataObject> reader, String expectedStartPattern, String expectedStopPattern, boolean expectedValidate, 
-				Class<? extends SplittingReaderSource> expectedSource, Class<? extends SourceFactory> expectedSourceFactory) {
+				boolean failfast, Class<? extends SplittingReaderSource> expectedSource, Class<? extends SourceFactory> expectedSourceFactory) {
 		
 		assertThat(reader.getElementStartPattern(), is(expectedStartPattern));
 		assertThat(reader.getElementStopPattern(), is(expectedStopPattern));
 		assertThat(reader.isValidating(), is(expectedValidate));
+		assertThat(reader.isFailfast(), is(failfast));
 		assertThat(reader.getElementType(), is(employeeElement));
 		assertThat(reader.getSource(), instanceOf(expectedSource));
 		assertThat(reader.getSourceFactory(), expectedSourceFactory == null? nullValue() : instanceOf(expectedSourceFactory));
@@ -142,9 +147,10 @@ public class C24ItemReaderParserTests {
 		validateReader(nonSplittingValidatingCsvReader, null, null, true, FileSource.class);
 		validateReader(splittingNonValidatingCsvReader, ".*", null, false, FileSource.class);
 		validateReader(splittingValidatingCsvReader, ".*", null, true, FileSource.class);
+		validateReader(splittingFullyValidatingCsvReader, ".*", null, true, false, FileSource.class, null);
 		validateReader(nonSplittingValidatingZipReader, null, null, true, ZipFileSource.class);
 		validateReader(splittingValidatingZipReader, ".*", null, true, ZipFileSource.class);
-		validateReader(xmlSourceFactoryReader, "^[ \t]*<[a-zA-Z].*", "^[ \t]*</.*", true, FileSource.class, XmlSourceFactory.class);
+		validateReader(xmlSourceFactoryReader, "^[ \t]*<[a-zA-Z].*", "^[ \t]*</.*", true, true, FileSource.class, XmlSourceFactory.class);
 		validateReader(fileSourceReader, null, null, false, FileSource.class);
         validateReader(fileSourceResourceReader, null, null, false, FileSource.class);
         validateReader(zipFileSourceReader, null, null, false, ZipFileSource.class);

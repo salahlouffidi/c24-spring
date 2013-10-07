@@ -65,6 +65,7 @@
                      elementStartPattern="..." 
                      elementStopPattern="..." 
                      validate="true" 
+                     failfast="true"
                      source-factory-ref="..."
                      parse-listener-ref="..." 
                      scope="step">
@@ -99,6 +100,11 @@
               [Optional - default false]</para>
           </listitem>
           <listitem>
+            <para><emphasis>failfast</emphasis> - if validation is enabled, whether to fail on the
+              first validation error (true) or to capture all validation errors before failing
+              (false) [Optional - default true]</para>
+          </listitem>
+          <listitem>
             <para><emphasis>source-factory-ref</emphasis> - the iO SourceFactory that is used to
               parse the message [Optional - default is to use the model's default source]</para>
           </listitem>
@@ -114,9 +120,14 @@
       <para>If validation is selected then a ValidationManager will be used to check all parsed
           <classname>ComplexDataObject</classname>s, and a
           <classname>C24ValidationException</classname> will be thrown in the event of any
-        validation failures. If all reads (and validations if enabled) are successful then the
-        ItemReader will return null once there is no data left to parse (in the case of the zip
-        file, all contained files will be parsed before this happens).</para>
+        validation failures. If <emphasis>failfast</emphasis> is false and there are multiple
+        validation failures a <classname>C24CompoundValidationException</classname> (which extends
+          <classname>C24ValidationException</classname>) will be thrown. Callers can use the
+          <methodname>getFailures</methodname> method to retrieve all of the
+          <classname>ValidationEvent</classname>s that caused validation to fail.</para>
+      <para>If all reads (and validations if enabled) are successful then the ItemReader will return
+        null once there is no data left to parse (in the case of the zip file, all contained files
+        will be parsed before this happens).</para>
       <para>The <classname>C24ItemReader</classname> bean defaults to a <emphasis>scope</emphasis>
         of 'step' to ensure that concurrent invocations of the same step do not conflict with
         eachother. This can be overriden if desired but is not recommended.</para>
@@ -145,6 +156,7 @@
                      elementStartPattern="..." 
                      elementStopPattern="..." 
                      validate="true" 
+                     failfast="true"
                      source-factory-ref="..."
                      parse-listener-ref="..." 
                      scope="step">

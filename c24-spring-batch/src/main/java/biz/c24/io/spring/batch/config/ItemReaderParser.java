@@ -92,6 +92,13 @@ public class ItemReaderParser extends AbstractSingleBeanDefinitionParser {
     	}
     	
     	// Optional
+    	String failfast = element.getAttribute("failfast");
+    	if(StringUtils.hasText(failfast)) {
+    		boolean val = Boolean.parseBoolean(failfast);
+    		bean.addPropertyValue("failfast", val);
+    	}
+    	
+    	// Optional
     	String sourceFactoryRef = element.getAttribute("source-factory-ref");
     	if(StringUtils.hasText(sourceFactoryRef)) {
     		bean.addPropertyReference("sourceFactory", sourceFactoryRef);

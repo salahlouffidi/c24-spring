@@ -17,10 +17,13 @@ package biz.c24.io.spring.batch.reader;
 
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.Element;
+import biz.c24.io.api.data.ValidationEvent;
 import biz.c24.io.api.data.ValidationException;
+import biz.c24.io.api.data.ValidationListener;
 import biz.c24.io.api.data.ValidationManager;
 import biz.c24.io.api.presentation.Source;
 import biz.c24.io.api.presentation.TextualSource;
+import biz.c24.io.spring.batch.C24CompoundValidationException;
 import biz.c24.io.spring.batch.reader.source.SplittingReaderSource;
 import biz.c24.io.spring.batch.reader.source.SplittingReader;
 import biz.c24.io.spring.core.C24Model;
@@ -40,6 +43,8 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.regex.Pattern;
 
 /**
@@ -102,6 +107,13 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	 * Control whether or not we validate the parsed CDOs
 	 */
 	private ThreadLocal<ValidationManager> validator = null;
+	
+	
+	/**
+	 * If we're validating, do we failfast or collect all failures?
+	 */
+	private boolean failfast = true;
+	
 	
 	/**
 	 * Allow clients to register a callback to intercept elements as we read them.
@@ -219,6 +231,25 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 	 */
 	public boolean isValidating() {
 		return validator != null;
+	}
+	
+	/**
+	 * Query whether this item reader will fail fast when validating CDOs
+	 * 
+	 * @return True iff the validator will abort on first failure
+	 */
+	public boolean isFailfast() {
+		return failfast;
+	}
+
+	/**
+	 * Set whether or not you want validation to fail fast.
+	 * If false, the exception thrown when validating will be a compound exception will all validation failures
+	 * 
+	 * @param failfast Whether or not to fail fast
+	 */
+	public void setFailfast(boolean failfast) {
+		this.failfast = failfast;
 	}
 	
 	/**
@@ -576,7 +607,37 @@ public class C24ItemReader<Result> implements ItemReader<Result> {
 					mgr = new ValidationManager();
 					validator.set(mgr);
 				}
-				mgr.validateByException(result);
+				if(failfast) {
+					mgr.validateByException(result);
+				} else {
+					// Capture all failures
+					final Collection<ValidationEvent> events = new LinkedList<ValidationEvent>();
+					
+					ValidationListener listener = new ValidationListener() {
+			            public void validationPassed(ValidationEvent ve) {
+			            }
+
+			            public void validationFailed(ValidationEvent ve) {
+			                events.add(ve);
+			            }
+			        };
+			        
+			        mgr.addValidationListener(listener);
+			        
+			        try {			        
+				        if(!mgr.validateByEvents(result)) {
+				        	if(events.size() == 1) {
+				        		// Treat it as though we were validating by exception
+				        		mgr.setEventBased(false);
+				        		mgr.fireValidationEvent(events.iterator().next());
+				        	} else {
+				        		throw new C24CompoundValidationException(result, events);
+				        	}
+				        } 
+			        } finally {
+			        	mgr.removeValidationListener(listener);
+			        }
+				}
 			} catch(ValidationException vEx) {
 				throw new C24ValidationException("Failed to validate message: " + vEx.getLocalizedMessage() + " [" + source.getName() + "]", result, vEx);
 			}

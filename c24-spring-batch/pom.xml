@@ -94,7 +94,7 @@
             <plugin>
                 <groupId>biz.c24.io.maven</groupId>
                 <artifactId>c24-maven-plugin</artifactId>
-                <version>4.0.2-SNAPSHOT</version>
+                <version>4.1.4</version>
                 <executions>
                     <execution>
                         <id>c24-model-deploy</id>

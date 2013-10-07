@@ -29,6 +29,7 @@ import org.springframework.core.io.ClassPathResource;
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.api.data.ValidationException;
 import biz.c24.io.examples.models.basic.EmployeeElement;
+import biz.c24.io.spring.batch.C24CompoundValidationException;
 import biz.c24.io.spring.batch.reader.source.SplittingReaderSource;
 import biz.c24.io.spring.batch.reader.source.FileSource;
 import biz.c24.io.spring.batch.reader.source.ZipFileSource;
@@ -124,19 +125,28 @@ public class C24ItemReaderTests {
 
 		// Validation but no splitting
 		try {
-			readFile(employeeModel, null, null, true, source);
+			runJob(new C24ItemReaderBuilder().model(employeeModel).source(source).quickValidate(), employeeModel);
 			fail("Semantically invalid file did not generate a ValidationException");
 		} catch(C24ValidationException pEx) {
 			// Expected behaviour
 		}
 		
 		// Validation & splitting
-		// Validation but no splitting
 		try {
-			readFile(employeeModel, ".*", null, true, source);
+			runJob(new C24ItemReaderBuilder().model(employeeModel).source(source).startPattern(".*").quickValidate(), employeeModel);
 			fail("Semantically invalid file did not generate a ValidationException");
 		} catch(C24ValidationException pEx) {
 			// Expected behaviour
+		}
+		
+		// Try without failfast
+		try {
+			runJob(new C24ItemReaderBuilder().model(employeeModel).source(source).fullValidate(), employeeModel);
+			fail("Semantically invalid file did not generate a ValidationException");
+		} catch(C24CompoundValidationException cvEx) {
+			assertThat(cvEx.getFailures().size(), is(2));
+		} catch(C24ValidationException vEx) {
+			fail("Multiple validation errors did not generate a C24CompoundValidationException");
 		}
 	}
 	
@@ -245,6 +255,63 @@ public class C24ItemReaderTests {
 		return readFile(model, optionalElementStartRegEx, optionalElementStopRegEx, validate, source, null);
 	}
 
+	private Collection<ComplexDataObject> runJob(C24ItemReader<ComplexDataObject> reader, C24Model model) throws IOException {
+		StepExecution stepExecution = getStepExecution();
+		
+		reader.setup(stepExecution);
+
+		ComplexDataObject obj = null;
+		Collection<ComplexDataObject> objs = new LinkedList<ComplexDataObject>();
+		
+		while((obj = reader.read()) != null) {
+			assertThat(obj.getDefiningElementDecl(), is(model.getRootElement()));
+			objs.add(obj);
+		}
+		
+		reader.cleanup();
+		
+		return objs;		
+	}
+	
+	private static class C24ItemReaderBuilder extends C24ItemReader<ComplexDataObject> {
+		public C24ItemReaderBuilder startPattern(String regex) {
+			setElementStartPattern(regex);
+			return this;
+		}
+		
+		public C24ItemReaderBuilder stopPattern(String regex) {
+			setElementStopPattern(regex);
+			return this;
+		}		
+		
+		public C24ItemReaderBuilder factory(SourceFactory factory) {
+			setSourceFactory(factory);
+			return this;
+		}
+		
+		public C24ItemReaderBuilder source(SplittingReaderSource source) {
+			setSource(source);
+			return this;
+		}
+		
+		public C24ItemReaderBuilder model(C24Model model) {
+			setModel(model);
+			return this;
+		}
+		
+		public C24ItemReaderBuilder quickValidate() {
+			setValidate(true);
+			return this;
+		}		
+		
+		public C24ItemReaderBuilder fullValidate() {
+			setValidate(true);
+			setFailfast(false);
+			return this;
+		}				
+		
+	}
+	
 	private Collection<ComplexDataObject> readFile(C24Model model, String optionalElementStartRegEx, String optionalElementStopRegEx, boolean validate, SplittingReaderSource source, SourceFactory factory) throws IOException, UnexpectedInputException, ParseException, NonTransientResourceException, ValidationException { 
 		C24ItemReader<ComplexDataObject> reader = new C24ItemReader<ComplexDataObject>();
 		reader.setModel(model);
@@ -261,21 +328,9 @@ public class C24ItemReaderTests {
 		reader.setSource(source);
 		reader.setValidate(validate);
 		
-		StepExecution stepExecution = getStepExecution();
+		return runJob(reader, model);
 		
-		reader.setup(stepExecution);
 
-		ComplexDataObject obj = null;
-		Collection<ComplexDataObject> objs = new LinkedList<ComplexDataObject>();
-		
-		while((obj = reader.read()) != null) {
-			assertThat(obj.getDefiningElementDecl(), is(model.getRootElement()));
-			objs.add(obj);
-		}
-		
-		reader.cleanup();
-		
-		return objs;
 	}
 		
 	private StepExecution getStepExecution() throws IOException {

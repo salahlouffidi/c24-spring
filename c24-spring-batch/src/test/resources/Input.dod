@@ -12,8 +12,8 @@
                 <value>Delimited</value>
             </facet>
             <element identifier="false" typeRef="Salutation" min="1" max="1" name="Salutation"/>
-            <element identifier="false" typeRef="FirstName" min="1" max="1" name="FirstName"/>
-            <element identifier="false" typeRef="LastName" min="1" max="1" name="LastName"/>
+            <element identifier="false" typeRef="Name" min="1" max="1" name="FirstName"/>
+            <element identifier="false" typeRef="Name" min="1" max="1" name="LastName"/>
             <element identifier="false" typeRef="JobTitle" min="1" max="1" name="JobTitle"/>
         </complexType>
     </type>
@@ -29,18 +29,11 @@ else
     return true;</code>
     </validationRule>
     <type>
-        <atomicSimpleType baseType="#string" name="FirstName">
+        <atomicSimpleType baseType="#string" name="Name">
             <facet facetType="terminator">
                 <value></value>
             </facet>
             <validationRuleRef ref="FirstLetterCapital"/>
-        </atomicSimpleType>
-    </type>
-    <type>
-        <atomicSimpleType baseType="#string" name="LastName">
-            <facet facetType="terminator">
-                <value></value>
-            </facet>
         </atomicSimpleType>
     </type>
     <type>
