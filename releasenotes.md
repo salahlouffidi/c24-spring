@@ -1,3 +1,13 @@
+To be released:
+
+Enhancements to C24 iO Components for Spring Batch
+==================================================
+
+A new failfast flag has been added to the C24ItemReader. This enables all validation failures on an
+item to be captured rather than always aborting on the first failure. Please see the reference manual
+for details.
+
+
 C24 iO Components for Spring 2.2.2 Release Notes
 ================================================
 
