@@ -171,6 +171,7 @@
     					</xsd:annotation>
     				</xsd:attribute>
   			  		<xsd:attribute name="validate" type="xsd:boolean"/>
+  			  		<xsd:attribute name="failfast" type="xsd:boolean"/>
   			  	</xsd:extension>
   			  </xsd:complexContent>
 		</xsd:complexType>

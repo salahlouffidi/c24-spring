@@ -201,7 +201,8 @@
             bean correctly. For most cases, you will want to set the scope to "step" as the sources
             hold state relevant to the current step execution. Indeed this is required if you wish
             to use late binding to any <interfacename>Job</interfacename> or
-              <interfacename>Step</interfacename>-specific objects in your resource definition. </para>
+              <interfacename>Step</interfacename>-specific objects in your resource definition.
+          </para>
         </footnote>
       </para>
       <para>
@@ -379,8 +380,11 @@
       <para>If enabled via the '<emphasis>validate</emphasis>' attribute, the
           <classname>C24ItemReader</classname> will use a <classname>ValidationManager</classname>
         to validate the parsed <classname>ComplexDataObject</classname>. In the event of a
-        validation failure, the iO exception will be wrapped and rethrown as a Spring Batch
-          <classname>ParseException</classname>.</para>
+        validation failure, the iO exception will be wrapped and rethrown as a type derived from the
+        Spring Batch <classname>ValidationException</classname>. By default validation of an object
+        will abort on the first failure. If instead you wish to catch a compound exception which
+        contains all failures, set the optional <emphasis>failfast</emphasis> attribute to
+        false.</para>
     </section>
     <section>
       <title>Intercepting the Parsing Process</title>
@@ -450,13 +454,14 @@
 
 &lt;bat-c24:transform-item-processor id="ioItemProcessor" 
                                   transform-ref="demoTransform" 
-                                  validate="true"/></programlisting>
+                                  validate="true"
+                                  failfast="true" /></programlisting>
     </para>
     <para>Or equivalently in Java:</para>
     <para>
       <programlisting language="java">@Bean 
 public C24TransformItemProcessor getIoItemProcessor() { 
-  return new C24TransformItemProcessor(new DemoTransform(), true); 
+  return new C24TransformItemProcessor(new DemoTransform(), true, true); 
 }</programlisting>
     </para>
     <para>The result of the transformation will also be a <classname>ComplexDataObject</classname>,
@@ -486,11 +491,9 @@ public C24TransformItemProcessor getIoItemProcessor() {
       <para>The <classname>C24TransformItemProcessor</classname> can also optionally validate the
         resultant <classname>ComplexDataObject</classname> using a validation manager. To enable
         this functionality, set the '<emphasis>validate</emphasis>' attribute on the processor to
-        true.</para>
-      <para>The processor will throw an exception if validation fails, however unlike the
-          <classname>C24ItemReader</classname> it will allow the iO
-          <classname>ValidationException</classname> to propogate directly out of the processor
-        without wrapping it.</para>
+        true, optionally also setting the <emphasis>failfast</emphasis> attribute.</para>
+      <para>The processor will throw an exception if validation fails, with the same behaviour as
+        described in the <classname>C24ItemReader</classname>'s validation documentation.</para>
     </section>
   </section>
   <section>

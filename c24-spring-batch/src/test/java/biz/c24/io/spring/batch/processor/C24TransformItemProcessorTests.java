@@ -25,6 +25,7 @@ import biz.c24.io.api.transform.Transform;
 import biz.c24.io.examples.models.basic.Email;
 import biz.c24.io.examples.models.basic.Employee;
 import biz.c24.io.examples.transforms.basic.EmployeeToEmailTransform;
+import biz.c24.io.spring.batch.C24CompoundValidationException;
 
 /**
  * Test the C24TransformItemProcessor
@@ -60,7 +61,7 @@ public class C24TransformItemProcessorTests {
 	public void testInvalidTransform() throws Exception {
 		Employee employee = new Employee();
 		
-		employee.setFirstName("Dave");
+		employee.setFirstName("@ave");
 		// Use of @ is invalid in an email address
 		employee.setLastName("T@ylor");
 		employee.setSalutation("Mr");
@@ -80,6 +81,17 @@ public class C24TransformItemProcessorTests {
 			fail("C24TransformItemProcessor failed to detect invalid CDO");
 		} catch(ValidationException vEx) {
 			// Expected behaviour
+		}
+		
+		transformer.setFailfast(false);
+		try {
+			transformer.process(employee);
+			fail("C24TransformItemProcessor failed to detect invalid CDO");
+		} catch(C24CompoundValidationException cvEx) {
+			// Expected behaviour
+			assertThat(cvEx.getFailures().size(), is(2));
+		} catch(ValidationException vEx) {
+			fail("C24TransformItemProcessor failed to detect multiple failures");
 		}
 		
 	}

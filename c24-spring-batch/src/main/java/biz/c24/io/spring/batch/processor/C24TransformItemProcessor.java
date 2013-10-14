@@ -15,15 +15,21 @@
  */
 package biz.c24.io.spring.batch.processor;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Required;
 
 import biz.c24.io.api.data.ComplexDataObject;
+import biz.c24.io.api.data.ValidationEvent;
 import biz.c24.io.api.data.ValidationException;
+import biz.c24.io.api.data.ValidationListener;
 import biz.c24.io.api.data.ValidationManager;
 import biz.c24.io.api.presentation.JavaClassSink;
 import biz.c24.io.api.transform.Transform;
+import biz.c24.io.spring.batch.C24CompoundValidationException;
 import biz.c24.io.spring.batch.reader.C24ValidationException;
 
 /**
@@ -38,6 +44,11 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	 * The C24 IO transform to use
 	 */
 	private Transform transformer;
+	
+	/**
+	 * Whether or not to abort on the first failure
+	 */
+	private boolean failfast = true;
 	
 	private ThreadLocal<ValidationManager> validator = null;
 	
@@ -69,8 +80,20 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 	 * @param validateOutput Whether or not we will validate the result of the transform
 	 */
 	public C24TransformItemProcessor(Transform transform, boolean validateOutput) {
+		this(transform, validateOutput, true);
+	}
+	
+	/**
+	 * Construct a C24TransformItemProcessor
+	 * 
+	 * @param transform The iO-generated transform to use
+	 * @param validateOutput Whether or not we will validate the result of the transform
+	 * @param failfast Whether validation should abort on first failure or not
+	 */
+	public C24TransformItemProcessor(Transform transform, boolean validateOutput, boolean failfast) {
 		setTransformer(transform);
 		setValidation(validateOutput);
+		setFailfast(failfast);
 	}
 	
 	/*
@@ -84,13 +107,43 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 		ComplexDataObject result = (ComplexDataObject)transformedObj[0][0];
 		
 		if(validator != null) {
-			ValidationManager mgr = validator.get();
-			if(mgr == null) {
-				mgr = new ValidationManager();
-				validator.set(mgr);
-			}
-			try {
-				mgr.validateByException(result);
+	        try {	
+				ValidationManager mgr = validator.get();
+				if(mgr == null) {
+					mgr = new ValidationManager();
+					validator.set(mgr);
+				}
+				if(failfast) {
+					mgr.validateByException(result);
+				} else {
+					// Capture all failures
+					final Collection<ValidationEvent> events = new LinkedList<ValidationEvent>();
+					
+					ValidationListener listener = new ValidationListener() {
+			            public void validationPassed(ValidationEvent ve) {
+			            }
+	
+			            public void validationFailed(ValidationEvent ve) {
+			                events.add(ve);
+			            }
+			        };
+			        
+			        mgr.addValidationListener(listener);
+			        
+			        try {
+				        if(!mgr.validateByEvents(result)) {
+				        	if(events.size() == 1) {
+				        		// Treat it as though we were validating by exception
+				        		mgr.setEventBased(false);
+				        		mgr.fireValidationEvent(events.iterator().next());
+				        	} else {
+				        		throw new C24CompoundValidationException(result, events);
+				        	}
+				        } 
+			        } finally {
+			        	mgr.removeValidationListener(listener);
+			        }
+				}
 			} catch(ValidationException vEx) {
 				throw new C24ValidationException("Failed to validate message: " + vEx.getLocalizedMessage(), result, vEx);
 			}
@@ -173,6 +226,22 @@ public class C24TransformItemProcessor implements ItemProcessor<ComplexDataObjec
 		} else {
 			javaSink = null;
 		}
+	}
+
+	/**
+	 * Do we abort on first failure or fully validate the object
+	 * @return True iff this processor will abort on first failure
+	 */
+	public boolean isFailfast() {
+		return failfast;
+	}
+
+	/**
+	 * Controls whether this processor aborts on first failure or fully validates the object
+	 * @param failFast
+	 */
+	public void setFailfast(boolean failfast) {
+		this.failfast = failfast;
 	}
 	
 

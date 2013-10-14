@@ -47,6 +47,10 @@ public class C24TransformItemProcessorParserTests {
 	C24TransformItemProcessor validatingTransformItemProcessor;
 	
 	@Autowired
+	@Qualifier("fullyValidatingTransformItemProcessor")
+	C24TransformItemProcessor fullyValidatingTransformItemProcessor;
+	
+	@Autowired
 	@Qualifier("defaultTransformItemProcessor")
 	C24TransformItemProcessor defaultTransformItemProcessor;
 
@@ -58,9 +62,10 @@ public class C24TransformItemProcessorParserTests {
 	Transform transform;
 	
 	
-	private void validateProcessor(C24TransformItemProcessor processor, boolean validating, Class<?> clazz) {
+	private void validateProcessor(C24TransformItemProcessor processor, boolean validating, boolean failfast, Class<?> clazz) {
 		assertThat(processor.getTransformer(), is(transform));
 		assertThat(processor.isValidating(), is(validating));
+		assertThat(processor.isFailfast(), is(failfast));
 		if(clazz == null) {
 			assertThat(processor.getTargetClass(), nullValue()) ;
 		} else {
@@ -71,10 +76,11 @@ public class C24TransformItemProcessorParserTests {
 	@Test
 	public void validateParser() {
 		
-		validateProcessor(defaultTransformItemProcessor, false, null);
-		validateProcessor(transformItemProcessor, false, null);
-		validateProcessor(validatingTransformItemProcessor, true, null);	
-		validateProcessor(javaSinkItemProcessor, false, MyEmail.class);	
+		validateProcessor(defaultTransformItemProcessor, false, true, null);
+		validateProcessor(transformItemProcessor, false, true, null);
+		validateProcessor(validatingTransformItemProcessor, true, true, null);	
+		validateProcessor(fullyValidatingTransformItemProcessor, true, false, null);
+		validateProcessor(javaSinkItemProcessor, false, true, MyEmail.class);	
 	}
 	
 	

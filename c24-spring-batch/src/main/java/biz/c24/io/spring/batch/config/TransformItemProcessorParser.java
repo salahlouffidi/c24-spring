@@ -56,6 +56,13 @@ public class TransformItemProcessorParser extends AbstractSingleBeanDefinitionPa
 		}
 		
 		// Optional
+		String failfast = element.getAttribute("failfast");
+		if(StringUtils.hasText(failfast)) {
+			boolean val = Boolean.parseBoolean(failfast);
+			builder.addPropertyValue("failfast", val);
+		}
+		
+		// Optional
 		String targetClass = element.getAttribute("target-class");
 		if(StringUtils.hasText(targetClass)) {
 			builder.addPropertyValue("targetClass", targetClass);

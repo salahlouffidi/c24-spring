@@ -15,13 +15,21 @@
  */
 package biz.c24.io.spring.batch.processor;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamException;
 
 import biz.c24.io.api.data.ComplexDataObject;
+import biz.c24.io.api.data.ValidationEvent;
+import biz.c24.io.api.data.ValidationException;
+import biz.c24.io.api.data.ValidationListener;
 import biz.c24.io.api.data.ValidationManager;
+import biz.c24.io.spring.batch.C24CompoundValidationException;
+import biz.c24.io.spring.batch.reader.C24ValidationException;
 
 /**
  * An ItemProcessor that validates a ComplexDataObject.
@@ -35,18 +43,57 @@ public class C24ValidatingItemProcessor implements ItemProcessor<ComplexDataObje
 	
 	private ThreadLocal<ValidationManager> validators = null;
 	
+	/**
+	 * Whether or not to abort on the first failure
+	 */
+	private boolean failfast = true;
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.batch.item.ItemProcessor#process(java.lang.Object)
 	 */
 	@Override
 	public ComplexDataObject process(ComplexDataObject item) throws Exception {
-		ValidationManager vm = validators.get();
-		if(vm == null) {
-			vm = new ValidationManager();
-			validators.set(vm);
+		ValidationManager mgr = validators.get();
+		if(mgr == null) {
+			mgr = new ValidationManager();
+			validators.set(mgr);
 		}
-		vm.validateByException(item);
+		try {
+			if(failfast) {
+				mgr.validateByException(item);
+			} else {
+				// Capture all failures
+				final Collection<ValidationEvent> events = new LinkedList<ValidationEvent>();
+				
+				ValidationListener listener = new ValidationListener() {
+		            public void validationPassed(ValidationEvent ve) {
+		            }
+	
+		            public void validationFailed(ValidationEvent ve) {
+		                events.add(ve);
+		            }
+		        };
+		        
+		        mgr.addValidationListener(listener);
+		        
+		        try {
+			        if(!mgr.validateByEvents(item)) {
+			        	if(events.size() == 1) {
+			        		// Treat it as though we were validating by exception
+			        		mgr.setEventBased(false);
+			        		mgr.fireValidationEvent(events.iterator().next());
+			        	} else {
+			        		throw new C24CompoundValidationException(item, events);
+			        	}
+			        } 
+		        } finally {
+		        	mgr.removeValidationListener(listener);
+		        }
+			}
+		} catch(ValidationException vEx) {
+			throw new C24ValidationException("Failed to validate message: " + vEx.getLocalizedMessage(), item, vEx);
+		}
 		return item;
 	}
 

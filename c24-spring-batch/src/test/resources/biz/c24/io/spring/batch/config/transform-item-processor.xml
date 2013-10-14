@@ -14,6 +14,7 @@
 	
 	<bat-c24:transform-item-processor id="transformItemProcessor" transform-ref="employeeToEmailTransform" validate="false"/>
 	<bat-c24:transform-item-processor id="validatingTransformItemProcessor" transform-ref="employeeToEmailTransform" validate="true"/>
+    <bat-c24:transform-item-processor id="fullyValidatingTransformItemProcessor" transform-ref="employeeToEmailTransform" validate="true" failfast="false"/>
 	<bat-c24:transform-item-processor id="defaultTransformItemProcessor" transform-ref="employeeToEmailTransform"/>
 	<bat-c24:transform-item-processor id="javaSinkItemProcessor" transform-ref="employeeToEmailTransform" target-class="biz.c24.io.spring.batch.processor.C24TransformItemProcessorTests.MyEmail"/>
 
