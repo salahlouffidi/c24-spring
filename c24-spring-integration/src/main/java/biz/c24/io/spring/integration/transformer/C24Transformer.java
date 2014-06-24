@@ -20,7 +20,7 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.integration.Message;
+import org.springframework.messaging.Message;
 import org.springframework.integration.transformer.AbstractTransformer;
 import org.springframework.util.Assert;
 
@@ -85,7 +85,7 @@ InitializingBean {
 	 * @return The transformed payload
 	 * 
 	 * @see org.springframework.integration.transformer.AbstractTransformer#doTransform
-	 *      (org.springframework.integration.Message)
+	 *      (org.springframework.messaging.Message)
 	 */
 	@Override
 	protected Object doTransform(Message<?> message) throws Exception {

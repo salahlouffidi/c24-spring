@@ -19,9 +19,9 @@ import biz.c24.io.spring.integration.transformer.C24FileSplittingTransformer;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.integration.Message;
+import org.springframework.messaging.Message;
 import org.springframework.integration.channel.QueueChannel;
-import org.springframework.integration.core.PollableChannel;
+import org.springframework.messaging.PollableChannel;
 import org.springframework.integration.support.MessageBuilder;
 
 import java.util.List;

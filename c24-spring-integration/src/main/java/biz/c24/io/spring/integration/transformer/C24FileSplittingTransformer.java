@@ -1,7 +1,7 @@
 package biz.c24.io.spring.integration.transformer;
 
-import org.springframework.integration.MessageChannel;
-import org.springframework.integration.MessageHandlingException;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHandlingException;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.transformer.AbstractPayloadTransformer;
 

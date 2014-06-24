@@ -22,7 +22,7 @@ import biz.c24.io.spring.sink.OutputType;
 import biz.c24.io.spring.sink.TextualSinkFactory;
 import biz.c24.io.spring.sink.XmlSinkFactory;
 import org.junit.Test;
-import org.springframework.integration.Message;
+import org.springframework.messaging.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import static biz.c24.io.spring.integration.test.TestUtils.*;

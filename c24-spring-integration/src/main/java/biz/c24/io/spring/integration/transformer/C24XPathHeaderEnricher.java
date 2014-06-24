@@ -17,8 +17,9 @@ package biz.c24.io.spring.integration.transformer;
 
 import java.util.Map;
 
-import org.springframework.integration.Message;
-import org.springframework.integration.MessagingException;
+import org.springframework.integration.transformer.support.HeaderValueMessageProcessor;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessagingException;
 import org.springframework.integration.transformer.HeaderEnricher;
 import org.springframework.util.Assert;
 
@@ -48,7 +49,7 @@ public class C24XPathHeaderEnricher extends HeaderEnricher {
 	}
 
 	static class XPathExpressionEvaluatingHeaderValueMessageProcessor implements
-	HeaderValueMessageProcessor<Object> {
+            HeaderValueMessageProcessor<Object> {
 
 		private final XPathStatement statement;
 

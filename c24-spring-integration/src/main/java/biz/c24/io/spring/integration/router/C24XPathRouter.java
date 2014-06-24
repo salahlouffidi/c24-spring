@@ -18,8 +18,8 @@ package biz.c24.io.spring.integration.router;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.integration.Message;
-import org.springframework.integration.MessagingException;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessagingException;
 import org.springframework.integration.router.AbstractMappingMessageRouter;
 import org.springframework.util.Assert;
 

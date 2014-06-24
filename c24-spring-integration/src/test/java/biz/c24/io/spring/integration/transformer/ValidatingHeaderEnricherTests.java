@@ -2,8 +2,8 @@ package biz.c24.io.spring.integration.transformer;
 
 import java.util.Collection;
 import org.junit.Test;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.integration.support.MessageBuilder;
 
 import biz.c24.io.examples.models.basic.Employee;

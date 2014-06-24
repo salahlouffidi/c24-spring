@@ -22,8 +22,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.integration.Message;
-import org.springframework.integration.MessagingException;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessagingException;
 import org.springframework.integration.handler.AbstractMessageProcessor;
 
 import biz.c24.io.api.data.ComplexDataObject;

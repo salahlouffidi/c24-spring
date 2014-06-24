@@ -24,7 +24,7 @@ import java.io.StringReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.integration.MessagingException;
+import org.springframework.messaging.MessagingException;
 import org.springframework.integration.transformer.AbstractPayloadTransformer;
 import org.springframework.util.Assert;
 

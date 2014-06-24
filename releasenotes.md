@@ -1,4 +1,9 @@
-To be released:
+C24 iO Components for Spring 3.0.0 Release Notes
+====================================================
+
+Upgraded to latest releases of Spring Dependencies
+==================================================
+
 
 Enhancements to C24 iO Components for Spring Batch
 ==================================================

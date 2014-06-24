@@ -24,10 +24,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.integration.Message;
+import org.springframework.integration.support.channel.BeanFactoryChannelResolver;
+import org.springframework.messaging.Message;
 import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.support.MessageBuilder;
-import org.springframework.integration.support.channel.ChannelResolver;
 
 import biz.c24.io.api.data.ComplexDataObject;
 
@@ -35,7 +35,7 @@ import biz.c24.io.api.data.ComplexDataObject;
 public class XPathRouterTestIUTests {
 
 	@Mock
-	ChannelResolver channelResolver;
+    BeanFactoryChannelResolver channelResolver;
 
 	QueueChannel messageChannel = new QueueChannel();
 
@@ -46,7 +46,7 @@ public class XPathRouterTestIUTests {
 		C24XPathRouter router = new C24XPathRouter("//Employee[1]/FirstName");
 		router.setChannelResolver(channelResolver);
 
-		when(channelResolver.resolveChannelName("Andy")).thenReturn(
+		when(channelResolver.resolveDestination("Andy")).thenReturn(
 				messageChannel);
 
 		ComplexDataObject payload = loadObject();

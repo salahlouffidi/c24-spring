@@ -16,7 +16,7 @@
 package biz.c24.io.spring.integration.transformer;
 
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.integration.MessagingException;
+import org.springframework.messaging.MessagingException;
 import org.springframework.integration.transformer.AbstractPayloadTransformer;
 import org.springframework.util.Assert;
 
