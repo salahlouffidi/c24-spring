@@ -9,7 +9,7 @@
 		http://schema.c24.biz/spring-core
 		http://schema.c24.biz/spring-core.xsd
 		http://www.springframework.org/schema/integration
-		http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
+		http://www.springframework.org/schema/integration/spring-integration.xsd
 		http://schema.c24.biz/spring-integration
 		http://schema.c24.biz/spring-integration.xsd">
 

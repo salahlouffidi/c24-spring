@@ -35,8 +35,8 @@ import org.springframework.util.FileCopyUtils;
 import biz.c24.io.examples.models.basic.Employees;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("router.xml")
-public class RouterTests extends BaseIntegrationTest {
+@ContextConfiguration("XPathRouter_mapping.xml")
+public class XPathRouterMappingTests extends BaseIntegrationTest {
 
 	@Autowired
 	MessageChannel textInputChannel;

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int-c24="http://schema.c24.biz/spring-integration"
+       xmlns:c24="http://schema.c24.biz/spring-core"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/integration
+        http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://schema.c24.biz/spring-core
+		http://schema.c24.biz/spring-core.xsd
+		http://schema.c24.biz/spring-integration
+		http://schema.c24.biz/spring-integration.xsd
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+
+    <bean id="textualSourceFactory" class="biz.c24.io.spring.source.TextualSourceFactory" />
+
+    <c24:model id="inputDocumentModel"
+               base-element="biz.c24.io.examples.models.basic.InputDocumentRootElement" />
+
+    <!-- ===== The flow ===== -->
+
+    <int:channel id="textInputChannel" />
+
+    <int-c24:unmarshalling-transformer
+            source-factory-ref="textualSourceFactory" input-channel="textInputChannel"
+            output-channel="cdoChannel" model-ref="inputDocumentModel" />
+
+    <int:channel id="cdoChannel">
+    </int:channel>
+
+    <int-c24:xpath-router input-channel="cdoChannel"
+                          xpath-statement="//Employee[1]/FirstName">
+
+    </int-c24:xpath-router>
+
+    <int:channel id="Andy"> <!-- The XPath expression will resolve to this name-->
+        <int:queue capacity="1" />
+    </int:channel>
+
+
+</beans>

@@ -1,3 +1,5 @@
 http\://schema.c24.biz/spring-integration-1.0.xsd=biz/c24/io/spring/integration/config/spring-integration-1.0.xsd
 http\://schema.c24.biz/spring-integration-2.1.xsd=biz/c24/io/spring/integration/config/spring-integration-2.1.xsd
-http\://schema.c24.biz/spring-integration.xsd=biz/c24/io/spring/integration/config/spring-integration-2.1.xsd
+http\://schema.c24.biz/spring-integration-3.0.xsd=biz/c24/io/spring/integration/config/spring-integration-3.0.xsd
+http\://schema.c24.biz/spring-integration.xsd=biz/c24/io/spring/integration/config/spring-integration-3.0.xsd
+

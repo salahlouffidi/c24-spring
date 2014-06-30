@@ -1,3 +1,15 @@
+C24 iO Components for Spring 3.0.1 Release Notes
+====================================================
+
+Changes to spring integration module
+====================================================
+
+New release of C24 spring-integration-3.0.xsd
+Minor changes to catch up with changes in Spring Integration 4.x
+Removed channel-resolver attribute
+Fixed references to Spring objects that have been moved from Spring Integration to Spring Core
+
+
 C24 iO Components for Spring 3.0.0 Release Notes
 ====================================================
 
