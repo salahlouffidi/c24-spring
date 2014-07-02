@@ -1,3 +1,12 @@
+C24 iO Components for Spring 3.0.2 Release Notes
+====================================================
+
+Changes to parent pom
+====================================================
+Changed dependency to c24-io-api:4.6.1
+This itself has an updated version of Saxon to address a bug https://saxonica.plan.io/issues/1944
+
+
 C24 iO Components for Spring 3.0.1 Release Notes
 ====================================================
 

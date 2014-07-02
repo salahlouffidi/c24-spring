@@ -4,7 +4,7 @@
 
 	<groupId>biz.c24.io.spring</groupId>
 	<artifactId>c24-spring</artifactId>
-	<version>3.0.1</version>
+	<version>3.0.2</version>
 
 	<packaging>pom</packaging>
 
@@ -94,7 +94,7 @@
         <spring.version>4.0.5.RELEASE</spring.version>
 		<spring.integration.version>4.0.2.RELEASE</spring.integration.version>
 		<slf4j.api.version>1.6.6</slf4j.api.version>
-        <c24.version>4.6.0</c24.version>
+        <c24.version>4.6.1</c24.version>
         <c24.studio.version>4.6.0</c24.studio.version>
         <xerces.version>2.9.1</xerces.version>
         <coverage.skip>true</coverage.skip>
