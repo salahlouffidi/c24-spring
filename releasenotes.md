@@ -1,3 +1,10 @@
+C24 iO Components for Spring 3.0.3 Release Notes
+====================================================
+
+Added JsonSourceFactory - biz.c24.io.spring.source.JsonSourceFactory
+====================================================
+
+
 C24 iO Components for Spring 3.0.2 Release Notes
 ====================================================
 
