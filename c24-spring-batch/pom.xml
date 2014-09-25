@@ -94,7 +94,7 @@
             <plugin>
                 <groupId>biz.c24.io.maven</groupId>
                 <artifactId>c24-maven-plugin</artifactId>
-                <version>4.1.4</version>
+                <version>4.5.0</version>
                 <executions>
                     <execution>
                         <id>c24-model-deploy</id>
@@ -143,6 +143,18 @@
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+               		<dependency>
+						<groupId>biz.c24.io</groupId>
+						<artifactId>c24-io-api</artifactId>
+						<version>${c24.version}</version>
+					</dependency>	
+					<dependency>
+						<groupId>biz.c24.io</groupId>
+						<artifactId>c24-io-studio</artifactId>
+						<version>${c24.studio.version}</version>
+					</dependency>
+               	</dependencies>
             </plugin>
         </plugins>
     </build>
