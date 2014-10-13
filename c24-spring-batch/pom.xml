@@ -8,7 +8,7 @@
     <parent>
         <artifactId>c24-spring</artifactId>
         <groupId>biz.c24.io.spring</groupId>
-        <version>3.0.3</version>
+        <version>3.0.4</version>
         <relativePath>../</relativePath>
     </parent>
     
@@ -155,6 +155,7 @@
 						<version>${c24.studio.version}</version>
 					</dependency>
                	</dependencies>
+
             </plugin>
         </plugins>
     </build>

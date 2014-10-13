@@ -12,9 +12,9 @@
     <xsd:import namespace="http://www.springframework.org/schema/beans"/>
     <xsd:import namespace="http://www.springframework.org/schema/tool"/>
     <xsd:import namespace="http://www.springframework.org/schema/integration"
-                schemaLocation="http://www.springframework.org/schema/integration/spring-integration-4.0.xsd"/>
+                schemaLocation="http://www.springframework.org/schema/integration/spring-integration.xsd"/>
     <xsd:import namespace="http://schema.c24.biz/spring-core"
-                schemaLocation="http://schema.c24.biz/spring-core-2.1.xsd"/>
+                schemaLocation="http://schema.c24.biz/spring-core.xsd"/>
 
     <xsd:annotation>
         <xsd:documentation>
@@ -33,8 +33,16 @@
             </xsd:annotation>
             <xsd:complexContent>
                 <xsd:extension base="beans:identifiedType">
-                    <xsd:attribute name="fail-fast" type="xsd:boolean"/>
-                    <xsd:attribute name="throw-exception-on-rejection" type="xsd:boolean"/>
+                    <xsd:attribute name="fail-fast">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
+                    <xsd:attribute name="throw-exception-on-rejection">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
                 </xsd:extension>
             </xsd:complexContent>
         </xsd:complexType>
@@ -110,8 +118,11 @@
                             </xsd:appinfo>
                         </xsd:annotation>
                     </xsd:attribute>
-                    <xsd:attribute name="unwrap-document-root" type="xsd:boolean"
+                    <xsd:attribute name="unwrap-document-root"
                                    use="optional" default="true">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
                     </xsd:attribute>
                 </xsd:extension>
             </xsd:complexContent>
@@ -146,12 +157,24 @@
             </xsd:annotation>
             <xsd:complexContent>
                 <xsd:extension base="inputOutputEndpoint">
-                    <xsd:attribute name="fail-events" type="xsd:boolean"
-                                   default="true"/>
-                    <xsd:attribute name="pass-events" type="xsd:boolean"
-                                   default="false"/>
-                    <xsd:attribute name="statistics" type="xsd:boolean"
-                                   default="false"/>
+                    <xsd:attribute name="fail-events"
+                                   default="true">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
+                    <xsd:attribute name="pass-events"
+                                   default="false">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
+                    <xsd:attribute name="statistics"
+                                   default="false">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
                 </xsd:extension>
             </xsd:complexContent>
         </xsd:complexType>

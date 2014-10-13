@@ -55,8 +55,7 @@ public class FileSourceParser extends AbstractSingleBeanDefinitionParser {
         // Optional
         String skipLines = element.getAttribute("skip-lines");
         if(StringUtils.hasText(skipLines)) {
-            int numLines = Integer.parseInt(skipLines);
-            bean.addPropertyValue("skipLines", numLines);
+            bean.addPropertyValue("skipLines", skipLines);
         }
         
         // Optional
@@ -68,7 +67,7 @@ public class FileSourceParser extends AbstractSingleBeanDefinitionParser {
         // Optional
         String consistentLineTerminators = element.getAttribute("consistent-line-terminators");
         if(StringUtils.hasText(consistentLineTerminators)) {
-            bean.addPropertyValue("consistentLineTerminators", Boolean.valueOf(consistentLineTerminators));
+            bean.addPropertyValue("consistentLineTerminators", consistentLineTerminators);
         }
     }
 }

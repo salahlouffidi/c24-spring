@@ -1,3 +1,18 @@
+C24 iO Components for Spring 3.0.4 Release Notes
+================================================
+
+*Minor enhancement to allow for SpEL expressions in non-string attributes.
+
+For example:
+    <bat-c24:item-reader id="validatingReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="fileSource" scope="singleton"/>
+The validate attribute can be defined with a SpEL expression:
+    <bat-c24:item-reader id="validatingReader" model-ref="employeeModel" validate="${reader.validate}" elementStartPattern=".*" source-ref="fileSource" scope="singleton"/>
+
+* updated C24 libraries to:
+io-studio: 4.6.3
+io-api: 4.6.8
+
+
 C24 iO Components for Spring 3.0.3 Release Notes
 ====================================================
 
@@ -44,6 +59,21 @@ The same failfast capability has been added to the C24ValidatingItemProcessor an
 C24 TransformItemProcessor. As a result, the exceptions thrown have been brought in to line
 with those thrown by the C24ItemReader (ie iO ValidationExceptions are now wrapped in exceptions
 derived from Spring Batch exceptions).
+
+
+C24 iO Components for Spring 2.2.3 Release Notes
+================================================
+
+*Minor enhancement to allow for SpEL expressions in non-string attributes.
+
+For example:
+    <bat-c24:item-reader id="validatingReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="fileSource" scope="singleton"/>
+The validate attribute can be defined with a SpEL expression:
+    <bat-c24:item-reader id="validatingReader" model-ref="employeeModel" validate="${reader.validate}" elementStartPattern=".*" source-ref="fileSource" scope="singleton"/>
+
+* updated C24 libraries to:
+io-studio: 4.6.3
+io-api: 4.6.8
 
 
 C24 iO Components for Spring 2.2.2 Release Notes
