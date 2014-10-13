@@ -15,6 +15,7 @@
  */
 package biz.c24.io.spring.batch.config;
 
+import biz.c24.io.spring.batch.reader.C24BatchItemReader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ import biz.c24.io.spring.source.SourceFactory;
 import biz.c24.io.spring.source.XmlSourceFactory;
 import biz.c24.io.spring.util.C24Utils;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 /**
@@ -89,10 +91,30 @@ public class C24ItemReaderParserTests {
     @Autowired
     @Qualifier("fileSourceResourceReader")
     private C24ItemReader<Employee> fileSourceResourceReader;
+
+    @Autowired
+    @Qualifier("spelFileSourceResourceReader")
+    private C24ItemReader<Employee> spelFileSourceResourceReader;
     
     @Autowired
     @Qualifier("zipFileSourceResourceReader")
     private C24ItemReader<Employee> zipFileSourceResourceReader;
+
+    @Autowired
+    @Qualifier("spelZipFileSourceResourceReader")
+    private C24ItemReader<Employee> spelZipFileSourceResourceReader;
+
+    @Autowired
+    @Qualifier("spelValidatingCsvReader")
+    private C24ItemReader<Employee> spelValidatingCsvReader;
+
+    @Autowired
+    @Qualifier("batchItemSourceReader")
+    private C24BatchItemReader batchItemSourceReader;
+
+    @Autowired
+    @Qualifier("spelBatchItemSourceReader")
+    private C24BatchItemReader spelBatchItemSourceReader;
  	
 	
 	private void validateReader(C24ItemReader<? extends ComplexDataObject> reader, String expectedStartPattern, String expectedStopPattern, boolean expectedValidate, 
@@ -134,6 +156,11 @@ public class C24ItemReaderParserTests {
             assertThat(fileSource.isConsistentLineTerminators(), is(expectedConsistentLineTerminators));
         }
 	}
+
+    private void validateBatchReader(C24BatchItemReader reader, Class<? extends SplittingReaderSource> expectedSource, boolean expectedValidate) {
+        assertThat(reader.isValidate(), is(expectedValidate));
+        assertThat(reader.getSource(), instanceOf(expectedSource));
+    }
 	
 	@Test
 	public void validateReaderParser() {
@@ -144,20 +171,27 @@ public class C24ItemReaderParserTests {
 		validateReader(splittingValidatingCsvReader, ".*", null, true, FileSource.class);
 		validateReader(nonSplittingValidatingZipReader, null, null, true, ZipFileSource.class);
 		validateReader(splittingValidatingZipReader, ".*", null, true, ZipFileSource.class);
+        validateReader(spelValidatingCsvReader, ".*", null, true, FileSource.class);
 		validateReader(xmlSourceFactoryReader, "^[ \t]*<[a-zA-Z].*", "^[ \t]*</.*", true, FileSource.class, XmlSourceFactory.class);
 		validateReader(fileSourceReader, null, null, false, FileSource.class);
         validateReader(fileSourceResourceReader, null, null, false, FileSource.class);
         validateReader(zipFileSourceReader, null, null, false, ZipFileSource.class);
         validateReader(zipFileSourceResourceReader, null, null, false, ZipFileSource.class);
-	}
+        validateBatchReader(batchItemSourceReader, FileSource.class, false);
+        validateBatchReader(spelBatchItemSourceReader, FileSource.class, true);
+
+    }
 	
 	@Test
 	public void validateSourceParser() {
         validateSource(fileSourceReader.getSource(), FileSource.class, 0, null, "UTF-8", false);
         validateSource(fileSourceResourceReader.getSource(), FileSource.class, 5, UrlResource.class, "TestEncoding", true);
+        validateSource(spelFileSourceResourceReader.getSource(), FileSource.class, 3, UrlResource.class, "TestEncoding", false);
         validateSource(zipFileSourceReader.getSource(), ZipFileSource.class, 0, null, "UTF-8", false);
-        validateSource(zipFileSourceResourceReader.getSource(), ZipFileSource.class, 4, UrlResource.class, "TestEncoding", true);	    
-	}
+        validateSource(zipFileSourceResourceReader.getSource(), ZipFileSource.class, 4, UrlResource.class, "TestEncoding", true);
+        validateSource(spelZipFileSourceResourceReader.getSource(), ZipFileSource.class, 3, UrlResource.class, "TestEncoding", false);
+
+    }
 	
 
 }

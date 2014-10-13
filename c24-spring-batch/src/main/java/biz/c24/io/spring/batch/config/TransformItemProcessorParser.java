@@ -51,8 +51,7 @@ public class TransformItemProcessorParser extends AbstractSingleBeanDefinitionPa
 		// Optional
 		String validate = element.getAttribute("validate");
 		if(StringUtils.hasText(validate)) {
-			boolean val = Boolean.parseBoolean(validate);
-			builder.addPropertyValue("validation", val);
+			builder.addPropertyValue("validation", validate);
 		}
 		
 		// Optional

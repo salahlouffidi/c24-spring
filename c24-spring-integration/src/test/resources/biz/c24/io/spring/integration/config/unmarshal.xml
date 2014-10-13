@@ -4,16 +4,22 @@
     xmlns:int-c24="http://schema.c24.biz/spring-integration"
 	xmlns:c24="http://schema.c24.biz/spring-core"
     xmlns:int="http://www.springframework.org/schema/integration"
-	xsi:schemaLocation="http://www.springframework.org/schema/integration
+    xmlns:context="http://www.springframework.org/schema/context"
+
+    xsi:schemaLocation="http://www.springframework.org/schema/integration
 	    http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
 		http://schema.c24.biz/spring-core
 		http://schema.c24.biz/spring-core.xsd
 		http://schema.c24.biz/spring-integration
 		http://schema.c24.biz/spring-integration.xsd
+        http://www.springframework.org/schema/context
+	    http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="textualSourceFactory" class="biz.c24.io.spring.source.TextualSourceFactory" />
+    <context:property-placeholder location="classpath:biz/c24/io/spring/integration/config/application.properties"/>
+
+    <bean id="textualSourceFactory" class="biz.c24.io.spring.source.TextualSourceFactory" />
 
 	<c24:model id="inputDocumentModel"
 		base-element="biz.c24.io.examples.models.basic.InputDocumentRootElement" />
@@ -24,7 +30,7 @@
 
 	<int-c24:unmarshalling-transformer
 		source-factory-ref="textualSourceFactory" input-channel="textInputChannel"
-		output-channel="cdoChannel" model-ref="inputDocumentModel" />
+		output-channel="cdoChannel" model-ref="inputDocumentModel" unwrap-document-root="${unmarshalling.transformer.unwrap-document-root}"/>
 
 	<int:channel id="cdoChannel">
 		<int:queue capacity="1" />

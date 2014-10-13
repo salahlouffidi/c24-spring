@@ -33,8 +33,16 @@
     		</xsd:annotation>
     		<xsd:complexContent>
     			<xsd:extension base="beans:identifiedType">
-    				<xsd:attribute name="fail-fast" type="xsd:boolean"/>
-    				<xsd:attribute name="throw-exception-on-rejection" type="xsd:boolean"/>
+    				<xsd:attribute name="fail-fast">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
+    				<xsd:attribute name="throw-exception-on-rejection">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
     			</xsd:extension>
     		</xsd:complexContent>
     	</xsd:complexType>
@@ -81,34 +89,6 @@
         </xsd:complexType>
     </xsd:element>
 
- 
- <!--
-    <xsd:element name="file-splitting-transformer">
-        <xsd:complexType>
-            <xsd:annotation>
-                <xsd:documentation>
-                    Defines an C24 IO file splitter.
-                </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexContent>
-                <xsd:extension base="inputOutputEndpoint">
-                    <xsd:attribute name="batch-size" type="xsd:int"/>
-                    <xsd:attribute name="initiator" type="xsd:string"/>
-                    <xsd:attribute name="terminator" type="xsd:string"/>
-                    <xsd:attribute name="message-processing-channel" type="xsd:string">
-                        <xsd:annotation>
-                            <xsd:appinfo>
-                                <tool:annotation kind="ref">
-                                    <tool:expected-type type="org.springframework.integration.core.MessageChannel"/>
-                                </tool:annotation>
-                            </xsd:appinfo>
-                        </xsd:annotation>
-                    </xsd:attribute>
-                </xsd:extension>
-            </xsd:complexContent>
-        </xsd:complexType>
-    </xsd:element>
--->
 
     <xsd:element name="unmarshalling-transformer">
         <xsd:complexType>
@@ -139,8 +119,11 @@
                             </xsd:appinfo>
                         </xsd:annotation>
                     </xsd:attribute>
-                    <xsd:attribute name="unwrap-document-root" type="xsd:boolean"
+                    <xsd:attribute name="unwrap-document-root"
                                    use="optional" default="true">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
                     </xsd:attribute>
                 </xsd:extension>
             </xsd:complexContent>
@@ -175,12 +158,24 @@
             </xsd:annotation>
             <xsd:complexContent>
                 <xsd:extension base="inputOutputEndpoint">
-                    <xsd:attribute name="fail-events" type="xsd:boolean"
-                                   default="true"/>
-                    <xsd:attribute name="pass-events" type="xsd:boolean"
-                                   default="false"/>
-                    <xsd:attribute name="statistics" type="xsd:boolean"
-                                   default="false"/>
+                    <xsd:attribute name="fail-events"
+                                   default="true">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
+                    <xsd:attribute name="pass-events"
+                                   default="false">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
+                    <xsd:attribute name="statistics"
+                                   default="false">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
                 </xsd:extension>
             </xsd:complexContent>
         </xsd:complexType>

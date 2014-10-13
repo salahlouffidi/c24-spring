@@ -22,7 +22,7 @@
             Spring Batch support.
         </xsd:documentation>
     </xsd:annotation>
-    
+
     <xsd:complexType name="ItemReader">
         <xsd:annotation>
             <xsd:documentation>
@@ -40,9 +40,17 @@
                                 </xsd:documentation>
                             </xsd:annotation>
                             <xsd:attribute name="resource" type="xsd:string"/>
-                            <xsd:attribute name="skip-lines" type="xsd:integer"/>
+                            <xsd:attribute name="skip-lines">
+                                <xsd:simpleType>
+                                    <xsd:union memberTypes="xsd:integer xsd:string" />
+                                </xsd:simpleType>
+                            </xsd:attribute>
                             <xsd:attribute name="encoding" type="xsd:string"/>
-                            <xsd:attribute name="consistent-line-terminators" type="xsd:boolean"/>
+                            <xsd:attribute name="consistent-line-terminators">
+                                <xsd:simpleType>
+                                    <xsd:union memberTypes="xsd:boolean xsd:string" />
+                                </xsd:simpleType>
+                            </xsd:attribute>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="zip-file-source" maxOccurs="1" minOccurs="0">
@@ -53,11 +61,19 @@
                                 </xsd:documentation>
                             </xsd:annotation>
                             <xsd:attribute name="resource" type="xsd:string"/>
-                            <xsd:attribute name="skip-lines" type="xsd:integer"/>
+                            <xsd:attribute name="skip-lines">
+                                <xsd:simpleType>
+                                    <xsd:union memberTypes="xsd:integer xsd:string" />
+                                </xsd:simpleType>
+                            </xsd:attribute>
                             <xsd:attribute name="encoding" type="xsd:string"/>
-                            <xsd:attribute name="consistent-line-terminators" type="xsd:boolean"/>
+                            <xsd:attribute name="consistent-line-terminators">
+                                <xsd:simpleType>
+                                    <xsd:union memberTypes="xsd:boolean xsd:string" />
+                                </xsd:simpleType>
+                            </xsd:attribute>
                         </xsd:complexType>
-                    </xsd:element> 
+                    </xsd:element>
                 </xsd:choice>
                 <xsd:attribute name="source-ref" type="xsd:string">
                     <xsd:annotation>
@@ -88,7 +104,11 @@
                         </xsd:appinfo>
                     </xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="validate" type="xsd:boolean"/>
+                <xsd:attribute name="validate">
+                    <xsd:simpleType>
+                        <xsd:union memberTypes="xsd:boolean xsd:string" />
+                    </xsd:simpleType>
+                </xsd:attribute>
                 <xsd:attribute name="scope" type="xsd:string"/>
                 <xsd:attribute name="parse-listener-ref" type="xsd:string">
                     <xsd:annotation>
@@ -98,15 +118,15 @@
                             </tool:annotation>
                         </xsd:appinfo>
                     </xsd:annotation>
-                </xsd:attribute>                            
+                </xsd:attribute>
             </xsd:extension>
-          </xsd:complexContent>
+        </xsd:complexContent>
     </xsd:complexType>
-    
+
     <xsd:element name="item-reader" type="ItemReader"/>
-    
+
     <xsd:element name="xml-item-reader" type="ItemReader"/>
-	
+
     <xsd:element name="batch-item-reader">
         <xsd:complexType>
             <xsd:annotation>
@@ -134,55 +154,63 @@
                             </xsd:appinfo>
                         </xsd:annotation>
                     </xsd:attribute>
-                    <xsd:attribute name="validate" type="xsd:boolean"/>
+                    <xsd:attribute name="validate">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
                     <xsd:attribute name="scope" type="xsd:string"/>
                 </xsd:extension>
-              </xsd:complexContent>
+            </xsd:complexContent>
         </xsd:complexType>
     </xsd:element>
-	
-	<xsd:element name="transform-item-processor">
-    	<xsd:complexType>
-    		<xsd:annotation>
-    			<xsd:documentation>
-    				Defines a C24 IO ItemProcessor which uses an IO transform to convert a CDO from one model to another.
-    			</xsd:documentation>
-    		</xsd:annotation>
-    		<xsd:complexContent>
-    			<xsd:extension base="beans:identifiedType">
-    				<xsd:attribute name="transform-ref" type="xsd:string" use="required">
-    					<xsd:annotation>
-    						<xsd:appinfo>
-    							<tool:annotation kind="ref">
-    								<tool:expected-type type="biz.c24.io.api.transform.Transform"/>
-    							</tool:annotation>
-    						</xsd:appinfo>
-    					</xsd:annotation>
-  			  		</xsd:attribute>
-  			  		<xsd:attribute name="target-class" type="xsd:string">
-    					<xsd:annotation>
-    						<xsd:appinfo>
-    							<tool:annotation kind="ref">
-    								<tool:expected-type type="java.lang.Class"/>
-    							</tool:annotation>
-    						</xsd:appinfo>
-    					</xsd:annotation>
-    				</xsd:attribute>
-  			  		<xsd:attribute name="validate" type="xsd:boolean"/>
-  			  	</xsd:extension>
-  			  </xsd:complexContent>
-		</xsd:complexType>
-	</xsd:element>
-	
-	<xsd:element name="item-writer">
-    	<xsd:complexType>
-    		<xsd:annotation>
-    			<xsd:documentation>
-    				Defines a C24 IO ItemWriter.
-    			</xsd:documentation>
-    		</xsd:annotation>
-    		<xsd:complexContent>
-    			<xsd:extension base="beans:identifiedType">
+
+    <xsd:element name="transform-item-processor">
+        <xsd:complexType>
+            <xsd:annotation>
+                <xsd:documentation>
+                    Defines a C24 IO ItemProcessor which uses an IO transform to convert a CDO from one model to another.
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:attribute name="transform-ref" type="xsd:string" use="required">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="biz.c24.io.api.transform.Transform"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="target-class" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="java.lang.Class"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="validate">
+                        <xsd:simpleType>
+                            <xsd:union memberTypes="xsd:boolean xsd:string" />
+                        </xsd:simpleType>
+                    </xsd:attribute>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="item-writer">
+        <xsd:complexType>
+            <xsd:annotation>
+                <xsd:documentation>
+                    Defines a C24 IO ItemWriter.
+                </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
                     <xsd:choice>
                         <xsd:element name="file-writer" maxOccurs="1" minOccurs="0">
                             <xsd:complexType>
@@ -205,29 +233,29 @@
                                 <xsd:attribute name="resource" type="xsd:string"/>
                                 <xsd:attribute name="encoding" type="xsd:string"/>
                             </xsd:complexType>
-                        </xsd:element> 
+                        </xsd:element>
                     </xsd:choice>
-    				<xsd:attribute name="sink-ref" type="xsd:string" use="required">
-    					<xsd:annotation>
-    						<xsd:appinfo>
-    							<tool:annotation kind="ref">
-    								<tool:expected-type type="biz.c24.io.api.presentation.Sink"/>
-    							</tool:annotation>
-    						</xsd:appinfo>
-    					</xsd:annotation>
-    				</xsd:attribute>
-    				<xsd:attribute name="writer-source-ref" type="xsd:string">
-    					<xsd:annotation>
-    						<xsd:appinfo>
-    							<tool:annotation kind="ref">
-    								<tool:expected-type type="biz.c24.io.spring.batch.writer.source.WriterSource"/>
-    							</tool:annotation>
-    						</xsd:appinfo>
-    					</xsd:annotation>
-    				</xsd:attribute>
-  			  		<xsd:attribute name="scope" type="xsd:string"/>
-  			  	</xsd:extension>
-  			  </xsd:complexContent>
-		</xsd:complexType>
-	</xsd:element>
+                    <xsd:attribute name="sink-ref" type="xsd:string" use="required">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="biz.c24.io.api.presentation.Sink"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="writer-source-ref" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:appinfo>
+                                <tool:annotation kind="ref">
+                                    <tool:expected-type type="biz.c24.io.spring.batch.writer.source.WriterSource"/>
+                                </tool:annotation>
+                            </xsd:appinfo>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                    <xsd:attribute name="scope" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
 </xsd:schema>

@@ -3,16 +3,24 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:bat-c24="http://schema.c24.biz/spring-batch"
        xmlns:c24="http://schema.c24.biz/spring-core"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="
 		http://schema.c24.biz/spring-core	http://schema.c24.biz/spring-core.xsd
 		http://schema.c24.biz/spring-batch	http://schema.c24.biz/spring-batch.xsd
-		http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/beans	http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+
+    <!-- Load prop files -->
+    <context:property-placeholder location="classpath:biz/c24/io/spring/batch/config/application.properties"/>
 
 	<!-- File sources used to read files from disk -->
 	<bean id="fileSource" class="biz.c24.io.spring.batch.reader.source.FileSource">
 		<property name="skipLines" value="1"/>
 	</bean>
+    <bean id="spelFileSource" class="biz.c24.io.spring.batch.reader.source.FileSource">
+        <property name="skipLines" value="${reader.skipLines}"/>
+    </bean>
 	<bean id="zipFileSource" class="biz.c24.io.spring.batch.reader.source.ZipFileSource" />
 
 	<!-- The type of model we're going to be parsing -->
@@ -20,12 +28,15 @@
 	
 	<!-- Source Factory -->
 	<bean id="xmlSourceFactory" class="biz.c24.io.spring.source.XmlSourceFactory"/>
+
 	
 
 	<bat-c24:item-reader id="nonSplittingNonValidatingCsvReader" model-ref="employeeModel" validate="false" source-ref="fileSource" scope="singleton"/>
 	<bat-c24:item-reader id="nonSplittingValidatingCsvReader" model-ref="employeeModel" validate="true" source-ref="fileSource" scope="singleton"/>
 	<bat-c24:item-reader id="splittingNonValidatingCsvReader" model-ref="employeeModel" validate="false" elementStartPattern=".*" source-ref="fileSource" scope="singleton"/>
 	<bat-c24:item-reader id="splittingValidatingCsvReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="fileSource" scope="singleton"/>
+    <bat-c24:item-reader id="spelValidatingCsvReader" model-ref="employeeModel" validate="${reader.validate}" elementStartPattern=".*" source-ref="spelFileSource" scope="singleton"/>
+
 
 	<bat-c24:item-reader id="nonSplittingValidatingZipReader" model-ref="employeeModel" validate="true" source-ref="zipFileSource" scope="singleton"/>
 	<bat-c24:item-reader id="splittingValidatingZipReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="zipFileSource" scope="singleton"/>
@@ -40,6 +51,14 @@
     <bat-c24:item-reader id="fileSourceResourceReader" model-ref="employeeModel" scope="singleton">
         <bat-c24:file-source resource="file://tmp/test.txt" skip-lines="5" encoding="TestEncoding"/>
     </bat-c24:item-reader>
+
+    <bat-c24:item-reader id="spelFileSourceResourceReader" model-ref="employeeModel" scope="singleton">
+        <bat-c24:file-source resource="file://tmp/test.txt" skip-lines="${reader.skipLines}" encoding="TestEncoding" consistent-line-terminators="${reader.consistentLineTerminators}"/>
+    </bat-c24:item-reader>
+
+    <bat-c24:item-reader id="spelZipFileSourceResourceReader" model-ref="employeeModel" scope="singleton">
+        <bat-c24:zip-file-source resource="file://tmp/test.txt" skip-lines="${reader.skipLines}" encoding="TestEncoding" consistent-line-terminators="${reader.consistentLineTerminators}"/>
+    </bat-c24:item-reader>
     
     <bat-c24:item-reader id="zipFileSourceReader" model-ref="employeeModel" scope="singleton">
         <bat-c24:zip-file-source consistent-line-terminators="false" />
@@ -48,4 +67,10 @@
     <bat-c24:item-reader id="zipFileSourceResourceReader" model-ref="employeeModel" scope="singleton">
         <bat-c24:zip-file-source resource="file://tmp/test.txt" skip-lines="4" encoding="TestEncoding"/>
     </bat-c24:item-reader>
+
+    <bat-c24:batch-item-reader id="batchItemSourceReader" source-ref="fileSource" model-ref="employeeModel" validate="false" scope="singleton"/>
+
+    <bat-c24:batch-item-reader id="spelBatchItemSourceReader" source-ref="fileSource" model-ref="employeeModel" validate="${batch.reader.validate}" scope="singleton"/>
+
+
 </beans>

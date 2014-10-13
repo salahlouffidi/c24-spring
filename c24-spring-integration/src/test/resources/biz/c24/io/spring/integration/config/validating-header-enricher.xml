@@ -4,18 +4,25 @@
        xmlns:int-c24="http://schema.c24.biz/spring-integration"
        xmlns:c24="http://schema.c24.biz/spring-core"
        xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:context="http://www.springframework.org/schema/context"
+
        xsi:schemaLocation="http://www.springframework.org/schema/integration
         http://www.springframework.org/schema/integration/spring-integration-2.1.xsd
 		http://schema.c24.biz/spring-core
 		http://schema.c24.biz/spring-core.xsd
 		http://schema.c24.biz/spring-integration
 		http://schema.c24.biz/spring-integration.xsd
+	    http://www.springframework.org/schema/context
+	    http://www.springframework.org/schema/context/spring-context.xsd
 		http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- ===== The flow ===== -->
 
-	<int:channel id="inputChannel" />
+    <context:property-placeholder location="classpath:biz/c24/io/spring/integration/config/application.properties"/>
+
+
+    <int:channel id="inputChannel" />
 	
 	<int-c24:validating-header-enricher input-channel="inputChannel" output-channel="outputChannel" 
 										fail-events="true" pass-events="true" statistics="false"/>
@@ -29,7 +36,7 @@
 	<!-- A routing flow -->
 	<int:channel id="routingInputChannel"/>
 	<int-c24:validating-header-enricher input-channel="routingInputChannel" output-channel="filterChannel" 
-										fail-events="true" pass-events="false" statistics="false"/>
+										fail-events="${validating.header.enricher.fail-events}" pass-events="${validating.header.enricher.pass-events}" statistics="${validating.header.enricher.statistics}"/>
 	<int:filter input-channel="filterChannel" output-channel="outputChannel"
 				expression="headers[c24_valid]" discard-channel="routeErrorChannel"/>
 	

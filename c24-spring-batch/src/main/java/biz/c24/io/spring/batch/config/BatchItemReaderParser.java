@@ -65,8 +65,7 @@ public class BatchItemReaderParser extends AbstractSingleBeanDefinitionParser {
     	// Optional
     	String validate = element.getAttribute("validate");
     	if(StringUtils.hasText(validate)) {
-    		boolean val = Boolean.parseBoolean(validate);
-    		bean.addPropertyValue("validate", val);
+    		bean.addPropertyValue("validate", validate);
     	}
     }    
 }

@@ -1,3 +1,14 @@
+C24 iO Components for Spring 2.2.3 Release Notes
+================================================
+
+Minor enhancement to allow for SpEL expressions in non-string attributes.
+
+For example:
+    <bat-c24:item-reader id="validatingReader" model-ref="employeeModel" validate="true" elementStartPattern=".*" source-ref="fileSource" scope="singleton"/>
+The validate attribute can be defined with a SpEL expression:
+    <bat-c24:item-reader id="validatingReader" model-ref="employeeModel" validate="${reader.validate}" elementStartPattern=".*" source-ref="fileSource" scope="singleton"/>
+
+
 C24 iO Components for Spring 2.2.2 Release Notes
 ================================================
 

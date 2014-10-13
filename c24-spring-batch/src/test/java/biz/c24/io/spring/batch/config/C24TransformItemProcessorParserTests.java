@@ -41,6 +41,10 @@ public class C24TransformItemProcessorParserTests {
 	@Autowired
 	@Qualifier("transformItemProcessor")
 	C24TransformItemProcessor transformItemProcessor;
+
+    @Autowired
+    @Qualifier("spelTransformItemProcessor")
+    C24TransformItemProcessor spelTransformItemProcessor;
 	
 	@Autowired
 	@Qualifier("validatingTransformItemProcessor")
@@ -73,7 +77,8 @@ public class C24TransformItemProcessorParserTests {
 		
 		validateProcessor(defaultTransformItemProcessor, false, null);
 		validateProcessor(transformItemProcessor, false, null);
-		validateProcessor(validatingTransformItemProcessor, true, null);	
+        validateProcessor(spelTransformItemProcessor, true, null);
+        validateProcessor(validatingTransformItemProcessor, true, null);
 		validateProcessor(javaSinkItemProcessor, false, MyEmail.class);	
 	}
 	
