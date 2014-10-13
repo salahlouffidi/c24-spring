@@ -1,5 +1,4 @@
 {
-	"DocumentRoot":{
 		"Employees":{
 			"Employee":[
 				{
@@ -22,5 +21,4 @@
 				}
 			]
 		}
-	}
 }
