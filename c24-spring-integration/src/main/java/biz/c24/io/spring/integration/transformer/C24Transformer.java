@@ -111,7 +111,10 @@ InitializingBean {
 		}
 
 		// Get the first vector from matrix
-		Object[] resultVector = results[0];
+		Object[] resultVector = new Object[results.length];
+        for(int i = 0; i < results.length; i++) {
+            resultVector = results[i];
+        }
 
 		if (resultVector.length == 0) {
 			// Empty matrix
