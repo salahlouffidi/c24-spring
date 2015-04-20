@@ -113,7 +113,7 @@ InitializingBean {
 		// Get the first vector from matrix
 		Object[] resultVector = new Object[results.length];
         for(int i = 0; i < results.length; i++) {
-            resultVector = results[i];
+            resultVector[i] = results[i][0];
         }
 
 		if (resultVector.length == 0) {
