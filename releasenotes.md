@@ -1,3 +1,9 @@
+C24 iO Components for Spring 3.0.5 Release Notes
+================================================
+
+Bug Fix: Transforms with multiple outputs were only returning the first output
+
+
 C24 iO Components for Spring 3.0.4 Release Notes
 ================================================
 
