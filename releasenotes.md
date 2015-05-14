@@ -1,3 +1,22 @@
+C24 iO Components for Spring 3.0.6 Release Notes
+================================================
+
+*Enhancement Added CdoSqlParameterSourceFactory for auto mapping of ComplexDataObject elements to Sql Parameters
+
+Useage:
+
+    <int-jdbc:outbound-channel-adapter data-source="dataSource"
+                                       channel="inbound-persist-message-channel"
+                                       query="Insert into Foo (Id, Name, Description) Values (:Id, :Name, :Description)"
+                                       sql-parameter-source-factory="cdoRequestSource"/>
+                                       
+    <bean id="cdoRequestSource" class="biz.c24.io.spring.integration.jdbc.CdoSqlParameterSourceFactory"/>
+    
+    It is expected that the Message payload would be a ComplexDataObject that contained Id, Name and Description elements
+    
+    See [https://github.com/C24-Technologies/c24-spring-getting-started] (C24 Getting started with Spring) for a full example
+
+
 C24 iO Components for Spring 3.0.5 Release Notes
 ================================================
 
