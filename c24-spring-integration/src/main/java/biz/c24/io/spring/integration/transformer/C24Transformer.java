@@ -16,6 +16,8 @@
 package biz.c24.io.spring.integration.transformer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -111,23 +113,27 @@ InitializingBean {
 		}
 
 		// Get the first vector from matrix
-		Object[] resultVector = new Object[results.length];
+		List resultVector = new ArrayList();
         for(int i = 0; i < results.length; i++) {
-            resultVector[i] = results[i][0];
+        	if (results[i].length > 0) {//Some outputs may be null
+				for (int j = 0; j < results[i].length; j++) {
+					resultVector.add(results[i][j]);
+				}
+	        }
         }
 
-		if (resultVector.length == 0) {
+		if (resultVector.size() == 0) {
 			// Empty matrix
 			return alwaysReturnArray ? new Object[0] : null;
 		}
 
 		// Single result, unwrap and use as new payload. Fairly common.
-		if (resultVector.length == 1 && !alwaysReturnArray) {
-			return sink(resultVector[0]);
+		if (resultVector.size() == 1 && !alwaysReturnArray) {
+			return sink(resultVector.get(0));
 		}
 
 		// Return a full array of output
-		return sink(resultVector);
+		return sink(resultVector.toArray());
 	}
 	
 	private Object sink(Object obj) throws IOException {
