@@ -55,12 +55,12 @@ public class C24MarshallerBeanDefinitionParserIntegrationTests {
 		ValueHolder constructorArgument = definition.getConstructorArgumentValues().getArgumentValue(0, null);
 		assertThat(constructorArgument, is(notNullValue()));
 		Object argument = constructorArgument.getValue();
-		assertThat(argument, is(RuntimeBeanReference.class));
+		assertThat(argument, instanceOf(RuntimeBeanReference.class));
 		assertThat(((RuntimeBeanReference) argument).getBeanName(), is(C24ModelBeanDefinitionParser.DEFAULT_BEAN_NAME));
 
 		constructorArgument = definition.getConstructorArgumentValues().getArgumentValue(1, null);
 		assertThat(constructorArgument, is(notNullValue()));
-		assertThat(constructorArgument.getValue(), is(Collection.class));
+		assertThat(constructorArgument.getValue(), instanceOf(Collection.class));
 	}
 
 	private BeanDefinition getDefinitionFromFile(String filename, String beanName) {

@@ -1,3 +1,24 @@
+C24 iO Components for Spring 3.0.8 Release Notes
+================================================
+
+Bug Fix: Update of the JsonSourceFactory to use the latest C24 version of JsonSource which addresses parsing of numeric values
+
+Enhancement: Updated following dependencies to the latest released version:
+    
+    * Spring Framework
+    * Spring Integration
+    * Spring Batch
+    * C24 Studio
+    * C24 API
+    * C24 maven plugin
+    
+
+C24 iO Components for Spring 3.0.7 Release Notes
+================================================
+
+Bug Fix: Transforms with multiple outputs were only returning the first output (corner case not fixed by release 3.0.5
+
+
 C24 iO Components for Spring 3.0.6 Release Notes
 ================================================
 

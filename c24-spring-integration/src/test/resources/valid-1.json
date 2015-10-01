@@ -5,19 +5,22 @@
 				"Salutation":"Mr",
 				"FirstName":"Andy",
 				"LastName":"Acheson",
-				"JobTitle":"Software Developer"
+				"JobTitle":"Software Developer",
+				"Salary":55000
 			},
 			{
 				"Salutation":"Mr",
 				"FirstName":"Joe",
 				"LastName":"Bloggs",
-				"JobTitle":"Security Guard"
+				"JobTitle":"Security Guard",
+				"Salary":45000
 			},
 			{
 				"Salutation":"Mr",
 				"FirstName":"Greg",
 				"LastName":"Gatsby",
-				"JobTitle":"Managing Director"
+				"JobTitle":"Managing Director",
+				"Salary":2147483648
 			}
 		]
 	}

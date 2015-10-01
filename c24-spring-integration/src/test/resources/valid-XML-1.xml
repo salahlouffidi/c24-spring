@@ -5,17 +5,20 @@
 		<FirstName>Andy</FirstName>
 		<LastName>Acheson</LastName>
 		<JobTitle>Software Developer</JobTitle>
+        <Salary>55000</Salary>
 	</Employee>
 	<Employee>
 		<Salutation>Mr</Salutation>
 		<FirstName>Joe</FirstName>
 		<LastName>Bloggs</LastName>
 		<JobTitle>Security Guard</JobTitle>
-	</Employee>
+        <Salary>45000</Salary>
+    </Employee>
 	<Employee>
 		<Salutation>Mr</Salutation>
 		<FirstName>Greg</FirstName>
 		<LastName>Gatsby</LastName>
 		<JobTitle>Managing Director</JobTitle>
-	</Employee>
+        <Salary>2147483648</Salary>
+    </Employee>
 </Employees>

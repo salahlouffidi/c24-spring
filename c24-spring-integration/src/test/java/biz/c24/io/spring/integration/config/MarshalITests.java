@@ -57,7 +57,7 @@ public class MarshalITests extends BaseIntegrationTest {
 		Message<?> message = outputChannel.receive(1);
 
 		assertThat(message, notNullValue());
-		assertThat(message.getPayload(), is(byte[].class));
+		assertThat(message.getPayload(), instanceOf(byte[].class));
 
 
 	}

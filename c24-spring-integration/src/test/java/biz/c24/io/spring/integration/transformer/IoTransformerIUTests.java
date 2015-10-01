@@ -47,7 +47,7 @@ public class IoTransformerIUTests {
 		Message<?> outputMessage = transformer.transform(message);
 
 		assertThat(outputMessage.getPayload(), notNullValue());
-		assertThat(outputMessage.getPayload(), is(OutputDocumentRoot.class));
+		assertThat(outputMessage.getPayload(), instanceOf(OutputDocumentRoot.class));
 
 
 	}
@@ -94,14 +94,14 @@ public class IoTransformerIUTests {
 		Message<?> result = transformer.transform(message);
 		
 		assertNotNull(result);
-		assertThat(result.getPayload(), is(Email.class));
+		assertThat(result.getPayload(), instanceOf(Email.class));
 
 		transformer.setTargetClass(MyEmail.class);
 		
 		result = transformer.transform(message);
 		
 		assertNotNull(result);
-		assertThat(result.getPayload(), is(MyEmail.class));
+		assertThat(result.getPayload(), instanceOf(MyEmail.class));
 		MyEmail email = (MyEmail) result.getPayload();
 		assertThat(email.getFirstNameInitial(), is("T."));
 		assertThat(email.getSurname(), is("Smith"));

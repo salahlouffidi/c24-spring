@@ -26,6 +26,7 @@ import org.springframework.messaging.Message;
 import org.springframework.integration.support.MessageBuilder;
 
 import static biz.c24.io.spring.integration.test.TestUtils.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -47,7 +48,7 @@ public class IoMarshallingTransformerIUTests {
 		Message<?> outputMessage = ioMarshallingTransformer.transform(message);
 
 		assertThat(outputMessage.getPayload(), notNullValue());
-		assertThat(outputMessage.getPayload(), is(byte[].class));
+		assertThat(outputMessage.getPayload(), instanceOf(byte[].class));
 
 		String xml = new String((byte[]) outputMessage.getPayload(), "UTF-8");
 
@@ -68,7 +69,7 @@ public class IoMarshallingTransformerIUTests {
 		Message<?> outputMessage = ioMarshallingTransformer.transform(message);
 
 		assertThat(outputMessage.getPayload(), notNullValue());
-		assertThat(outputMessage.getPayload(), is(String.class));
+		assertThat(outputMessage.getPayload(), instanceOf(String.class));
 
 		// TODO: XML equivalence match
 
@@ -113,7 +114,6 @@ public class IoMarshallingTransformerIUTests {
 
 		Message message = MessageBuilder.withPayload(loadObject()).build();
 		Message<?> outputMessage = ioMarshallingTransformer.transform(message);
-
 		String result = ((String)outputMessage.getPayload()).replaceAll("\n", "").replaceAll("\t", "");
 		String expected = loadJsonString().replaceAll("\n", "").replaceAll("\t", "");
 		assertThat(result, is(expected));

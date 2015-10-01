@@ -58,7 +58,7 @@ public class UnmarshalITests extends BaseIntegrationTest {
 		Message<?> message = cdoChannel.receive(1);
 
 		assertThat(message.getPayload(), notNullValue());
-		assertThat(message.getPayload(), is(Employees.class));
+		assertThat(message.getPayload(), instanceOf(Employees.class));
 
 	}
 

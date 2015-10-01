@@ -15,19 +15,20 @@
  */
 package biz.c24.io.spring.integration.transformer;
 
-import static biz.c24.io.spring.integration.test.TestUtils.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
-
-import java.util.List;
-
-import org.junit.Test;
-import org.springframework.messaging.Message;
-import org.springframework.integration.support.MessageBuilder;
-
 import biz.c24.io.examples.models.basic.Employee;
 import biz.c24.io.spring.integration.xpath.XPathEvaluationType;
+import org.junit.Test;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static biz.c24.io.spring.integration.test.TestUtils.loadObject;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 public class XPathTransformerIUTests {
 
 	@Test
@@ -42,8 +43,9 @@ public class XPathTransformerIUTests {
 
 		@SuppressWarnings("unchecked")
 		List<String> payload = (List<String>) outputMessage.getPayload();
-		assertThat(payload, notNullValue());
-		assertThat(payload, hasItems("Andy", "Joe", "Greg"));
+        List<String> expected = Arrays.asList("Andy", "Joe", "Greg");
+        assertThat(payload, notNullValue());
+		assertTrue(payload.containsAll(expected));
 
 	}
 
@@ -60,7 +62,7 @@ public class XPathTransformerIUTests {
 		List<Object> payload = (List<Object>) outputMessage.getPayload();
 		assertThat(payload, notNullValue());
 		for (Object o : payload) {
-			assertThat(o, is(Employee.class));
+			assertThat(o, instanceOf(Employee.class));
 		}
 	}
 

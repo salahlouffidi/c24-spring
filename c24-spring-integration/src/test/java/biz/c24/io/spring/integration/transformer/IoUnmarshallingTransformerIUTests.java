@@ -15,24 +15,24 @@
  */
 package biz.c24.io.spring.integration.transformer;
 
-import static biz.c24.io.spring.integration.test.TestUtils.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.junit.Test;
-import org.springframework.messaging.Message;
-import org.springframework.integration.support.MessageBuilder;
-
 import biz.c24.io.examples.models.basic.Employees;
 import biz.c24.io.examples.models.basic.InputDocumentRootElement;
 import biz.c24.io.spring.core.C24Model;
+import biz.c24.io.spring.source.JsonSourceFactory;
 import biz.c24.io.spring.source.TextualSourceFactory;
 import biz.c24.io.spring.source.XmlSourceFactory;
+import org.junit.Test;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+
+import static biz.c24.io.spring.integration.test.TestUtils.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IoUnmarshallingTransformerIUTests {
 
@@ -51,7 +51,7 @@ public class IoUnmarshallingTransformerIUTests {
 		Message<?> outputMessage = transformer.transform(message);
 
 		assertThat(outputMessage.getPayload(), notNullValue());
-		assertThat(outputMessage.getPayload(), is(Employees.class));
+		assertThat(outputMessage.getPayload(), instanceOf(Employees.class));
 
 		Employees employees = (Employees) outputMessage.getPayload();
 
@@ -70,7 +70,7 @@ public class IoUnmarshallingTransformerIUTests {
 		Message<?> outputMessage = transformer.transform(message);
 
 		assertThat(outputMessage.getPayload(), notNullValue());
-		assertThat(outputMessage.getPayload(), is(Employees.class));
+		assertThat(outputMessage.getPayload(), instanceOf(Employees.class));
 
 		Employees employees = (Employees) outputMessage.getPayload();
 
@@ -91,7 +91,7 @@ public class IoUnmarshallingTransformerIUTests {
         Message<?> outputMessage = transformer.transform(message);
 
       		assertThat(outputMessage.getPayload(), notNullValue());
-      		assertThat(outputMessage.getPayload(), is(Employees.class));
+      		assertThat(outputMessage.getPayload(), instanceOf(Employees.class));
 
       		Employees employees = (Employees) outputMessage.getPayload();
     }
@@ -109,7 +109,7 @@ public class IoUnmarshallingTransformerIUTests {
 		Message<?> outputMessage = transformer.transform(message);
 
 		assertThat(outputMessage.getPayload(), notNullValue());
-		assertThat(outputMessage.getPayload(), is(Employees.class));
+		assertThat(outputMessage.getPayload(), instanceOf(Employees.class));
 
 		Employees employees = (Employees) outputMessage.getPayload();
 
@@ -128,10 +128,26 @@ public class IoUnmarshallingTransformerIUTests {
 		Message<?> outputMessage = transformer.transform(message);
 
 		assertThat(outputMessage.getPayload(), notNullValue());
-		assertThat(outputMessage.getPayload(), is(Employees.class));
+		assertThat(outputMessage.getPayload(), instanceOf(Employees.class));
 
 		Employees employees = (Employees) outputMessage.getPayload();
 
 	}
+
+    @Test
+    public void canUnmarshalJsonFromString() throws Exception {
+        String jsonString = loadJsonString();
+        C24UnmarshallingTransformer transformer = new C24UnmarshallingTransformer(
+                model, new JsonSourceFactory());
+
+        Message message = MessageBuilder.withPayload(jsonString).build();
+
+        Message<?> outputMessage = transformer.transform(message);
+
+        assertThat(outputMessage.getPayload(), notNullValue());
+        assertThat(outputMessage.getPayload(), instanceOf(Employees.class));
+
+        Employees employees = (Employees) outputMessage.getPayload();
+    }
 
 }

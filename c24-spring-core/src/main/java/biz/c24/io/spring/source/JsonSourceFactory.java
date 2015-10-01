@@ -1,6 +1,6 @@
 package biz.c24.io.spring.source;
 
-import biz.c24.io.api.presentation.JsonSource;
+import biz.c24.io.api.presentation.JsonSourcev2;
 import biz.c24.io.api.presentation.Source;
 
 import java.io.InputStream;
@@ -15,26 +15,26 @@ public class JsonSourceFactory implements SourceFactory  {
 
     @Override
     public Source getSource(Reader reader) {
-        JsonSource source = new JsonSource(reader);
+        JsonSourcev2 source = new JsonSourcev2(reader);
         configure(source);
         return source;
     }
 
     @Override
     public Source getSource(InputStream stream) {
-        JsonSource source = new JsonSource(stream);
+        JsonSourcev2 source = new JsonSourcev2(stream);
         configure(source);
         return source;
     }
 
     @Override
     public Source getSource() {
-        JsonSource source = new JsonSource();
+        JsonSourcev2 source = new JsonSourcev2();
         configure(source);
         return source;
     }
 
-    final protected void configure(JsonSource source) {
+    final protected void configure(JsonSourcev2 source) {
         if(encoding != null) {
             source.setEncoding(encoding);
         }
@@ -45,7 +45,7 @@ public class JsonSourceFactory implements SourceFactory  {
      *
      * @param jsonSource
      */
-    protected void doConfigure(JsonSource jsonSource) {
+    protected void doConfigure(JsonSourcev2 jsonSource) {
 
     }
 }

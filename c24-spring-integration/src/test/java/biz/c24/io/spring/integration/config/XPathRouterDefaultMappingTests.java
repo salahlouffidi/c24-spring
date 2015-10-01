@@ -13,6 +13,7 @@ import org.springframework.messaging.PollableChannel;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -43,7 +44,7 @@ public class XPathRouterDefaultMappingTests extends BaseIntegrationTest {
         Message<?> message = andyChannel.receive(1);
 
         assertThat(message.getPayload(), notNullValue());
-        assertThat(message.getPayload(), is(Employees.class));
+        assertThat(message.getPayload(), instanceOf(Employees.class));
 
     }
 }

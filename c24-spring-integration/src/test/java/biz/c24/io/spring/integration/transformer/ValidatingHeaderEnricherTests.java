@@ -1,5 +1,6 @@
 package biz.c24.io.spring.integration.transformer;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import org.junit.Test;
 import org.springframework.messaging.Message;
@@ -21,6 +22,7 @@ public class ValidatingHeaderEnricherTests {
 		employee.setFirstName("Andy");
 		employee.setLastName("Acheson");
 		employee.setJobTitle("Software Developer");
+        employee.setSalary(BigDecimal.valueOf(55000));
 		
 		C24ValidatingHeaderEnricher enricher = new C24ValidatingHeaderEnricher();
 		enricher.setAddFailEvents(true);
@@ -51,16 +53,18 @@ public class ValidatingHeaderEnricherTests {
 		andy.setFirstName("Andy");
 		andy.setLastName("Acheson");
 		andy.setJobTitle("Software Developer");
-		
-		employees.addEmployee(andy);
+        andy.setSalary(BigDecimal.valueOf(55000));
+
+        employees.addEmployee(andy);
 		
 		Employee joe = new Employee();
 		joe.setSalutation("Mr");
 		joe.setFirstName("Joe");
 		joe.setLastName("Bloggs");
 		joe.setJobTitle("Security Guard");
-		
-		employees.addEmployee(joe);
+        joe.setSalary(BigDecimal.valueOf(45000));
+
+        employees.addEmployee(joe);
 					
 		C24ValidatingHeaderEnricher enricher = new C24ValidatingHeaderEnricher();
 		enricher.setAddFailEvents(true);
@@ -90,6 +94,7 @@ public class ValidatingHeaderEnricherTests {
 		employee.setLastName("Acheson");
 		// No job title set - should also cause a validation failure
 		//employee.setJobTitle("Software Developer");
+        employee.setSalary(BigDecimal.valueOf(55000));
 		
 		C24ValidatingHeaderEnricher enricher = new C24ValidatingHeaderEnricher();
 		enricher.setAddFailEvents(true);

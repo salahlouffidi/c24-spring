@@ -18,6 +18,7 @@ package biz.c24.io.spring.integration.config;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 
 import org.junit.Before;
@@ -77,8 +78,9 @@ public class ValidatingHeaderEnricherTests extends BaseIntegrationTest {
 		employee.setFirstName("Andy");
 		employee.setLastName("Acheson");
 		employee.setJobTitle("Software Developer");
-		
-		template.convertAndSend(employee);
+        employee.setSalary(BigDecimal.valueOf(55000));
+
+        template.convertAndSend(employee);
 		
 		@SuppressWarnings("unchecked")
 		Message<Employee> result = (Message<Employee>) outputChannel.receive(1);
@@ -106,8 +108,9 @@ public class ValidatingHeaderEnricherTests extends BaseIntegrationTest {
 		employee.setLastName("Acheson");
 		// Invalid as no job title
 		//employee.setJobTitle("Software Developer");
-		
-		template.convertAndSend(employee);
+        employee.setSalary(BigDecimal.valueOf(55000));
+
+        template.convertAndSend(employee);
 		
 		@SuppressWarnings("unchecked")
 		Message<Employee> result = (Message<Employee>) outputChannel.receive(1);
@@ -135,8 +138,9 @@ public class ValidatingHeaderEnricherTests extends BaseIntegrationTest {
 		validEmployee.setFirstName("Andy");
 		validEmployee.setLastName("Acheson");
 		validEmployee.setJobTitle("Software Developer");
-		
-		template.convertAndSend(routingInputChannel, validEmployee);
+        validEmployee.setSalary(BigDecimal.valueOf(55000));
+
+        template.convertAndSend(routingInputChannel, validEmployee);
 		
 		// Check that it showed up where we expected
 		assertThat(outputChannel.receive(1), is(not(nullValue())));
@@ -149,8 +153,9 @@ public class ValidatingHeaderEnricherTests extends BaseIntegrationTest {
 		invalidEmployee.setLastName("Acheson");
 		// Invalid - no job title
 		//invalidEmployee.setJobTitle("Software Developer");
-		
-		template.convertAndSend(routingInputChannel, invalidEmployee);
+        invalidEmployee.setSalary(BigDecimal.valueOf(55000));
+
+        template.convertAndSend(routingInputChannel, invalidEmployee);
 		
 		// Check that it showed up where we expected
 		assertThat(outputChannel.receive(1), is(nullValue()));

@@ -15,6 +15,7 @@
  */
 package biz.c24.io.spring.integration.selectors;
 
+import java.math.BigDecimal;
 import java.util.ListIterator;
 
 import org.junit.Test;
@@ -43,8 +44,9 @@ public class ValidatingMessageSelectorTests {
 		employee.setFirstName("Andy");
 		employee.setLastName("Acheson");
 		employee.setJobTitle("Software Developer");
-		
-		C24ValidatingMessageSelector selector = new C24ValidatingMessageSelector();
+        employee.setSalary(BigDecimal.valueOf(55000));
+
+        C24ValidatingMessageSelector selector = new C24ValidatingMessageSelector();
 		assertThat(selector.accept(MessageBuilder.withPayload(employee).build()), is(true));
 		
 	}
@@ -59,16 +61,18 @@ public class ValidatingMessageSelectorTests {
 		andy.setFirstName("Andy");
 		andy.setLastName("Acheson");
 		andy.setJobTitle("Software Developer");
-		
-		employees.addEmployee(andy);
+        andy.setSalary(BigDecimal.valueOf(55000));
+
+        employees.addEmployee(andy);
 		
 		Employee joe = new Employee();
 		joe.setSalutation("Mr");
 		joe.setFirstName("Joe");
 		joe.setLastName("Bloggs");
 		joe.setJobTitle("Security Guard");
-		
-		employees.addEmployee(joe);
+        joe.setSalary(BigDecimal.valueOf(55000));
+
+        employees.addEmployee(joe);
 			
 		
 		C24ValidatingMessageSelector selector = new C24ValidatingMessageSelector();
@@ -85,8 +89,9 @@ public class ValidatingMessageSelectorTests {
 		employee.setLastName("Acheson");
 		// No job title set - should also cause a validation failure
 		//employee.setJobTitle("Software Developer");
-		
-		C24ValidatingMessageSelector selector = new C24ValidatingMessageSelector();
+        employee.setSalary(BigDecimal.valueOf(55000));
+
+        C24ValidatingMessageSelector selector = new C24ValidatingMessageSelector();
 		selector.setFailFast(true);
 		selector.setThrowExceptionOnRejection(false);
 		assertThat(selector.accept(MessageBuilder.withPayload(employee).build()), is(false));
@@ -101,7 +106,7 @@ public class ValidatingMessageSelectorTests {
 			fail("Selector failed to throw an exception on invalid CDO");
 		} catch(MessageRejectedException ex) {
 			// Expected behaviour
-			assertThat(ex.getCause(), is(ValidationException.class));
+			assertThat(ex.getCause(), instanceOf(ValidationException.class));
 		}
 		
 		selector.setFailFast(false);

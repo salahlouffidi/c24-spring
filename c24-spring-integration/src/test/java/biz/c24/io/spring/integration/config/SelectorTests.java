@@ -15,6 +15,7 @@
  */
 package biz.c24.io.spring.integration.config;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -62,7 +63,7 @@ public class SelectorTests extends BaseIntegrationTest {
 		Message<?> message = rightChannel.receive(1);
 
 		assertThat(message, notNullValue());
-		assertThat(message.getPayload(), is(Employees.class));
+		assertThat(message.getPayload(), instanceOf(Employees.class));
 
 	}
 

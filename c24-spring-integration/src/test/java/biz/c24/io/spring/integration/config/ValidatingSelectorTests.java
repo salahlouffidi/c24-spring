@@ -18,6 +18,7 @@ package biz.c24.io.spring.integration.config;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
 import java.util.ListIterator;
 
 import org.junit.Before;
@@ -71,6 +72,7 @@ public class ValidatingSelectorTests extends BaseIntegrationTest {
 		employee.setFirstName("Andy");
 		employee.setLastName("Acheson");
 		employee.setJobTitle("Software Developer");
+        employee.setSalary(BigDecimal.valueOf(55000));
 		
 		template.convertAndSend(employee);
 		
@@ -94,8 +96,9 @@ public class ValidatingSelectorTests extends BaseIntegrationTest {
 		employee.setLastName("Acheson");
 		// Invalid as no job title
 		//employee.setJobTitle("Software Developer");
-		
-		template.convertAndSend(employee);
+        employee.setSalary(BigDecimal.valueOf(55000));
+
+        template.convertAndSend(employee);
 		
 		@SuppressWarnings("unchecked")
 		Message<Employee> result = (Message<Employee>) invalidChannel.receive(1);
@@ -118,13 +121,15 @@ public class ValidatingSelectorTests extends BaseIntegrationTest {
 		employee.setLastName("Acheson");
 		// Invalid as no job title
 		//employee.setJobTitle("Software Developer");
-		
-		try {
+        employee.setSalary(BigDecimal.valueOf(55000));
+
+
+        try {
 			template.convertAndSend(exceptionThrowingInputChannel, employee);
 			fail("Selector failed to throw exception on invalid message");
 		} catch(MessageHandlingException ex) {
 			// Expected behaviour
-			assertThat(ex.getCause(), is(C24AggregatedMessageValidationException.class));
+			assertThat(ex.getCause(), instanceOf(C24AggregatedMessageValidationException.class));
 			C24AggregatedMessageValidationException vEx = (C24AggregatedMessageValidationException) ex.getCause();
 			ListIterator<ValidationEvent> failures = vEx.getFailEvents();
 			int failureCount = 0;
