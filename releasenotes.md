@@ -1,3 +1,13 @@
+C24 iO Components for Spring 3.0.9 Release Notes
+================================================
+
+Enhancement: Updated following dependencies to the latest released version:
+    
+    * Spring Framework
+    * C24 Studio
+    * C24 API
+    * C24 maven plugin
+    
 C24 iO Components for Spring 3.0.8 Release Notes
 ================================================
 

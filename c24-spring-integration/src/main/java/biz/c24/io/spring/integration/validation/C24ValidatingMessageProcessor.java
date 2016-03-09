@@ -98,10 +98,20 @@ AbstractMessageProcessor<Map<String, ?>> {
 		this.addFailEvents = addFailEvents;
 	}
 
+    /**
+     *
+     * @deprecated as of 3.0.9 IO Validation Manager no longer reports on success events
+     */
+    @Deprecated
 	public boolean isAddPassEvents() {
 		return addPassEvents;
 	}
 
+    /**
+     *
+     * @deprecated as of 3.0.9 IO Validation Manager no longer reports on success events
+     */
+    @Deprecated
 	public void setAddPassEvents(boolean addPassEvents) {
 		this.addPassEvents = addPassEvents;
 	}

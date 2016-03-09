@@ -79,10 +79,7 @@ public class ValidatingHeaderEnricherTests {
 		
 		assertThat(headers.containsKey(C24Headers.FAIL_EVENTS), is(true));
 		assertThat(headers.get(C24Headers.FAIL_EVENTS, Collection.class).size(), is(0));
-		
-		assertThat(headers.containsKey(C24Headers.PASS_EVENTS), is(true));
-		assertThat(headers.get(C24Headers.PASS_EVENTS, Collection.class).size(), is(greaterThan(0)));
-		
+
 	}
 	
 	@Test
@@ -109,9 +106,6 @@ public class ValidatingHeaderEnricherTests {
 		
 		assertThat(headers.containsKey(C24Headers.FAIL_EVENTS), is(true));
 		assertThat(headers.get(C24Headers.FAIL_EVENTS, Collection.class).size(), is(2));
-		
-		assertThat(headers.containsKey(C24Headers.PASS_EVENTS), is(true));
-		assertThat(headers.get(C24Headers.PASS_EVENTS, Collection.class).size(), is(greaterThan(0)));		
 	
 	}
 	

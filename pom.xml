@@ -4,7 +4,7 @@
 
 	<groupId>biz.c24.io.spring</groupId>
 	<artifactId>c24-spring</artifactId>
-	<version>3.0.8</version>
+	<version>3.0.9</version>
 
 	<packaging>pom</packaging>
 
@@ -91,11 +91,11 @@
     </developers>
 
     <properties>
-        <spring.version>4.2.0.RELEASE</spring.version>
-		<spring.integration.version>4.2.0.RELEASE</spring.integration.version>
+        <spring.version>4.2.4.RELEASE</spring.version>
+		<spring.integration.version>4.2.4.RELEASE</spring.integration.version>
 		<slf4j.api.version>1.7.12</slf4j.api.version>
-        <c24.version>4.7.9</c24.version>
-        <c24.studio.version>4.7.7</c24.studio.version>
+        <c24.version>4.8.0</c24.version>
+        <c24.studio.version>4.8.0</c24.studio.version>
         <xerces.version>2.9.1</xerces.version>
         <coverage.skip>true</coverage.skip>
         <junit.version>4.12</junit.version>
@@ -225,6 +225,11 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.3</version>
                 <configuration>
@@ -329,6 +334,7 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>2.5</version>
                         <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
                             <attach>true</attach>
                             <encoding>UTF-8</encoding>
                             <aggregate>true</aggregate>

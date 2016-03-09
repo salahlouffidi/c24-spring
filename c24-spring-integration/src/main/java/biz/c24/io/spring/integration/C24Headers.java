@@ -32,7 +32,14 @@ public abstract class C24Headers {
 	// Header Name Constants
 
 	public static final String STATISTICS = PREFIX + "statistics";
+
+    /**
+     *
+     * @deprecated as of 3.0.9 IO Validation Manager no longer reports on success events
+     */
+    @Deprecated
 	public static final String PASS_EVENTS = PREFIX + "passEvents";
+
 	public static final String FAIL_EVENTS = PREFIX + "failEvents";
 	public static final String VALID = PREFIX + "valid";
 
